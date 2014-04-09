@@ -65,5 +65,10 @@ class DetallComanda(models.Model):
         return self.comanda.data_recollida
     def soci(self):
         return self.comanda.soci
+    def nom(self):
+        return self.comanda.soci.user.first_name
+    def cognom(self):
+        return self.comanda.soci.user.last_name
     def proveidor(self):
         return self.producte.proveidor
+        

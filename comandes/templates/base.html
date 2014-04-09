@@ -1,25 +1,37 @@
 <html>
 <head>
+    <style>
+        .missatges {
+            background-color: cyan;
+        }
+    </style>
 </head>
 
 <body>
-    <h1>Almaixera</h1>
+    <h1>Almaixera online! :)</h1>
     {% block usuari %}
         <div class="usuari">
         {% if user %}
-            Usuari: {{user}} | <a href="/accounts/logout/">sortir</a>
+            Usuari: {{user}}
+            | <a href="/accounts/logout/">sortir</a>
+            | <a href="/comandes">menu principal</a>
             <br>
         {% endif %}
         </div>
     {% endblock %}
+    <br>
     
+    {% block missatges %}
+        <div class="missatges">
+        {% if missatge %}
+            {{missatge}}
+        {% endif %}
+        </div>
+    {% endblock %}
     <br>
     
     <div class="contingut">
         {% block contingut %}
-        Benvingut a la coope de consum responsable!
-        <br>
-        Fes una <a href="fer_comanda" >comanda</a>.
         {% endblock %}
     </div>
 </body>

@@ -38,7 +38,7 @@ def index(request):
     #  - anular comanda
     #  - canviar data
     #  - fer torn caixes
-    return render(request,'base.html')
+    return render(request,'menu.html')
 
 @login_required
 def fer_comanda(request):
@@ -72,7 +72,9 @@ def fer_comanda(request):
                         comanda = comanda
                     )
                     detall.save()
-            return HttpResponse("Comanda feta per usuari="+str(user.soci))
+            # TODO: if items==0 esborrar comanda
+            return render( request, 'menu.html', {"missatge":"Comanda realitzada correctament."} )
+            #HttpResponse("Comanda feta per usuari="+str(user.soci))
     else:
         comanda_form = ComandaForm()
         #detalls_formset = formset_factory( formset=BaseFormSet, extra=10 )
@@ -83,8 +85,14 @@ def fer_comanda(request):
     return render(request,'form.html',{'comanda_form':comanda_form,'detalls_formset':detalls_formset})
     
 @login_required
-def veure_comanda(request):
-    comandes = Comanda.objects.order_by('data_recollida')
+def veure_comandes(request):
+    user = request.user
+    soci = user.soci
+    # TODO: check user
+    comandes = Comanda.objects.filter(soci=soci).order_by('data_recollida')
+    for comanda in comandes:
+        detalls = DetallComanda.objects.filter(comanda=comanda)
+        comanda.detalls = detalls
     context = {"comandes":comandes}
     return render(request,'comandes.html',context)
 

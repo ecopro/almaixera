@@ -1,13 +1,20 @@
-<h1>Almaixera</h1>
+{% extends "base.html" %}
 
-<h2>Comandes</h2>
+{% block contingut %}
+    <h2>Comandes realitzades</h2>
 
-{% if comandes %}
-    <ul>
-    {% for comanda in comandes %}
-        <li>{{comanda}}</li>
-    {% endfor %}
-    </ul>
-{% else %}
-    No hi ha comandes encara.
-{% endif %}
+    {% if comandes %}
+        <ul>
+        {% for comanda in comandes %}
+            <li>{{comanda}}</li>
+            <ul>
+                {% for detall in comanda.detalls %}
+                    <li>{{detall}}</li>
+                {% endfor %}
+            </ul>
+        {% endfor %}
+        </ul>
+    {% else %}
+        No hi ha comandes encara.
+    {% endif %}
+{% endblock %}
