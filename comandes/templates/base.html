@@ -1,0 +1,27 @@
+<html>
+<head>
+</head>
+
+<body>
+    <h1>Almaixera</h1>
+    {% block usuari %}
+        <div class="usuari">
+        {% if user %}
+            Usuari: {{user}} | <a href="/accounts/logout/">sortir</a>
+            <br>
+        {% endif %}
+        </div>
+    {% endblock %}
+    
+    <br>
+    
+    <div class="contingut">
+        {% block contingut %}
+        Benvingut a la coope de consum responsable!
+        <br>
+        Fes una <a href="fer_comanda" >comanda</a>.
+        {% endblock %}
+    </div>
+</body>
+
+</html>

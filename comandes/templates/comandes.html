@@ -1,0 +1,13 @@
+<h1>Almaixera</h1>
+
+<h2>Comandes</h2>
+
+{% if comandes %}
+    <ul>
+    {% for comanda in comandes %}
+        <li>{{comanda}}</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    No hi ha comandes encara.
+{% endif %}

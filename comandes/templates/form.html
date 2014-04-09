@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block contingut %}
+    <form method="post" id="comanda">{% csrf_token %}
+    {{ comanda_form.as_p }}
+    <input type="submit" value="Envia" />
+    {{ detalls_formset.as_p }}
+    <input type="submit" value="Envia" />
+    </form>
+{% endblock %}
