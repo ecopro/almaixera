@@ -11,13 +11,8 @@ from helpers import properes_dates_recollida
 from multiform import MultiForm
 from datetime import datetime
 
-"""class ComandaForm(ModelForm):
-    class Meta:
-        model = Comanda
-        fields = ['data_recollida']
-        widgets = {
-            'data_recollida': forms.Select( choices=properes_dates_recollida() )
-        }
+"""
+    FORMS
 """
 
 class DetallForm(ModelForm):
@@ -25,10 +20,20 @@ class DetallForm(ModelForm):
         model = DetallComanda
         fields = ['producte','quantitat']
 
-class ComandaForm(forms.Form):
-    # acotar dates disponibles (constructor?)
-    data_recollida = forms.ChoiceField( choices=properes_dates_recollida() )
+class ProperesDatesForm(forms.Form):
+    data_recollida = forms.ChoiceField( choices = properes_dates_recollida())
+    # TODO: acotar dates disponibles (constructor?)
+    #def __init__( self, user, *args, **kwargs):
+    #    super(ComandaForm,self).__init__( args, kwargs )
+    #    choices = properes_dates_recollida( user )
 
+class ComandaForm(forms.Form):
+    data_recollida = forms.DateField()
+
+
+"""
+    VIEWS
+"""
 
 @login_required
 def index(request):
@@ -38,52 +43,88 @@ def index(request):
     #  - anular comanda
     #  - canviar data
     #  - fer torn caixes
-    return render(request,'menu.html')
+    dates = ProperesDatesForm()
+    return render( request, 'menu.html', {"data_form":dates} )
+
 
 @login_required
 def fer_comanda(request):
+
+    # PROCES COMANDA
     if request.method=="POST":
         comanda_form = ComandaForm( request.POST )
         DetallsFormSet = formset_factory( DetallForm )
         detalls_formset = DetallsFormSet( request.POST )
-
         user = request.user
-        # TODO: check user
+        # TODO: check user (no cal: @login_required / no admins?)
         if comanda_form.is_valid() and detalls_formset.is_valid() and user.is_active:
             # processem comanda
-            user = request.user
             soci = user.soci
             ara = datetime.now()
             dades_comanda = comanda_form.cleaned_data
-            dades_detalls = detalls_formset.cleaned_data
+            # esborrar comanda previa si n'hi ha
+            comanda = Comanda.objects.filter( soci=request.user.soci,
+                                              data_recollida=request.POST.get("data_recollida") )
+            if comanda:
+                comanda.delete() # esborra en cascada els detalls
             # creem comanda
+            data_recollida = dades_comanda['data_recollida']
+            if type(dades_comanda['data_recollida'])==str:
+                data_recollida = datetime.strptime( dades_comanda['data_recollida'], "%Y-%m-%d" )
             comanda = Comanda(soci=soci,
                               data_creacio=ara,
-                              data_recollida=datetime.strptime( dades_comanda['data_recollida'], "%Y-%m-%d" )
-            )
+                              data_recollida=data_recollida, )
             comanda.save()
-            # detall productes
+            # guardem detall productes
             for item in detalls_formset:
                 dades = item.cleaned_data
                 if dades.get('producte') and dades.get('quantitat'):
                     detall = DetallComanda(
                         producte = dades.get('producte'),
                         quantitat = dades.get('quantitat'),
-                        comanda = comanda
-                    )
+                        comanda = comanda)
                     detall.save()
             # TODO: if items==0 esborrar comanda
+            # TODO: if 2 items repetits, unir-los
             return render( request, 'menu.html', {"missatge":"Comanda realitzada correctament."} )
-            #HttpResponse("Comanda feta per usuari="+str(user.soci))
-    else:
-        comanda_form = ComandaForm()
-        #detalls_formset = formset_factory( formset=BaseFormSet, extra=10 )
-    
-    comanda_form = ComandaForm()
-    detalls_formset = formset_factory( DetallForm, extra=10 )
-    
-    return render(request,'form.html',{'comanda_form':comanda_form,'detalls_formset':detalls_formset})
-    
+
+    # RENDER FORM
+
+    # dafalut forms
+    # TODO: no extra sino JS amb afegir prod.
+    detalls_formset = formset_factory( DetallForm, extra=30 )
+    # data a triar (choice)
+    comanda_form = ProperesDatesForm()
+    # form amb data prefixada (readonly)
+    if request.method=="GET":
+        """
+            Forms amb data prefixada (del menu anterior)
+        """
+        if request.GET.get("data_recollida"):
+            # data form (comanda)
+            comanda_form = ComandaForm( request.GET )
+            comanda_form.fields['data_recollida'].widget.attrs['readonly'] = True
+            # detalls: els traiem de la BBDD
+            comanda = Comanda.objects.filter( soci=request.user.soci,
+                                              data_recollida=request.GET.get("data_recollida")
+                                            )
+            detalls = DetallComanda.objects.filter( comanda=comanda )
+            # trasnformar objectes en diccionaris per reconstruir menu
+            detalls_dicts = []
+            for item in detalls:
+                # transformen attrs en dict
+                detall = item.__dict__
+                # arreglem IDs
+                detall['producte'] = detall['producte_id']
+                detalls_dicts.append( detall )
+            # generem form i omplim amb dades
+            DetallsFormSet = formset_factory( DetallForm, extra=30 )
+            detalls_formset = DetallsFormSet( initial=detalls_dicts )
+        # TODO: invalidar si no posem data? (anular defaults)
+
+    return render( request, 'form.html', {'form':comanda_form,'formset':detalls_formset} )
+
+
 @login_required
 def veure_comandes(request):
     user = request.user
@@ -95,6 +136,7 @@ def veure_comandes(request):
         comanda.detalls = detalls
     context = {"comandes":comandes}
     return render(request,'comandes.html',context)
+
 
 @login_required
 def caixa(request):

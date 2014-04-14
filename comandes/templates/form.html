@@ -2,9 +2,22 @@
 
 {% block contingut %}
     <form method="post" id="comanda">{% csrf_token %}
-    {{ comanda_form.as_p }}
+    {% if form %}
+        {{ form.as_p }}
+    {% endif %}
+
     <input type="submit" value="Envia" />
-    {{ detalls_formset.as_p }}
+    {% if formset %}
+        {{ formset.management_form }}
+        {% for field in formset %}
+            <div class="producte_form">
+                {{ field.errors }}
+                {{ field.label_tag }} {{ field }}
+            </div>
+        {% endfor %}
+
+    {% endif %}
+
     <input type="submit" value="Envia" />
     </form>
 {% endblock %}

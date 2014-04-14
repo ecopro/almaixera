@@ -5,7 +5,11 @@
 
 {% block branding %}
 <h1 id="site-name">{% trans 'Django administration' %} - Almàixera online! :)</h1>
-<p style="float:right;margin:1em;"><a href="{% url 'index' %}">Tornar al menú principal.</a></p>
+<div style="text-align:center;">
+    <span style="padding:2px 8px;margin:0.3em;display:inline-block;background-color:yellow;border-radius:4px">
+        <a href="{% url 'index' %}" style="color:black;">Tornar al menú principal</a>
+    </span>
+</div>
 {% endblock %}
 
 {% block nav-global %}{% endblock %}

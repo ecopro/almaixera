@@ -4,7 +4,16 @@
 Benvingut a la coope de consum responsable!
 <br>
 <ul>
-    <li><a href="fer_comanda">Fes una comanda</a></li>
+    <li><form action="fer_comanda" method="get">
+            {% if data_form %}
+                Edita la comanda:
+                {{data_form.as_p}}
+                <input type="submit" />
+            {% else %}
+                <a href="fer_comanda">Fes una comanda</a>
+            {% endif %}
+        </form>
+    </li>
     <li><a href="comandes">Veure comandes</a></li>
     <li><a href="/admin">Panell d'administració</a></li>
     

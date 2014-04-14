@@ -8,7 +8,7 @@ def properes_dates_recollida():
     dia_recollida = 1 #dimarts
     
     proper_dia = dia_recollida - avui.weekday()
-    if proper_dia<0:
+    if proper_dia<=0:
         proper_dia += 7
     
     # TODO: posar x setmanes en global_conf
