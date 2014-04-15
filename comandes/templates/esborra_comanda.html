@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block contingut %}
+<h2>Confirma esborrar comanda</h2>
+<form method="post">
+    {% csrf_token %}
+    <input type="text" name="data_recollida" value="{{data_recollida}}" disabled="true" />
+    <input type="hidden" name="confirma" value="true" /> <br>
+    <input type="submit" value="Esborra comanda" />
+</form>
+{% endblock %}

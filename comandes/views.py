@@ -76,6 +76,7 @@ def fer_comanda(request):
                               data_recollida=data_recollida, )
             comanda.save()
             # guardem detall productes
+            nprods = 0
             for item in detalls_formset:
                 dades = item.cleaned_data
                 if dades.get('producte') and dades.get('quantitat'):
@@ -84,7 +85,10 @@ def fer_comanda(request):
                         quantitat = dades.get('quantitat'),
                         comanda = comanda)
                     detall.save()
-            # TODO: if items==0 esborrar comanda
+                    nprods += 1
+            # if items==0 esborrar comanda
+            if nprods<=0:
+                comanda.delete() # detalls en cascada (inexistents)
             # TODO: if 2 items repetits, unir-los
             return render( request, 'menu.html', {"missatge":"Comanda realitzada correctament."} )
 
@@ -137,6 +141,26 @@ def veure_comandes(request):
     context = {"comandes":comandes}
     return render(request,'comandes.html',context)
 
+@login_required
+def esborra_comanda(request):
+    # TODO: esborrar nomes si estem dins dels terminis (comandes futures)
+    user = request.user
+    soci = user.soci
+    data_recollida = request.GET.get("data_recollida")
+    confirma = request.POST.get("confirma")
+    if not data_recollida:
+        data_recollida = request.POST.get("data_recollida")
+        if not data_recollida:
+            return render( request, 'menu.html', {"missatge":"ERROR: No s'ha esborrat la comanda."})
+    comanda = Comanda.objects.filter( soci=soci, data_recollida=data_recollida )
+    if comanda and confirma:
+        comanda.delete()
+        return render( request, 'menu.html', {"missatge":"Comanda esborrada correctament."} )
+    # confirma esborrat
+    return render( request, 'esborra_comanda.html',
+                   {"data_recollida":data_recollida,
+                    #"missatge":"ERROR: en comanda="+str(comanda)+" confirma="+str(confirma)
+                    })
 
 @login_required
 def caixa(request):

@@ -6,7 +6,7 @@
     {% if comandes %}
         <ul>
         {% for comanda in comandes %}
-            <li>{{comanda}}</li>
+            <li>{{comanda}} | <a href="esborra_comanda?data_recollida={{comanda.data_recollida|date:'Y-m-d'}}">Esborra comanda</a></li>
             <ul>
                 {% for detall in comanda.detalls %}
                     <li>{{detall}}</li>

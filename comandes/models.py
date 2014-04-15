@@ -52,9 +52,16 @@ class Comanda(models.Model):
     def __unicode__(self):
         return unicode(self.data_recollida)+u" - "+unicode(self.soci)
 
+
+from django.core.exceptions import ValidationError
+
+def valida_no_zero(value):
+    if value == 0:
+        raise ValidationError('aquest camp no pot ser zero')
+
 class DetallComanda(models.Model):
     producte = models.ForeignKey(Producte)
-    quantitat = models.FloatField(default=0)
+    quantitat = models.FloatField(default=0, validators=[valida_no_zero] )
     comanda = models.ForeignKey(Comanda)
     quantitat_rebuda = models.FloatField(default=0)
     preu_rebut = models.DecimalField(max_digits=5,decimal_places=2,default=0.0)

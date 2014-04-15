@@ -1,6 +1,8 @@
 - links apache
-- modificar comanda
+OK - modificar comanda
+- esborrar comanda
 - informe proveidors
 - informe caixes
 - global conf: data recollida, data tencament
 - JS afegir prod. comanda
+- 2 comandes per 1 caixa?
