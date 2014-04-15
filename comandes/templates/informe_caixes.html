@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block contingut %}
+<h2>Informe per caixes</h2>
+
+Data: {{data|date:'SHORT_DATE_FORMAT'}}<br>
+<input type="text" disabled value="{{data|date:'j F, Y'}}" />
+
+{% regroup productes by producte__nom as prod_list %}
+
+{% for prod in prod_list %}
+<h3>{{prod.grouper}}</h3>
+<p>Proveidor: {{prod.list.0.proveidor.nom}}</p>
+<table class="taula_informe" style="border:1px solid black">
+    <thead>
+        <td>Caixa</td>
+        <td>Nom</td>
+        <td>Quantitat<br>demanada</td>
+        <td>Quantitat<br>rebuda</td>
+    </thead>
+    {% for detall in prod.list %}
+    <tr>
+        <td style="text-align:center;">{{detall.comanda__soci__num_caixa}}</td>
+        <td style="text-align:center;">{{detall.comanda__soci__user__first_name}} {{detall.comanda__soci__user__last_name}}</td>
+        <td style="text-align:center;">{{detall.quantitat}}
+        {% if detall.producte__granel %}
+        kgs.
+        {% else %}
+        unitats
+        {% endif %}
+        </td>
+        <td style="text-align:center;"></td>
+    </tr>
+    {% endfor %}
+</table>
+{% endfor %}
+
+{% endblock %}

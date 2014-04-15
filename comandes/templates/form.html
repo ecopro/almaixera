@@ -6,7 +6,8 @@
         {{ form.as_p }}
     {% endif %}
 
-    <input type="submit" value="Envia" />
+    <input type="submit" value="Envia" /> <br>
+    Utiltiza <b>punts pels decimals</b> a les quantitats.
     {% if formset %}
         {{ formset.management_form }}
         {% for field in formset %}

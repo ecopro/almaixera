@@ -58,7 +58,10 @@ def fer_comanda(request):
         detalls_formset = DetallsFormSet( request.POST )
         user = request.user
         # TODO: check user (no cal: @login_required / no admins?)
-        if comanda_form.is_valid() and detalls_formset.is_valid() and user.is_active:
+        if not comanda_form.is_valid() or not detalls_formset.is_valid() or not user.is_active:
+            return render( request, 'menu.html', {"data_form":ProperesDatesForm(),
+                                        "missatge":"ERROR al processar comanda"} )
+        else:
             # processem comanda
             soci = user.soci
             ara = datetime.now()
@@ -91,7 +94,8 @@ def fer_comanda(request):
             if nprods<=0:
                 comanda.delete() # detalls en cascada (inexistents)
             # TODO: if 2 items repetits, unir-los
-            return render( request, 'menu.html', {"missatge":"Comanda realitzada correctament."} )
+            return render( request, 'menu.html', {"data_form":ProperesDatesForm(),
+                                    "missatge":"Comanda realitzada correctament."} )
 
     # RENDER FORM
 
@@ -180,11 +184,41 @@ def pagament(request):
 # TODO: super required
 @login_required
 def informe_proveidors( request ):
-    #detalls = DetallComanda.objects.filter( ).order_by( 'producte__proveidor' )
     dates = properes_dates_recollida()
-    detalls = DetallComanda.objects.filter(comanda__data_recollida=dates[0][0]).values('producte').annotate( Sum("quantitat") ).order_by('producte__proveidor')
-    return render( request, 'informe_proveidors.html', {"productes":detalls} )
+    # propera recollida
+    data = datetime.strptime(dates[0][0], "%Y-%m-%d")
+    # TODO: data a triar (get)
+    # METODE 1: subqueries
+    """proveidors = Proveidor.objects.all()
+    for prov in proveidors:
+        detalls = DetallComanda.objects.filter(
+                producte__proveidor=prov,
+                comanda__data_recollida=data )\
+                .values('producte__nom')\
+                .annotate( Sum("quantitat") )\
+                .order_by('producte__proveidor')
+        prov.detalls = detalls"""
+    ## METODE 2: 1 sola query. agrupem en el template
+    productes = DetallComanda.objects.filter(
+            comanda__data_recollida=data )\
+            .values('producte__nom','producte__proveidor__nom',
+                'producte__proveidor__email','producte__granel')\
+            .annotate( Sum("quantitat") )\
+            .order_by('producte__proveidor__nom')
+    return render( request, 'informe_proveidors.html', {"data":data,"productes":productes} )
 
 @login_required    
 def informe_caixes( request ):
-    return HttpResponse("informe_caixes")
+    dates = properes_dates_recollida()
+    # propera recollida
+    data = datetime.strptime(dates[0][0], "%Y-%m-%d")
+    # TODO: data a triar (get)
+    ## METODE 2: 1 sola query. agrupem en el template
+    productes = DetallComanda.objects.filter(
+            comanda__data_recollida=data )\
+            .values('producte__nom','producte__granel','producte__proveidor__nom',
+                'comanda__soci__num_caixa','quantitat',
+                'comanda__soci__user__first_name',
+                'comanda__soci__user__last_name')\
+            .order_by('producte__nom')
+    return render( request, 'informe_caixes.html', {"data":data,"productes":productes} )

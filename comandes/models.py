@@ -41,6 +41,8 @@ class Producte(models.Model):
     nom = models.CharField(max_length=200)
     proveidor = models.ForeignKey(Proveidor)
     preu = models.DecimalField(max_digits=5,decimal_places=2,default=0.0)
+    stock = models.BooleanField(default=False)
+    granel = models.BooleanField(default=True)
     def __unicode__(self):
         return self.nom
 
