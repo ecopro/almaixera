@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block contingut %}
+<h2>Informe per proveïdors</h2>
+
+<ul>
+{% for producte in productes %}
+    <li>{{producte.proveidor}} : {{producte.producte__nom}} | {{producte}}</li>
+{% endfor %}
+</ul>
+
+{% endblock %}

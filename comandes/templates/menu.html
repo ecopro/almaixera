@@ -3,6 +3,7 @@
 {% block contingut %}
 Benvingut a la coope de consum responsable!
 <br>
+Menú usuari:
 <ul>
     <li><form action="fer_comanda" method="get">
             {% if data_form %}
@@ -16,6 +17,19 @@ Benvingut a la coope de consum responsable!
     </li>
     <li><a href="comandes">Veure comandes</a></li>
     <li><a href="/admin">Panell d'administració</a></li>
-    
 </ul>
+
+{% if super %}
+Menú admin:
+<ul>
+    <li><a href="informe_proveidors">Informe per proveïdors</a></li>
+    <li><a href="informe_caixes">Informe per caixes</a></li>
+    <li>Informes anteriors:</li>
+    <ul>
+        <li>per proveïdors</li>
+        <li>per caixes</li>
+    </ul>
+</ul>
+{% endif %}
+
 {% endblock %}

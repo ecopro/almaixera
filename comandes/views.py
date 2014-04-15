@@ -10,6 +10,7 @@ from django.forms.formsets import formset_factory, BaseFormSet
 from helpers import properes_dates_recollida
 from multiform import MultiForm
 from datetime import datetime
+from django.db.models import Count,Sum
 
 """
     FORMS
@@ -44,7 +45,7 @@ def index(request):
     #  - canviar data
     #  - fer torn caixes
     dates = ProperesDatesForm()
-    return render( request, 'menu.html', {"data_form":dates} )
+    return render( request, 'menu.html', {"data_form":dates,"super":request.user.is_superuser} )
 
 
 @login_required
@@ -171,3 +172,19 @@ def caixa(request):
 def pagament(request):
     return HttpResponse("Pagament: ...")
 
+
+"""
+    ADMIN VIEWS
+"""
+
+# TODO: super required
+@login_required
+def informe_proveidors( request ):
+    #detalls = DetallComanda.objects.filter( ).order_by( 'producte__proveidor' )
+    dates = properes_dates_recollida()
+    detalls = DetallComanda.objects.filter(comanda__data_recollida=dates[0][0]).values('producte').annotate( Sum("quantitat") ).order_by('producte__proveidor')
+    return render( request, 'informe_proveidors.html', {"productes":detalls} )
+
+@login_required    
+def informe_caixes( request ):
+    return HttpResponse("informe_caixes")
