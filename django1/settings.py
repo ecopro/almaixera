@@ -8,8 +8,9 @@ TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
-    
 )
+
+#LOGIN_URL = '/almaixera/accounts/login/'
 
 MANAGERS = ADMINS
 

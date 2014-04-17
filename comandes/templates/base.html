@@ -1,42 +1,76 @@
 <html>
 <head>
     <style>
+        body {
+            margin: 0 auto;
+            width: 900px;
+            background-color: #bbeebb;
+        }
+        #mainwrapper {
+            padding: 1em;
+            min-height: 95%;
+        }
+        #header {
+            padding: 1em;
+            background-color: white;
+        }
+        .usuari {
+        }
+        .contingut {
+            padding: 1em;
+            background-color: white;
+            // no va?
+            min-height: inherit;
+        }
         .missatges {
             background-color: cyan;
         }
         #comanda p {
             //float:right;
         }
+        td {
+            padding: 4px 10px;
+            margin: 0px;
+            border: 1px black solid;
+        }
+        table {
+            border-spacing: 0px;
+            border-collapse: collapse;
+        }
     </style>
 </head>
 
 <body>
-    <h1>Almaixera online! :)</h1>
-    {% block usuari %}
-        <div class="usuari">
-        {% if user %}
-            Usuari: {{user}}
-            | <a href="/accounts/logout/">sortir</a>
-            | <a href="/comandes">menu principal</a>
-            <br>
-        {% endif %}
-        </div>
-    {% endblock %}
-    <br>
-    
-    {% block missatges %}
-        <div class="missatges">
-        {% if missatge %}
-            {{missatge}}
-        {% endif %}
-        </div>
-    {% endblock %}
-    <br>
+<div id="mainwrapper">
+    <div id="header">
+        <h1>Almaixera online! :)</h1>
+        {% block usuari %}
+            <div class="usuari">
+            {% if user %}
+                Usuari: {{user}}
+                | <a href="/accounts/logout/">sortir</a>
+                | <a href="/comandes">menu principal</a>
+                <br>
+            {% endif %}
+            </div>
+        {% endblock %}
+        <br>
+        
+        {% block missatges %}
+            <div class="missatges">
+            {% if missatge %}
+                {{missatge}}
+            {% endif %}
+            </div>
+        {% endblock %}
+        <br>
+    </div>
     
     <div class="contingut">
         {% block contingut %}
         {% endblock %}
     </div>
+</div><!-- mainwrapper -->
 </body>
 
 </html>

@@ -12,12 +12,13 @@ Data: {{data|date:'SHORT_DATE_FORMAT'}}<br>
 <h3>{{prod.grouper}}</h3>
 <p>Proveidor: {{prod.list.0.proveidor.nom}}</p>
 <table class="taula_informe" style="border:1px solid black">
-    <thead>
+    <thead><td colspan="4" style="background-color:gray;">{{prod.grouper}}</td></thead>
+    <tr>
         <td>Caixa</td>
         <td>Nom</td>
         <td>Quantitat<br>demanada</td>
         <td>Quantitat<br>rebuda</td>
-    </thead>
+    </tr>
     {% for detall in prod.list %}
     <tr>
         <td style="text-align:center;">{{detall.comanda__soci__num_caixa}}</td>

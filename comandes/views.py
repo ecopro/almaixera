@@ -220,5 +220,5 @@ def informe_caixes( request ):
                 'comanda__soci__num_caixa','quantitat',
                 'comanda__soci__user__first_name',
                 'comanda__soci__user__last_name')\
-            .order_by('producte__nom')
+            .order_by('producte__nom','comanda__soci__num_caixa')
     return render( request, 'informe_caixes.html', {"data":data,"productes":productes} )
