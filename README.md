@@ -14,3 +14,11 @@ Run
 
 $ python manage.py runserver
 
+
+Deploy
+------
+- clone project
+- adjust permissions: folder , db.sqlite3
+- configure virtualhost apache
+- conf. apache virtualenv
+- configure static files
