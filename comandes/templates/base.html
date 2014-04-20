@@ -3,16 +3,20 @@
     <style>
         body {
             margin: 0 auto;
-            width: 900px;
+            width: 940px;
             background-color: #bbeebb;
         }
         #mainwrapper {
-            padding: 1em;
+            padding: 0em;
             min-height: 95%;
+            background-image: url('http://almaixera.files.wordpress.com/2013/03/cropped-capccca7alera1.png');
+            background-repeat: no-repeat;
+            background-position: top center;
         }
         #header {
             padding: 1em;
-            background-color: white;
+            padding-top: 140px; // clear header image
+            background-color: transparent;
         }
         .usuari {
         }
@@ -60,8 +64,7 @@
             {% endif %}
             </div>
         {% endblock %}
-        <br>
-        
+
         {% block missatges %}
             <div class="missatges">
             {% if missatge %}
@@ -69,7 +72,6 @@
             {% endif %}
             </div>
         {% endblock %}
-        <br>
     </div>
     
     <div class="contingut">

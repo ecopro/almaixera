@@ -1,8 +1,13 @@
-- links apache
+OK - links apache
 OK - modificar comanda
-- esborrar comanda
-- informe proveidors
-- informe caixes
-- global conf: data recollida, data tencament
+OK - esborrar comanda
+OK - informe proveidors
+OK - informe caixes
+OK - global conf: data recollida, data tencament
 - JS afegir prod. comanda
 - 2 comandes per 1 caixa?
+
+- Esborra comanda: llista de missatges
+- Navegador (no cal?)
+- select form choice per kg/peces/manats
+-

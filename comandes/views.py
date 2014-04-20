@@ -183,7 +183,14 @@ def esborra_comanda(request):
     comanda = Comanda.objects.filter( soci=soci, data_recollida=data_recollida )
     if comanda and confirma:
         comanda.delete()
-        return render( request, 'menu.html', {"missatge":"Comanda esborrada correctament."} )
+        #return render( request, 'menu.html', {"missatge":"Comanda esborrada correctament."} )
+        return render( request, 'menu.html', {
+                "missatge":"Comanda esborrada correctament.",
+                "data_form" : ProperesDatesForm,
+                "super" : request.user.is_superuser,
+                "prov_form" : InformeForm,
+                "caixes_form": InformeForm
+        } )
     # confirma esborrat
     return render( request, 'esborra_comanda.html',
                    {"data_recollida":data_recollida,

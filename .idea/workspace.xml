@@ -46,7 +46,7 @@
       <file leaf-file-name="views.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/comandes/views.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="113" column="0" selection-start="4295" selection-end="4295" vertical-scroll-proportion="0.0" vertical-offset="1058" max-vertical-offset="3735">
+            <state line="190" column="0" selection-start="7652" selection-end="7652" vertical-scroll-proportion="0.0" vertical-offset="2258" max-vertical-offset="3840">
               <folding>
                 <element signature="e#27#63#0" expanded="true" />
               </folding>
@@ -66,7 +66,7 @@
       <file leaf-file-name="esborra_comanda.html" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/comandes/templates/esborra_comanda.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="7" column="39" selection-start="256" selection-end="256" vertical-scroll-proportion="-4.375" vertical-offset="0" max-vertical-offset="240">
+            <state line="10" column="14" selection-start="353" selection-end="353" vertical-scroll-proportion="-6.25" vertical-offset="0" max-vertical-offset="240">
               <folding />
             </state>
           </provider>
@@ -75,7 +75,7 @@
       <file leaf-file-name="base.html" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/comandes/templates/base.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="43" column="14" selection-start="940" selection-end="940" vertical-scroll-proportion="-4.2916665" vertical-offset="542" max-vertical-offset="1320">
+            <state line="17" column="27" selection-start="500" selection-end="500" vertical-scroll-proportion="-10.625" vertical-offset="0" max-vertical-offset="1350">
               <folding />
             </state>
           </provider>
@@ -84,7 +84,7 @@
       <file leaf-file-name="menu.html" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/comandes/templates/menu.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="38" column="0" selection-start="1012" selection-end="1012" vertical-scroll-proportion="0.73264784" vertical-offset="0" max-vertical-offset="778">
+            <state line="3" column="0" selection-start="49" selection-end="49" vertical-scroll-proportion="0.057840616" vertical-offset="0" max-vertical-offset="778">
               <folding />
             </state>
           </provider>
@@ -102,7 +102,7 @@
       <file leaf-file-name="TODO.txt" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/TODO.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="8" column="0" selection-start="193" selection-end="193" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="210">
+            <state line="12" column="1" selection-start="312" selection-end="312" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="270">
               <folding />
             </state>
           </provider>
@@ -123,12 +123,12 @@
         <option value="$PROJECT_DIR$/comandes/urls.py" />
         <option value="$PROJECT_DIR$/comandes/templates/comandes.html" />
         <option value="$PROJECT_DIR$/comandes/templates/esborra_comanda.html" />
-        <option value="$PROJECT_DIR$/TODO.txt" />
         <option value="$PROJECT_DIR$/comandes/admin.py" />
         <option value="$PROJECT_DIR$/comandes/models.py" />
         <option value="$PROJECT_DIR$/comandes/helpers.py" />
-        <option value="$PROJECT_DIR$/comandes/templates/base.html" />
         <option value="$PROJECT_DIR$/comandes/views.py" />
+        <option value="$PROJECT_DIR$/TODO.txt" />
+        <option value="$PROJECT_DIR$/comandes/templates/base.html" />
         <option value="$PROJECT_DIR$/comandes/templates/menu.html" />
       </list>
     </option>
@@ -494,20 +494,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/comandes/templates/esborra_comanda.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="7" column="39" selection-start="256" selection-end="256" vertical-scroll-proportion="-4.375" vertical-offset="0" max-vertical-offset="240">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/TODO.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="8" column="0" selection-start="193" selection-end="193" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="210">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/comandes/admin.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="30" column="31" selection-start="1145" selection-end="1145" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="630">
@@ -531,29 +517,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/comandes/templates/form.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="14" column="34" selection-start="435" selection-end="435" vertical-scroll-proportion="-8.75" vertical-offset="0" max-vertical-offset="450">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/comandes/templates/base.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="43" column="14" selection-start="940" selection-end="940" vertical-scroll-proportion="-4.2916665" vertical-offset="542" max-vertical-offset="1320">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/comandes/views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="113" column="0" selection-start="4295" selection-end="4295" vertical-scroll-proportion="0.0" vertical-offset="1058" max-vertical-offset="3735">
-          <folding>
-            <element signature="e#27#63#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/comandes/templates/comandes.html">
       <provider selected="true" editor-type-id="text-editor">
         <state line="17" column="33" selection-start="532" selection-end="532" vertical-scroll-proportion="-10.625" vertical-offset="0" max-vertical-offset="390">
@@ -561,9 +524,46 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/comandes/templates/form.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="14" column="34" selection-start="435" selection-end="435" vertical-scroll-proportion="-8.75" vertical-offset="0" max-vertical-offset="450">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/comandes/templates/esborra_comanda.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="10" column="14" selection-start="353" selection-end="353" vertical-scroll-proportion="-6.25" vertical-offset="0" max-vertical-offset="240">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/comandes/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="190" column="0" selection-start="7652" selection-end="7652" vertical-scroll-proportion="0.0" vertical-offset="2258" max-vertical-offset="3840">
+          <folding>
+            <element signature="e#27#63#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TODO.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="12" column="1" selection-start="312" selection-end="312" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="270">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/comandes/templates/base.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="17" column="27" selection-start="500" selection-end="500" vertical-scroll-proportion="-10.625" vertical-offset="0" max-vertical-offset="1350">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/comandes/templates/menu.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="38" column="0" selection-start="1012" selection-end="1012" vertical-scroll-proportion="0.73264784" vertical-offset="0" max-vertical-offset="778">
+        <state line="3" column="0" selection-start="49" selection-end="49" vertical-scroll-proportion="0.057840616" vertical-offset="0" max-vertical-offset="778">
           <folding />
         </state>
       </provider>
