@@ -7,10 +7,10 @@ from django.contrib.auth.decorators import login_required
 from django import forms
 from django.forms import ModelForm
 from django.forms.formsets import formset_factory, BaseFormSet
-from helpers import properes_dates_recollida, dates_informe
+from helpers import properes_comandes, dates_informe, recollida_tancada
 from multiform import MultiForm
-from datetime import datetime
-from django.db.models import Count,Sum
+from datetime import datetime, date
+from django.db.models import Sum
 
 """
     FORMS
@@ -21,12 +21,12 @@ class DetallForm(ModelForm):
         model = DetallComanda
         fields = ['producte','quantitat']
 
-class ProperesDatesForm(forms.Form):
+class ProperesComandesForm(forms.Form):
     #data_recollida = forms.ChoiceField( choices = properes_dates_recollida() )
     # TODO: acotar dates disponibles
     def __init__( self, *args, **kwargs):
-        super(ProperesDatesForm,self).__init__( args, kwargs )
-        choices = properes_dates_recollida()
+        super(ProperesComandesForm,self).__init__( args, kwargs )
+        choices = properes_comandes()
         self.fields['data_recollida'] = forms.ChoiceField( choices=choices )
 
 class ComandaForm(forms.Form):
@@ -39,7 +39,7 @@ class InformeForm(forms.Form):
         super(InformeForm, self).__init__(*args, **kwargs)
         choices = dates_informe()
         # proper dia en la llista es la opcio per defecte
-        avui = datetime.today()
+        avui = date.today()
         inicial = len(choices)-1
         for i,data in reversed(list(enumerate(choices))):
             if data[0]>str(avui):
@@ -57,7 +57,7 @@ def index(request):
     # TODO: menu
     #  - fer torn caixes
     return render( request, 'menu.html', {
-            "data_form" : ProperesDatesForm,
+            "data_form" : ProperesComandesForm,
             "super" : request.user.is_superuser,
             "prov_form" : InformeForm,
             "caixes_form": InformeForm
@@ -66,6 +66,43 @@ def index(request):
 
 @login_required
 def fer_comanda(request):
+    conf = GlobalConf.objects.get()
+    dow_recollida = conf.dow_recollida
+    data_recollida = request.GET.get("data_recollida")
+    print type(data_recollida)
+    # comprovar dates comanda
+    if type(data_recollida)==str or type(data_recollida)==unicode:
+        try:
+            data_recollida = datetime.strptime( data_recollida, "%Y-%m-%d" )
+            if data_recollida.weekday()!=dow_recollida:
+                return render( request, 'menu.html', {
+                        "missatge" : "ERROR: data invalida (dow)",
+                        "data_form" : ProperesComandesForm,
+                        "super" : request.user.is_superuser,
+                        "prov_form" : InformeForm,
+                        "caixes_form": InformeForm
+                } )
+        except:
+            data_recollida = None
+    print data_recollida
+    if not (type(data_recollida)==date or type(data_recollida)==datetime):
+        return render( request, 'menu.html', {
+                "missatge" : "ERROR: data invalida o inexistent",
+                "data_form" : ProperesComandesForm,
+                "super" : request.user.is_superuser,
+                "prov_form" : InformeForm,
+                "caixes_form": InformeForm
+        } )
+    # comprovar tancament
+    if recollida_tancada(data_recollida):
+        return render( request, 'menu.html', {
+                "missatge" : "ERROR: comanda tancada",
+                "data_form" : ProperesComandesForm,
+                "super" : request.user.is_superuser,
+                "prov_form" : InformeForm,
+                "caixes_form": InformeForm
+        } )
+
 
     # PROCES COMANDA
     if request.method=="POST":
@@ -75,22 +112,26 @@ def fer_comanda(request):
         user = request.user
         # TODO: check user (no cal: @login_required / no admins?)
         if not comanda_form.is_valid() or not detalls_formset.is_valid() or not user.is_active:
-            return render( request, 'menu.html', {"data_form":ProperesDatesForm(),
-                                        "missatge":"ERROR al processar comanda"} )
+            return render( request, 'menu.html', {
+                    "missatge" : "ERROR: dades incorrectes",
+                    "data_form" : ProperesComandesForm,
+                    "super" : request.user.is_superuser,
+                    "prov_form" : InformeForm,
+                    "caixes_form": InformeForm
+            } )
         else:
             # processem comanda
             soci = user.soci
             ara = datetime.now()
             dades_comanda = comanda_form.cleaned_data
+            data_recollida = dades_comanda['data_recollida']
+
             # esborrar comanda previa si n'hi ha
             comanda = Comanda.objects.filter( soci=request.user.soci,
                                               data_recollida=request.POST.get("data_recollida") )
             if comanda:
                 comanda.delete() # esborra en cascada els detalls
             # creem comanda
-            data_recollida = dades_comanda['data_recollida']
-            if type(dades_comanda['data_recollida'])==str:
-                data_recollida = datetime.strptime( dades_comanda['data_recollida'], "%Y-%m-%d" )
             comanda = Comanda(soci=soci,
                               data_creacio=ara,
                               data_recollida=data_recollida, )
@@ -114,7 +155,7 @@ def fer_comanda(request):
             #                        "missatge":"Comanda realitzada correctament."} )
             return render( request, 'menu.html', {
                     "missatge":"Comanda realitzada correctament.",
-                    "data_form" : ProperesDatesForm,
+                    "data_form" : ProperesComandesForm,
                     "super" : request.user.is_superuser,
                     "prov_form" : InformeForm,
                     "caixes_form": InformeForm
@@ -126,7 +167,7 @@ def fer_comanda(request):
     # TODO: no extra sino JS amb afegir prod.
     detalls_formset = formset_factory( DetallForm, extra=30 )
     # data a triar (choice)
-    comanda_form = ProperesDatesForm()
+    comanda_form = ProperesComandesForm()
     # form amb data prefixada (readonly)
     if request.method=="GET":
         """
@@ -186,7 +227,7 @@ def esborra_comanda(request):
         #return render( request, 'menu.html', {"missatge":"Comanda esborrada correctament."} )
         return render( request, 'menu.html', {
                 "missatge":"Comanda esborrada correctament.",
-                "data_form" : ProperesDatesForm,
+                "data_form" : ProperesComandesForm,
                 "super" : request.user.is_superuser,
                 "prov_form" : InformeForm,
                 "caixes_form": InformeForm

@@ -7,7 +7,8 @@ OK - global conf: data recollida, data tencament
 - JS afegir prod. comanda
 - 2 comandes per 1 caixa?
 
+OK - tanca comanda (view)
+- esborra només per les obertes
 - Esborra comanda: llista de missatges
 - Navegador (no cal?)
 - select form choice per kg/peces/manats
--

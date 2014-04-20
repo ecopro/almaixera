@@ -23,6 +23,7 @@ class GlobalConf(SingletonModel):
     # dow = Day Of Week (weekday, dilluns=0, dimarts=1, etc)
     dow_recollida = models.IntegerField(default=1) # dimarts per defecte
     dow_tancament = models.IntegerField(default=4) # divendres per defecte
+    num_setmanes_previsio = models.IntegerField(default=4)
 
 
 class Soci(models.Model):

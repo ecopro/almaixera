@@ -1,28 +1,47 @@
 
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 from models import GlobalConf, Comanda
 
 
 # TODO: retornar llista de dates (generic) enlloc de tuples (pels combobox)
 
-def properes_dates_recollida():
+def recollida_tancada( data_recollida ):
     avui = date.today()
-
     conf = GlobalConf.objects.get()
-    #dia_recollida = 1 #dimarts
-    dia_recollida = conf.dow_recollida
-    
-    proper_dia = dia_recollida - avui.weekday()
-    if proper_dia<=0:
-        proper_dia += 7
-    
-    # TODO: posar x setmanes en global_conf
-    # properes 4 setmanes
+    dow_tancament = conf.dow_tancament
+    incr_tancament = dow_tancament - avui.weekday()
+    if incr_tancament<=0:
+        incr_tancament += 7
+    data_tancament = avui + timedelta(incr_tancament)
+    # si arriba data tancament passem a la seguent setmana
+    if type(data_recollida)==datetime:
+        data_recollida = data_recollida.date()
+    if data_tancament>data_recollida:
+        return True
+    return False
+
+
+def properes_comandes():
+    avui = date.today()
+    conf = GlobalConf.objects.get()
+    #dow_recollida = 1 #dimarts (p.ex)
+    dow_recollida = conf.dow_recollida
+    dow_tancament = conf.dow_tancament
+    propera_recollida = dow_recollida - avui.weekday()
+    if propera_recollida<=0:
+        propera_recollida += 7
+    proper_tancament = dow_tancament - avui.weekday()
+    if proper_tancament<=0:
+        proper_tancament += 7
+    # si arriba data tancament passem a la seguent setmana
+    if proper_tancament>propera_recollida:
+        propera_recollida += 7
+    # properes n setmanes
+    n = conf.num_setmanes_previsio
     llista = []
-    for i in range(4):
-        s = str(avui+timedelta(i*7+proper_dia))
+    for i in range(n):
+        s = str(avui+timedelta(i*7+propera_recollida))
         llista.append( (s,s) )
-    
     return tuple(llista)
 
 
@@ -32,14 +51,3 @@ def dates_informe():
 
     return [ (str(d['data_recollida']),str(d['data_recollida'])) for d in dates ]
 
-def propera_recollida():
-    avui = date.today()
-
-    conf = GlobalConf.objects.get()
-    dia_recollida = conf.dow_recollida
-
-    proper_dia = dia_recollida - avui.weekday()
-    if proper_dia<=0:
-        proper_dia += 7
-
-    return proper_dia
