@@ -48,6 +48,15 @@ class InformeForm(forms.Form):
                 break
         self.fields['data_informe'] = forms.ChoiceField( choices=choices, initial=inicial )
 
+def menu( request, missatge=None ):
+    return render( request, 'menu.html', {
+            "missatge" : missatge,
+            "data_form" : ProperesComandesForm,
+            "super" : request.user.is_superuser,
+            "prov_form" : InformeForm,
+            "caixes_form": InformeForm
+    } )
+
 """
     VIEWS
 """
@@ -56,53 +65,26 @@ class InformeForm(forms.Form):
 def index(request):
     # TODO: menu
     #  - fer torn caixes
-    return render( request, 'menu.html', {
-            "data_form" : ProperesComandesForm,
-            "super" : request.user.is_superuser,
-            "prov_form" : InformeForm,
-            "caixes_form": InformeForm
-    } )
-
+    return menu(request)
 
 @login_required
 def fer_comanda(request):
     conf = GlobalConf.objects.get()
     dow_recollida = conf.dow_recollida
     data_recollida = request.GET.get("data_recollida")
-    print type(data_recollida)
     # comprovar dates comanda
     if type(data_recollida)==str or type(data_recollida)==unicode:
         try:
             data_recollida = datetime.strptime( data_recollida, "%Y-%m-%d" )
             if data_recollida.weekday()!=dow_recollida:
-                return render( request, 'menu.html', {
-                        "missatge" : "ERROR: data invalida (dow)",
-                        "data_form" : ProperesComandesForm,
-                        "super" : request.user.is_superuser,
-                        "prov_form" : InformeForm,
-                        "caixes_form": InformeForm
-                } )
+                return menu(request,"ERROR: data invalida (dow)")
         except:
             data_recollida = None
-    print data_recollida
     if not (type(data_recollida)==date or type(data_recollida)==datetime):
-        return render( request, 'menu.html', {
-                "missatge" : "ERROR: data invalida o inexistent",
-                "data_form" : ProperesComandesForm,
-                "super" : request.user.is_superuser,
-                "prov_form" : InformeForm,
-                "caixes_form": InformeForm
-        } )
+        return menu(request,"ERROR: data invalida o inexistent")
     # comprovar tancament
     if recollida_tancada(data_recollida):
-        return render( request, 'menu.html', {
-                "missatge" : "ERROR: comanda tancada",
-                "data_form" : ProperesComandesForm,
-                "super" : request.user.is_superuser,
-                "prov_form" : InformeForm,
-                "caixes_form": InformeForm
-        } )
-
+        return menu(request,"ERROR: comanda tancada")
 
     # PROCES COMANDA
     if request.method=="POST":
@@ -112,13 +94,7 @@ def fer_comanda(request):
         user = request.user
         # TODO: check user (no cal: @login_required / no admins?)
         if not comanda_form.is_valid() or not detalls_formset.is_valid() or not user.is_active:
-            return render( request, 'menu.html', {
-                    "missatge" : "ERROR: dades incorrectes",
-                    "data_form" : ProperesComandesForm,
-                    "super" : request.user.is_superuser,
-                    "prov_form" : InformeForm,
-                    "caixes_form": InformeForm
-            } )
+            return menu(request,"ERROR: dades incorrectes")
         else:
             # processem comanda
             soci = user.soci
@@ -153,13 +129,7 @@ def fer_comanda(request):
             # TODO: if 2 items repetits, unir-los
             #return render( request, 'menu.html', {"data_form":ProperesDatesForm(),
             #                        "missatge":"Comanda realitzada correctament."} )
-            return render( request, 'menu.html', {
-                    "missatge":"Comanda realitzada correctament.",
-                    "data_form" : ProperesComandesForm,
-                    "super" : request.user.is_superuser,
-                    "prov_form" : InformeForm,
-                    "caixes_form": InformeForm
-            } )
+            return menu(request,"ERROR: comanda realitzada correctament")
 
     # RENDER FORM
 
@@ -207,12 +177,18 @@ def veure_comandes(request):
     for comanda in comandes:
         detalls = DetallComanda.objects.filter(comanda=comanda)
         comanda.detalls = detalls
-    context = {"comandes":comandes}
-    return render(request,'comandes.html',context)
+    return render( request, 'comandes.html', {"comandes":comandes} )
 
 @login_required
 def esborra_comanda(request):
-    # TODO: esborrar nomes si estem dins dels terminis (comandes futures)
+    # esborrar nomes comandes no tancades
+    data_recollida = request.GET.get("data_recollida")
+    # comprovar tancament
+    if type(data_recollida)==str or type(data_recollida)==unicode:
+        data_recollida = datetime.strptime( data_recollida, "%Y-%m-%d" )
+    if recollida_tancada(data_recollida):
+        return menu(request,"ERROR: comanda tancada")
+    # avanti!
     user = request.user
     soci = user.soci
     data_recollida = request.GET.get("data_recollida")
@@ -225,13 +201,7 @@ def esborra_comanda(request):
     if comanda and confirma:
         comanda.delete()
         #return render( request, 'menu.html', {"missatge":"Comanda esborrada correctament."} )
-        return render( request, 'menu.html', {
-                "missatge":"Comanda esborrada correctament.",
-                "data_form" : ProperesComandesForm,
-                "super" : request.user.is_superuser,
-                "prov_form" : InformeForm,
-                "caixes_form": InformeForm
-        } )
+        return menu(request,"comanda esborrada correctament")
     # confirma esborrat
     return render( request, 'esborra_comanda.html',
                    {"data_recollida":data_recollida,
