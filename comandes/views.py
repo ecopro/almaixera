@@ -179,6 +179,7 @@ def veure_comandes(request):
         comanda.detalls = detalls
     return render( request, 'comandes.html', {"comandes":comandes} )
 
+
 @login_required
 def esborra_comanda(request):
     # esborrar nomes comandes no tancades
