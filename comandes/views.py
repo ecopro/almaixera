@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django import forms
 from django.forms import ModelForm
 from django.forms.formsets import formset_factory, BaseFormSet
-from helpers import properes_dates_recollida
+from helpers import properes_dates_recollida, dates_informe
 from multiform import MultiForm
 from datetime import datetime
 from django.db.models import Count,Sum
@@ -22,15 +22,31 @@ class DetallForm(ModelForm):
         fields = ['producte','quantitat']
 
 class ProperesDatesForm(forms.Form):
-    data_recollida = forms.ChoiceField( choices = properes_dates_recollida())
-    # TODO: acotar dates disponibles (constructor?)
-    #def __init__( self, user, *args, **kwargs):
-    #    super(ComandaForm,self).__init__( args, kwargs )
-    #    choices = properes_dates_recollida( user )
+    #data_recollida = forms.ChoiceField( choices = properes_dates_recollida() )
+    # TODO: acotar dates disponibles
+    def __init__( self, *args, **kwargs):
+        super(ProperesDatesForm,self).__init__( args, kwargs )
+        choices = properes_dates_recollida()
+        self.fields['data_recollida'] = forms.ChoiceField( choices=choices )
 
 class ComandaForm(forms.Form):
     data_recollida = forms.DateField()
 
+#class InformeForm(forms.Form):
+#    data_informe = forms.ChoiceField( choices = dates_informe() )
+class InformeForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super(InformeForm, self).__init__(*args, **kwargs)
+        choices = dates_informe()
+        # proper dia en la llista es la opcio per defecte
+        avui = datetime.today()
+        inicial = len(choices)-1
+        for i,data in reversed(list(enumerate(choices))):
+            if data[0]>str(avui):
+                inicial = data[0]
+            else:
+                break
+        self.fields['data_informe'] = forms.ChoiceField( choices=choices, initial=inicial )
 
 """
     VIEWS
@@ -39,13 +55,13 @@ class ComandaForm(forms.Form):
 @login_required
 def index(request):
     # TODO: menu
-    #  - fer comanda
-    #  - modificar comanda
-    #  - anular comanda
-    #  - canviar data
     #  - fer torn caixes
-    dates = ProperesDatesForm()
-    return render( request, 'menu.html', {"data_form":dates,"super":request.user.is_superuser} )
+    return render( request, 'menu.html', {
+            "data_form" : ProperesDatesForm,
+            "super" : request.user.is_superuser,
+            "prov_form" : InformeForm,
+            "caixes_form": InformeForm
+    } )
 
 
 @login_required
@@ -94,8 +110,15 @@ def fer_comanda(request):
             if nprods<=0:
                 comanda.delete() # detalls en cascada (inexistents)
             # TODO: if 2 items repetits, unir-los
-            return render( request, 'menu.html', {"data_form":ProperesDatesForm(),
-                                    "missatge":"Comanda realitzada correctament."} )
+            #return render( request, 'menu.html', {"data_form":ProperesDatesForm(),
+            #                        "missatge":"Comanda realitzada correctament."} )
+            return render( request, 'menu.html', {
+                    "missatge":"Comanda realitzada correctament.",
+                    "data_form" : ProperesDatesForm,
+                    "super" : request.user.is_superuser,
+                    "prov_form" : InformeForm,
+                    "caixes_form": InformeForm
+            } )
 
     # RENDER FORM
 
@@ -184,10 +207,8 @@ def pagament(request):
 # TODO: super required
 @login_required
 def informe_proveidors( request ):
-    dates = properes_dates_recollida()
-    # propera recollida
-    data = datetime.strptime(dates[0][0], "%Y-%m-%d")
-    # TODO: data a triar (get)
+    # data informe
+    data = datetime.strptime( request.GET.get('data_informe'), "%Y-%m-%d" )
     # METODE 1: subqueries
     """proveidors = Proveidor.objects.all()
     for prov in proveidors:
@@ -209,10 +230,8 @@ def informe_proveidors( request ):
 
 @login_required    
 def informe_caixes( request ):
-    dates = properes_dates_recollida()
-    # propera recollida
-    data = datetime.strptime(dates[0][0], "%Y-%m-%d")
-    # TODO: data a triar (get)
+    # data informe
+    data = datetime.strptime( request.GET.get('data_informe'), "%Y-%m-%d" )
     ## METODE 2: 1 sola query. agrupem en el template
     productes = DetallComanda.objects.filter(
             comanda__data_recollida=data )\

@@ -28,6 +28,7 @@ class ComandaAdmin(admin.ModelAdmin):
         # TODO: filtrar comandes ja tancades
         return qs.filter( soci=request.user.soci )
 
+admin.site.register( GlobalConf )
 admin.site.register( Soci )
 admin.site.register( Proveidor )
 admin.site.register( Producte )

@@ -7,28 +7,35 @@ Menú usuari:
 <ul>
     <li><form action="fer_comanda" method="get">
             {% if data_form %}
-                Edita la comanda:
+                Edita la comanda:<br>
                 {{data_form.as_p}}
                 <input type="submit" />
-            {% else %}
-                <a href="fer_comanda">Fes una comanda</a>
             {% endif %}
         </form>
     </li>
     <li><a href="comandes">Veure comandes</a></li>
-    <li><a href="/admin">Panell d'administració</a></li>
 </ul>
 
 {% if super %}
 Menú admin:
 <ul>
-    <li><a href="informe_proveidors">Informe per proveïdors</a></li>
-    <li><a href="informe_caixes">Informe per caixes</a></li>
-    <li>Informes anteriors:</li>
-    <ul>
-        <li>per proveïdors</li>
-        <li>per caixes</li>
-    </ul>
+    <li><form action="informe_proveidors" method="get">
+            {% if prov_form %}
+                Informe per proveïdors<br>
+                {{prov_form.as_p}}
+                <input type="submit" />
+            {% endif %}
+        </form>
+    </li>
+    <li><form action="informe_caixes" method="get">
+            {% if caixes_form %}
+                Informe per caixes<br>
+                {{caixes_form.as_p}}
+                <input type="submit" />
+            {% endif %}
+        </form>
+    </li>
+    <li><a href="/admin">Panell d'administració</a></li>
 </ul>
 {% endif %}
 
