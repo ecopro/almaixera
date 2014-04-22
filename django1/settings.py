@@ -8,8 +8,11 @@ TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
+    ('Enricus', 'emieza@xtec.cat'),
 )
 
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_AGE = 1000
 #LOGIN_URL = '/almaixera/accounts/login/'
 
 MANAGERS = ADMINS
