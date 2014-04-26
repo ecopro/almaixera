@@ -28,10 +28,14 @@ class ComandaAdmin(admin.ModelAdmin):
         # TODO: filtrar comandes ja tancades
         return qs.filter( soci=request.user.soci )
 
+class ProducteAdmin(admin.ModelAdmin):
+    list_display = ('actiu','__unicode__','granel')
+
 admin.site.register( GlobalConf )
+admin.site.register( Cooperativa )
 admin.site.register( Soci )
 admin.site.register( Proveidor )
-admin.site.register( Producte )
+admin.site.register( Producte, ProducteAdmin )
 admin.site.register( Comanda, ComandaAdmin )
 admin.site.register( DetallComanda, DetallAdmin )
 

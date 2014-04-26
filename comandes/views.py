@@ -17,6 +17,10 @@ from django.db.models import Sum
 """
 
 class DetallForm(ModelForm):
+    def __init__(self,*args,**kwargs):
+        super(DetallForm,self).__init__(*args,**kwargs)
+        #self.fields["producte"].queryset = self.fields["producte"].queryset.exclude(actiu=False)
+        self.fields["producte"].queryset = Producte.objects.filter(actiu=True)
     class Meta:
         model = DetallComanda
         fields = ['producte','quantitat']
@@ -94,7 +98,12 @@ def fer_comanda(request):
         user = request.user
         # TODO: check user (no cal: @login_required / no admins?)
         if not comanda_form.is_valid() or not detalls_formset.is_valid() or not user.is_active:
-            return menu(request,"ERROR: dades incorrectes")
+            print comanda_form.is_valid()
+            print detalls_formset.is_valid()
+            #return menu(request,"ERROR: dades incorrectes")
+            return render( request, 'form.html', {'form':comanda_form,
+                                                  'formset':detalls_formset,
+                                                  'missatge':"ERROR: dades incorrectes"} )
         else:
             # processem comanda
             soci = user.soci
@@ -129,7 +138,7 @@ def fer_comanda(request):
             # TODO: if 2 items repetits, unir-los
             #return render( request, 'menu.html', {"data_form":ProperesDatesForm(),
             #                        "missatge":"Comanda realitzada correctament."} )
-            return menu(request,"ERROR: comanda realitzada correctament")
+            return menu(request,"Comanda realitzada correctament")
 
     # RENDER FORM
 

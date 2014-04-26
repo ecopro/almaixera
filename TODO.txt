@@ -8,7 +8,24 @@ OK - global conf: data recollida, data tencament
 - 2 comandes per 1 caixa?
 
 OK - tanca comanda (view)
-- esborra només per les obertes
+- link esborra comanda només per les obertes
 - Esborra comanda: llista de missatges
-- Navegador (no cal?)
-- select form choice per kg/peces/manats
+- Barra navegació (no cal?)
+OK- select form choice per kg/peces/manats
+- valida no zero
+OK- canvi contrasenya
+
+
+Permanent:
+OK- productes: activar/desactivar
+- form activar productes
+OK- boto submit query -> Crea o edita
+OK- Crea o edita comanda
+OK- datetime tancar comanda
+OK- caducitat admin session
+OK- proveidors: cif, adreça i cp no obligatoris
+OK- ERROR: comanda realitzada
+OK- notes text en proveidors, socis, productes, etc.
+OK- Coopes: s'han de testejar. Iguals productes i preus per tothom.
+- Coopes: activar prods per coope?
+- globalconf -> coope

@@ -5,13 +5,14 @@ Menú usuari:
 <ul>
     <li><form action="fer_comanda" method="get">
             {% if data_form %}
-                Edita la comanda:<br>
+                Crea o edita la comanda:<br>
                 {{data_form.as_p}}
-                <input type="submit" />
+                <input type="submit" value="Crea o edita"/>
             {% endif %}
         </form>
     </li>
     <li><a href="comandes">Veure comandes</a></li>
+    <li><a href="/admin/password_change/">Canvia contrasenya</a></li>
 </ul>
 
 {% if super %}
@@ -21,7 +22,7 @@ Menú admin:
             {% if prov_form %}
                 Informe per proveïdors<br>
                 {{prov_form.as_p}}
-                <input type="submit" />
+                <input type="submit" value="Crea informe" />
             {% endif %}
         </form>
     </li>
@@ -29,7 +30,7 @@ Menú admin:
             {% if caixes_form %}
                 Informe per caixes<br>
                 {{caixes_form.as_p}}
-                <input type="submit" />
+                <input type="submit" value="Crea informe" />
             {% endif %}
         </form>
     </li>

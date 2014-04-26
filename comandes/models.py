@@ -1,6 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
+from django.core.validators import MaxValueValidator, MinValueValidator
+
+dies_setmana = list(enumerate(("dilluns","dimarts","dimecres","dijous","divendres","dissabte","diumenge")))
+
+import datetime
 
 # Create your models here.
 
@@ -21,13 +26,29 @@ class SingletonModel(models.Model):
 
 class GlobalConf(SingletonModel):
     # dow = Day Of Week (weekday, dilluns=0, dimarts=1, etc)
-    dow_recollida = models.IntegerField(default=1) # dimarts per defecte
-    dow_tancament = models.IntegerField(default=4) # divendres per defecte
-    num_setmanes_previsio = models.IntegerField(default=4)
+    dow_recollida = models.IntegerField( default=1, choices=dies_setmana,
+                        validators=[MinValueValidator(0),MaxValueValidator(6)] ) # dimarts per defecte
+    dow_tancament = models.IntegerField( default=4, choices=dies_setmana,
+                        validators=[MinValueValidator(0),MaxValueValidator(6)] ) # divendres per defecte
+    hora_tancament = models.TimeField( default=datetime.time(14,0) ) # 2 del migdia
+    num_setmanes_previsio = models.IntegerField( default=4 )
 
+class Cooperativa(models.Model):
+    nom = models.CharField( max_length=200 )
+    direccio = models.CharField( max_length=200 )
+    cp = models.CharField( max_length=8 )
+    poblacio = models.CharField( max_length=200 )
+    contacte = models.CharField( max_length=200 )
+    telefon1 = models.CharField( max_length=30, blank=True )
+    telefon2 = models.CharField( max_length=30, blank=True )
+    telefon3 = models.CharField( max_length=30, blank=True )
+    notes = models.TextField( blank=True )
+    def __unicode__(self):
+        return self.nom
 
 class Soci(models.Model):
     user = models.OneToOneField(User)
+    cooperativa = models.ForeignKey(Cooperativa,blank=True,null=True,default=None)
     num_caixa = models.IntegerField(default=0)
     dni = models.CharField(max_length=10)
     direccio = models.CharField(max_length=200)
@@ -37,39 +58,46 @@ class Soci(models.Model):
     telefon1 = models.CharField(max_length=9)
     telefon2 = models.CharField(max_length=9,blank=True)
     telefon3 = models.CharField(max_length=9,blank=True)
+    notes = models.TextField(blank=True)
     def __unicode__(self):
         return self.user.username
-        
+
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
-        profile, created = Soci.objects.get_or_create(user=instance)  
+        profile, created = Soci.objects.get_or_create(user=instance)
 
-post_save.connect(create_user_profile, sender=User) 
-    
+post_save.connect(create_user_profile, sender=User)
+
 class Proveidor(models.Model):
     nom = models.CharField(max_length=200)
-    cif = models.CharField(max_length=10)
-    direccio = models.CharField(max_length=200)
-    cp = models.CharField(max_length=8)
-    poblacio = models.CharField(max_length=200)
+    cif = models.CharField(max_length=10,blank=True)
+    direccio = models.CharField(max_length=200,blank=True)
+    cp = models.CharField(max_length=8,blank=True)
+    poblacio = models.CharField(max_length=200,blank=True)
     email = models.EmailField(max_length=200,blank=True)
-    telefon1 = models.CharField(max_length=9)
-    telefon2 = models.CharField(max_length=9,blank=True)
-    telefon3 = models.CharField(max_length=9,blank=True)
+    telefon1 = models.CharField(max_length=30)
+    telefon2 = models.CharField(max_length=30,blank=True)
+    telefon3 = models.CharField(max_length=30,blank=True)
+    cooperatives = models.ManyToManyField(Cooperativa)
+    notes = models.TextField(blank=True)
     def __unicode__(self):
         return self.nom
 
 class Producte(models.Model):
     nom = models.CharField(max_length=200)
+    actiu = models.BooleanField(default=True)
     proveidor = models.ForeignKey(Proveidor)
     preu = models.DecimalField(max_digits=5,decimal_places=2,default=0.0)
     stock = models.BooleanField(default=False)
     granel = models.BooleanField(default=True)
+    notes = models.TextField(blank=True)
     def __unicode__(self):
-        return self.nom
+        if self.granel:
+            return self.nom + " [per kg]"
+        return self.nom + " [unitats/manats]"
 
 class Comanda(models.Model):
-    soci = models.ForeignKey(Soci) 
+    soci = models.ForeignKey(Soci)
     data_creacio = models.DateTimeField('data creacio')
     data_recollida = models.DateField('data recollida')
     preu_rebut = models.DecimalField(max_digits=5,decimal_places=2,default=0.0)
@@ -102,4 +130,4 @@ class DetallComanda(models.Model):
         return self.comanda.soci.user.last_name
     def proveidor(self):
         return self.producte.proveidor
-        
+
