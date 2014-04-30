@@ -29,8 +29,8 @@ class ComandaAdmin(admin.ModelAdmin):
         return qs.filter( soci=request.user.soci )
 
 class ProducteAdmin(admin.ModelAdmin):
-    list_display = ('actiu','__unicode__','granel')
-    ordering = ('nom',)
+    list_display = ('actiu','__unicode__','granel','proveidor')
+    ordering = ('proveidor','nom')
 
 admin.site.register( GlobalConf )
 admin.site.register( Cooperativa )
