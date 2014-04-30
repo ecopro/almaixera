@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
@@ -91,10 +92,12 @@ class Producte(models.Model):
     stock = models.BooleanField(default=False)
     granel = models.BooleanField(default=True)
     notes = models.TextField(blank=True)
+    # ordre de les querys
+    ordering = ('nom',)
     def __unicode__(self):
         if self.granel:
-            return self.nom + " [per kg]"
-        return self.nom + " [unitats/manats]"
+            return self.nom + " ["+ str(self.preu) + u" \u20AC/kg]"
+        return self.nom + " ["+ str(self.preu) +u" \u20AC/unitat-manat]"
 
 class Comanda(models.Model):
     soci = models.ForeignKey(Soci)

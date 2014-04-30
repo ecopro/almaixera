@@ -30,6 +30,7 @@ class ComandaAdmin(admin.ModelAdmin):
 
 class ProducteAdmin(admin.ModelAdmin):
     list_display = ('actiu','__unicode__','granel')
+    ordering = ('nom',)
 
 admin.site.register( GlobalConf )
 admin.site.register( Cooperativa )

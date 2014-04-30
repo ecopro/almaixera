@@ -24,7 +24,9 @@ Data: {{data|date:'SHORT_DATE_FORMAT'}}<br>
 {% regroup productes by producte__proveidor__nom as prov_list %}
 
 {% for prov in prov_list %}
-<h3>{{prov.grouper}} [ {{prov.list.0.producte__proveidor__email}} ]</h3>
+<h3>{{prov.grouper}}</h3>
+<p>{{prov.list.0.producte__proveidor__telefon1}} / 
+{{prov.list.0.producte__proveidor__email}}</p>
 <table class="taula_informe" style="border:1px solid black">
     <thead>
         <td>Producte</td>

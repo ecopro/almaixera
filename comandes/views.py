@@ -248,10 +248,12 @@ def informe_proveidors( request ):
                 .order_by('producte__proveidor')
         prov.detalls = detalls"""
     ## METODE 2: 1 sola query. agrupem en el template
+    # annotate: agrupa les comandes del mateix producte d'un mateix soci
     productes = DetallComanda.objects.filter(
             comanda__data_recollida=data )\
             .values('producte__nom','producte__proveidor__nom',
-                'producte__proveidor__email','producte__granel')\
+                'producte__proveidor__email','producte__granel',
+                'producte__proveidor__telefon1',)\
             .annotate( Sum("quantitat") )\
             .order_by('producte__proveidor__nom')
     return render( request, 'informe_proveidors.html', {"data":data,"productes":productes} )
@@ -261,11 +263,23 @@ def informe_caixes( request ):
     # data informe
     data = datetime.strptime( request.GET.get('data_informe'), "%Y-%m-%d" )
     ## METODE 2: 1 sola query. agrupem en el template
-    productes = DetallComanda.objects.filter(
+    detalls = DetallComanda.objects.filter(
             comanda__data_recollida=data )\
             .values('producte__nom','producte__granel','producte__proveidor__nom',
                 'comanda__soci__num_caixa','quantitat',
                 'comanda__soci__user__first_name',
                 'comanda__soci__user__last_name')\
             .order_by('producte__nom','comanda__soci__num_caixa')
-    return render( request, 'informe_caixes.html', {"data":data,"productes":productes} )
+    """# TODO: subtotals amb annotate
+    subtotals = DetallComanda.objects.filter(
+                comanda__data_recollida=data ).annotate( Sum("quantitat") )
+    print subtotals"""
+    # calculem subtotals (iterant, de moment)
+    for detall in detalls:
+        qs = detalls.filter(producte__nom=detall['producte__nom'])
+        t1 = qs.annotate(Sum('quantitat'))
+        total = 0
+        for elem in qs:
+            total += elem['quantitat']
+        detall['total'] = total
+    return render( request, 'informe_caixes.html', {"data":data,"productes":detalls} )
