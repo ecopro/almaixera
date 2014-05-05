@@ -6,7 +6,10 @@
         {{ form.as_p }}
     {% endif %}
 
+    <b style="background-color:yellow;">{{form.cleaned_data.data_recollida}}</b>
+    
     <input type="submit" value="Envia" /> <br>
+    
     <p style="display:block;text-align:center;">Utiltiza <b>punts pels decimals</b> a les quantitats.</p>
     {% if formset %}
         {{ formset.management_form }}

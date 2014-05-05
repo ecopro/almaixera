@@ -156,7 +156,9 @@ def fer_comanda(request):
         if request.GET.get("data_recollida"):
             # data form (comanda)
             comanda_form = ComandaForm( request.GET )
+            # camp de data amagat (form en format compacte, display llegible)
             comanda_form.fields['data_recollida'].widget.attrs['readonly'] = True
+            comanda_form.fields['data_recollida'].widget.attrs['hidden'] = True
             # detalls: els traiem de la BBDD
             comanda = Comanda.objects.filter( soci=request.user.soci,
                                               data_recollida=request.GET.get("data_recollida")
