@@ -28,9 +28,20 @@ class ComandaAdmin(admin.ModelAdmin):
         # TODO: filtrar comandes ja tancades
         return qs.filter( soci=request.user.soci )
 
+
+def activa(modeladmin, request, queryset):
+    queryset.update(actiu=True)
+activa.short_description = "Activa els productes"
+
+def desactiva(modeladmin, request, queryset):
+    queryset.update(actiu=False)
+desactiva.short_description = "Desctiva els productes"
+
 class ProducteAdmin(admin.ModelAdmin):
     list_display = ('actiu','__unicode__','granel','proveidor')
     ordering = ('proveidor','nom')
+    actions = [ activa , desactiva ]
+
 
 admin.site.register( GlobalConf )
 admin.site.register( Cooperativa )
