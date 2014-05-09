@@ -48,13 +48,13 @@ class Cooperativa(models.Model):
         return self.nom
 
 class Soci(models.Model):
-    user = models.OneToOneField(User)
-    cooperativa = models.ForeignKey(Cooperativa,blank=True,null=True,default=None)
-    num_caixa = models.IntegerField(default=0)
-    dni = models.CharField(max_length=10)
-    direccio = models.CharField(max_length=200)
-    cp = models.CharField(max_length=8)
-    poblacio = models.CharField(max_length=200)
+    user = models.OneToOneField( User )
+    cooperativa = models.ForeignKey( Cooperativa, blank=True, null=True, default=None)
+    num_caixa = models.IntegerField( default=0, help_text="Ull, ha de concordar amb el login username." )
+    dni = models.CharField( max_length=10 )
+    direccio = models.CharField( max_length=200 )
+    cp = models.CharField( max_length=8 )
+    poblacio = models.CharField( max_length=200 )
     # User ja te email
     telefon1 = models.CharField(max_length=9)
     telefon2 = models.CharField(max_length=9,blank=True)
