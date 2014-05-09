@@ -185,10 +185,11 @@ def veure_comandes(request):
     user = request.user
     soci = user.soci
     # TODO: check user
-    comandes = Comanda.objects.filter(soci=soci).order_by('data_recollida')
+    comandes = Comanda.objects.filter(soci=soci).order_by('-data_recollida')
     for comanda in comandes:
         detalls = DetallComanda.objects.filter(comanda=comanda)
         comanda.detalls = detalls
+        comanda.tancada = recollida_tancada( comanda.data_recollida )
     return render( request, 'comandes.html', {"comandes":comandes} )
 
 

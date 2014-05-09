@@ -6,7 +6,11 @@
     {% if comandes %}
         <ul>
         {% for comanda in comandes %}
-            <li>{{comanda}} | <a href="esborra_comanda?data_recollida={{comanda.data_recollida|date:'Y-m-d'}}">Esborra comanda</a></li>
+            <li>{{comanda}}
+            {% if not comanda.tancada %}
+                | <a href="esborra_comanda?data_recollida={{comanda.data_recollida|date:'Y-m-d'}}">Esborra comanda</a>
+            {% endif %}
+            </li>
             <ul>
                 {% for detall in comanda.detalls %}
                     <li>{{detall}}</li>

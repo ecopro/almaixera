@@ -32,12 +32,12 @@
         #comanda p {
             //float:right;
         }
-        td {
+        table.taula_informe td {
             padding: 4px 10px;
             margin: 0px;
             border: 1px black solid;
         }
-        table {
+        table.taula_informe {
             border-spacing: 0px;
             border-collapse: collapse;
         }
@@ -59,10 +59,11 @@
         <h1>Almaixera online! :)</h1>
         {% block usuari %}
             <div class="usuari">
-            {% if user %}
+            {% if user and user.username %}
                 Usuari: {{user}}
                 | <a href="/accounts/logout/">sortir</a>
                 | <a href="/comandes">menu principal</a>
+                | <a href="/admin">ajustaments</a>
                 <br>
             {% endif %}
             </div>
