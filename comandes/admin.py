@@ -59,8 +59,6 @@ class SociForm(forms.ModelForm):
         model = Soci
     def __init__(self, *args, **kwargs):
         super(SociForm, self).__init__(*args, **kwargs)
-        # TODO: disable num_caixa si no es admin
-        #self.fields['num_caixa'].widget.attrs['disabled'] = True
         # load data from user
         if 'instance' in kwargs.keys():
             soci = kwargs['instance']
@@ -76,8 +74,10 @@ class SociAdmin(admin.ModelAdmin):
         # Exclude changes from num_caixa if not admin
         self.exclude = []
         if not request.user.is_superuser:
-            self.exclude.append('num_caixa')
-            # aixi no va, dona error com camp a completar
+            pass
+            # de moment deshabilitat TODO: habilitar
+            #self.exclude.append('num_caixa')
+            # el de aqui a baix no va, dona error com camp a completar
             #soci_form = super(SociAdmin, self).get_form(request, obj, **kwargs)
             #soci_form.base_fields['num_caixa'].widget.attrs['disabled'] = True
         soci_form = super(SociAdmin, self).get_form(request, obj, **kwargs)
