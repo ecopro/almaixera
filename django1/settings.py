@@ -167,3 +167,12 @@ LOGGING = {
         },
     }
 }
+
+# EMAIL SETTINGS
+import email_settings
+
+EMAIL_HOST = email_settings.EMAIL_HOST
+EMAIL_HOST_USER = email_settings.EMAIL_HOST_USER
+EMAIL_HOST_PASSWORD = email_settings.EMAIL_HOST_PASSWORD
+EMAIL_PORT = email_settings.EMAIL_PORT
+EMAIL_USE_TLS = email_settings.EMAIL_USE_TLS

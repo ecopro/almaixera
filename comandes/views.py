@@ -287,3 +287,15 @@ def informe_caixes( request ):
             total += elem['quantitat']
         detall['total'] = total
     return render( request, 'informe_caixes.html', {"data":data,"productes":detalls} )
+
+
+def test_email( request ):
+    from django.core.mail import EmailMessage
+    email = EmailMessage('Hello', 'World', to=['emieza@xtec.cat'])
+    email.send()
+    return HttpResponse( "Enviant email" )
+    
+    
+    
+    
+    

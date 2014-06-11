@@ -11,5 +11,6 @@ urlpatterns = patterns('',
     url(r'^pagament', views.pagament, name='pagament'),
     url(r'^informe_proveidors', views.informe_proveidors, name='informe_proveidors'),
     url(r'^informe_caixes', views.informe_caixes, name='informe_caixes'),
+    url(r'^test_email', views.test_email, name="test_email"),
 )
 
