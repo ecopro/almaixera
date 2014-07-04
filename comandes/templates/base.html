@@ -1,9 +1,17 @@
 <html>
 <head>
     <style>
+/*	@media(min-width: 600px) {
+		body {
+			width: 940px;
+		}
+		#mainwrapper {
+	            background-image: url('http://almaixera.files.wordpress.com/2013/03/cropped-capccca7alera1.png');
+		}
+	}*/
         body {
             margin: 0 auto;
-            width: 940px;
+            max-width: 940px;
             background-color: #bbeebb;
         }
         #mainwrapper {
@@ -50,6 +58,29 @@
         form ul.errorlist {
             display: none;
         }
+
+	/* iphone */
+	@media (max-device-width: 650px) , (max-width: 650px) {
+		body {
+			//background-color: yellow;
+			//font-size: 14px;
+		}
+		#mainwrapper {
+	            background-image: none;//url('http://almaixera.files.wordpress.com/2013/03/cropped-capccca7alera1.png');
+		}
+		#header {
+	            padding-top: 0; // clear header image
+		}
+	}
+	@media (-webkit-min-device-pixel-ratio: 1.5) {
+		body {
+			//background-color: green;
+			font-size: 30px;
+		}
+		table , input , select {
+			font-size: 30px;
+		}
+	}
     </style>
 </head>
 
