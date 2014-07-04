@@ -6,20 +6,10 @@ from models import GlobalConf, Comanda
 # TODO: retornar llista de dates (generic) enlloc de tuples (pels combobox)
 
 def recollida_tancada( data_recollida ):
-    ara = datetime.now()
-    conf = GlobalConf.objects.get()
-    dow_tancament = conf.dow_tancament
-    incr_tancament = dow_tancament - ara.weekday()
-    if incr_tancament<=0:
-        incr_tancament += 7
-    data_tancament = ara + timedelta(incr_tancament)
-    # si arriba data tancament passem a la seguent setmana
-    if type(data_recollida) == date:
-        data_recollida = datetime.combine( data_recollida, datetime.min.time() )
-    if data_tancament > data_recollida:
-        return True
-    return False
-
+    recollides = [str(r[0]) for r in properes_comandes()]
+    if str(data_recollida)[:10] in recollides:
+        return False
+    return True
 
 def properes_comandes():
     ara = datetime.now()
