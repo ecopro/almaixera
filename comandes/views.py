@@ -288,14 +288,12 @@ def informe_caixes( request ):
         detall['total'] = total
     return render( request, 'informe_caixes.html', {"data":data,"productes":detalls} )
 
-
+#http://stackoverflow.com/questions/10567845/how-to-use-the-built-in-password-reset-view-in-django
+@login_required
 def test_email( request ):
     from django.core.mail import EmailMessage
     email = EmailMessage('Hello', 'World', to=['emieza@xtec.cat'])
     email.send()
     return HttpResponse( "Enviant email" )
-    
-    
-    
     
     
