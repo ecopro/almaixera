@@ -110,7 +110,13 @@ class UserAdmin(admin.ModelAdmin):
 admin.site.unregister( User )
 admin.site.register( User, UserAdmin )"""
 
+class AvisAdmin(admin.ModelAdmin):
+    list_display = ('titol','data','cooperativa')
+    ordering = ('data',)
+
+
 admin.site.register( GlobalConf )
+admin.site.register( Avis, AvisAdmin )
 admin.site.register( Cooperativa )
 admin.site.register( Soci, SociAdmin )
 admin.site.register( Proveidor )

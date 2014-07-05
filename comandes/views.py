@@ -176,8 +176,9 @@ def fer_comanda(request):
             DetallsFormSet = formset_factory( DetallForm, extra=30 )
             detalls_formset = DetallsFormSet( initial=detalls_dicts )
         # TODO: invalidar si no posem data? (anular defaults)
-
-    return render( request, 'form.html', {'form':comanda_form,'formset':detalls_formset} )
+    # TODO: filtrar avisos per soci/coope
+    avisos = Avis.objects.filter( data=request.GET.get("data_recollida") )
+    return render( request, 'form.html', {'form':comanda_form,'formset':detalls_formset,'avisos':avisos} )
 
 
 @login_required

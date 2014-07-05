@@ -10,8 +10,7 @@ Cal instal·lar (en un virtualenv):
 
 Ajustos:
 - copiar django1/email_settings.sample.py a django1/email_settings.py
-- afegir site amb el menu de admin
-- ajustar SITE_ID adequadament
+- modificar Site (a django admin) i posar el nou domini
 
 Run
 ---
@@ -27,4 +26,10 @@ Deploy
 - conf. apache virtualenv
 - configure static files
 - configure email_settings.py
-- configure site in admin backend and adjust SITE_ID in settings.py
+- configure Site in admin backend to the new domain
+
+Database Migrations
+-------------------
+Per migrar els canvis de la base de dades hi ha instal·lat South:
+$ python manage.py schemamigration comandes --auto
+$ python manage.py migrate comandes

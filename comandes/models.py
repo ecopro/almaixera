@@ -47,11 +47,17 @@ class Cooperativa(models.Model):
     def __unicode__(self):
         return self.nom
 
+class Avis(models.Model):
+    titol = models.CharField( max_length=200 )
+    text = models.TextField()
+    data = models.DateField()
+    cooperativa = models.ForeignKey( Cooperativa )
+
 class Soci(models.Model):
     user = models.OneToOneField( User )
     cooperativa = models.ForeignKey( Cooperativa, blank=True, null=True, default=None)
     num_caixa = models.IntegerField( default=0, help_text="Ull, ha de concordar amb el login username." )
-    dni = models.CharField( max_length=10 )
+    dni = models.CharField( max_length=10, blank=True )
     direccio = models.CharField( max_length=200 )
     cp = models.CharField( max_length=8 )
     poblacio = models.CharField( max_length=200 )
