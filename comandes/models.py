@@ -95,9 +95,13 @@ class Producte(models.Model):
     # ordre de les querys
     ordering = ('nom',)
     def __unicode__(self):
+        mostra = self.nom + " [" + str(self.preu)
         if self.granel:
-            return self.nom + " ["+ str(self.preu) + u" \u20AC/kg]"
-        return self.nom + " ["+ str(self.preu) +u" \u20AC/unitat-manat]"
+            mostra += u" \u20AC/kg]"
+        else:
+            mostra += u" \u20AC/unitat-manat]"
+        mostra += " ("+self.proveidor.nom+")"
+        return mostra
 
 class Comanda(models.Model):
     soci = models.ForeignKey(Soci)
