@@ -3,7 +3,8 @@
 {% block contingut %}
 
 {% if form.errors %}
-<p>Your username and password didn't match. Please try again.</p>
+<p>La contrasenya i nom d'usuari no encaixen. Torna-ho a intentar.</p>
+<p><small><a href="/comandes/recuperar_contrasenya">Has oblidat la contrasenya?</a></small></p>
 {% endif %}
 
 <form class="login" method="post" action="{% url 'django.contrib.auth.views.login' %}">

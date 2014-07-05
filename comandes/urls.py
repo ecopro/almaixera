@@ -22,3 +22,4 @@ urlpatterns = patterns('',
 )
 
 #http://stackoverflow.com/questions/21284672/django-password-reset-password-reset-confirm
+# change SITE_ID in settings.py
