@@ -1,14 +1,6 @@
 <html>
 <head>
     <style>
-/*	@media(min-width: 600px) {
-		body {
-			width: 940px;
-		}
-		#mainwrapper {
-	            background-image: url('http://almaixera.files.wordpress.com/2013/03/cropped-capccca7alera1.png');
-		}
-	}*/
         body {
             margin: 0 auto;
             max-width: 940px;
@@ -57,12 +49,14 @@
             padding: 6px;
             color: white;
             font-family: "Comic Sans MS", 'Marker Felt', sans;
-            display: -webkit-flex;
+/*            display: -webkit-flex; */
             display: flex;
+/*            -webkit-flex-direction: row wrap;
+            -webkit-flex-wrap: wrap; // TODO: wrap not working in safari...
+//            -webkit-flex-flow: row wrap;
+*/
             flex-direction: row;
             flex-wrap: wrap;
-            -webkit-flex-direction: row;
-            -webkit-flex-wrap: wrap;
             position: relative;
         }
         .pissarratitol {
@@ -77,8 +71,8 @@
             color: rgba(255,255,255,0.2);
         }
         .avis {
+/*            -webkit-flex: 3;*/
             flex: 3;
-            -webkit-flex: 3;
             min-width: 30%;
             margin: 6px;
         }
@@ -129,7 +123,7 @@
     /* smartphones de baixa resolucio */
     @media (max-device-width: 650px) , (max-width: 650px) {
         body {
-            background-color: gray;
+            //background-color: gray;
         }
         body, table , input , select {
             font-size: 18px;
@@ -144,7 +138,7 @@
 	/* iphone i smartphones d'alta resolucio */
 	@media (max-device-width: 650px) and (-webkit-min-device-pixel-ratio: 1.5) , (max-width: 650px) and (-webkit-min-device-pixel-ratio: 1.5) {
 		body {
-			background-color: yellow;
+			//background-color: yellow;
 		}
         body, table , input , select {
             font-size: 30px;
