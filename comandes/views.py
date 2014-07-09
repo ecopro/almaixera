@@ -22,6 +22,9 @@ class DetallForm(ModelForm):
         #self.fields["producte"].queryset = self.fields["producte"].queryset.exclude(actiu=False)
         self.fields["producte"].queryset = \
             Producte.objects.filter(actiu=True).extra(select={'lower_name':'lower(nom)'}).order_by('lower_name')
+        self.fields["producte"].label = ""
+        self.fields["quantitat"].label = ""
+        self.fields["quantitat"].placeholder = "quantitat"
     class Meta:
         model = DetallComanda
         fields = ['producte','quantitat']

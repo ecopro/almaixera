@@ -1,22 +1,39 @@
 {% extends "base.html" %}
 
+{% block estilscss %}
+.item input {
+    width: 100px;
+}
+@media (max-device-width: 650px) , (max-width: 650px) {
+    .item {
+        width: 100%;
+    }
+    .item select {
+        width: 75%;
+    }
+    .item input {
+        width: 20%;
+    }
+}
+{% endblock %}
+
 {% block contingut %}
     <form method="post" id="comanda">{% csrf_token %}
 
     <!--h2 style="text-align:center">Pissarra</h2-->
     <!--b style="background-color:yellow;">{{form.cleaned_data.data_recollida}}</b-->
     
+    <div class="pissarra">
+        <div class="pissarratitol">La Pissarra</div>
     {% if avisos %}
-        <div class="pissarra">
-            <div class="pissarratitol">La Pissarra</div>
         {% for avis in avisos %}
             <div class="avis">
                 <h3>{{ avis.titol }}</h3>
                 <p>{{ avis.text | linebreaks }}</p>
             </div>
         {% endfor %}
-        </div>
     {% endif %}
+    </div>
 
     <h2 style="Xdisplay:inline">Comanda</h2>
 
@@ -32,7 +49,7 @@
         {% for field in formset %}
             <div class="producte_form">
                 <div class="item">
-                {{ field.label_tag }} {{ field }}
+                <!--{{ field.label_tag }}--> {{ field }}
                 {{ field.errors }}
                 </div>
             </div>
