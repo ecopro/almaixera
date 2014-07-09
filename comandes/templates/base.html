@@ -56,10 +56,13 @@
             border: #5A2A04 6px solid;
             padding: 6px;
             color: white;
-            font-family: "Comic Sans MS";
+            font-family: "Comic Sans MS", 'Marker Felt', sans;
+            display: -webkit-flex;
             display: flex;
             flex-direction: row;
             flex-wrap: wrap;
+            -webkit-flex-direction: row;
+            -webkit-flex-wrap: wrap;
             position: relative;
         }
         .pissarratitol {
@@ -75,6 +78,7 @@
         }
         .avis {
             flex: 3;
+            -webkit-flex: 3;
             min-width: 30%;
             margin: 6px;
         }
@@ -126,15 +130,18 @@
 	            padding-top: 0; // clear header image
 		}
 	}
+    /* ipad */
 	@media (-webkit-min-device-pixel-ratio: 1.5) {
 		body {
 			//background-color: green;
-			font-size: 30px;
+			font-size: 20px;
 		}
 		table , input , select {
-			font-size: 30px;
+			font-size: 20px;
 		}
 	}
+    {% block estilscss %}
+    {% endblock %}
     </style>
 </head>
 

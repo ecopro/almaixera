@@ -1,23 +1,71 @@
 {% extends "base.html" %}
 
+{% block estilscss %}
+h3 {
+    display: inline;
+    margin: 10px;
+    margin-bottom: 30px;
+}
+table.comanda_realitzada {
+    background-color: #bbeebb;
+    //width: 100%;
+    border: 1px solid gray;
+    border-spacing: 0;
+    border-collapse: collapse;
+}
+.comanda_realitzada td {
+    text-align: center;
+    padding: 5px 10px;
+    margin: 0;
+    border: 0;
+    border-bottom: 1px solid gray;
+}
+.comanda_realitzada .prod {
+    text-align: left;
+}
+.comanda_realitzada .titol {
+    font-weight: bold;
+    background-color: #B5C780;
+}
+p {
+    margin: 0;
+}
+{% endblock %}
+
 {% block contingut %}
     <h2>Comandes realitzades</h2>
+    <p>Només es mostren les comandes entre un mes abans i un mes després d'avui.</p>
+    <p>Només es poden esborrar les comandes que encara estan obertes.</p>
 
     {% if comandes %}
-        <ul>
         {% for comanda in comandes %}
-            <li>{{comanda}}
+            <br>
+            <h3>{{comanda}}</h3>
             {% if not comanda.tancada %}
-                | <a href="esborra_comanda?data_recollida={{comanda.data_recollida|date:'Y-m-d'}}">Esborra comanda</a>
+                <a href="esborra_comanda?data_recollida={{comanda.data_recollida|date:'Y-m-d'}}">Esborra comanda</a>
             {% endif %}
-            </li>
-            <ul>
+            <br>
+            <table class="comanda_realitzada">
+                <tr class="titol">
+                    <td>Producte</td>
+                    <td>Preu unitari</td>
+                    <td>Quantitat</td>
+                    <td>Subtotal</td>
+                </tr>
                 {% for detall in comanda.detalls %}
-                    <li>{{detall}}</li>
+                    <tr>
+                        <td class="prod">{{detall.producte.nom}}</td>
+                        <td>{{detall.producte.preu}} €</td>
+                        <td>{{detall.quantitat}} €</td>
+                        <td>{{detall.subtotal}} €</td>
+                    </tr>
                 {% endfor %}
-            </ul>
+                    <tr class="titol">
+                        <td colspan="3" class="prod">TOTAL aproximat:</td>
+                        <td class="total">{{comanda.total}} €</td>
+                    </tr>
+            </table>
         {% endfor %}
-        </ul>
     {% else %}
         No hi ha comandes encara.
     {% endif %}

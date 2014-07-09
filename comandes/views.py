@@ -9,7 +9,7 @@ from django.forms import ModelForm
 from django.forms.formsets import formset_factory, BaseFormSet
 from helpers import properes_comandes, dates_informe, recollida_tancada
 from multiform import MultiForm
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from django.db.models import Sum
 
 """
@@ -186,11 +186,22 @@ def veure_comandes(request):
     user = request.user
     soci = user.soci
     # TODO: check user
-    comandes = Comanda.objects.filter(soci=soci).order_by('-data_recollida')
+    avui = date.today()
+    desde = avui-timedelta(31)
+    fins = avui+timedelta(31)
+    comandes = Comanda.objects.filter(soci=soci,
+            data_recollida__range=[desde,fins]).order_by('-data_recollida')
     for comanda in comandes:
+        total = 0
         detalls = DetallComanda.objects.filter(comanda=comanda)
         comanda.detalls = detalls
         comanda.tancada = recollida_tancada( comanda.data_recollida )
+        subtotal = 0
+        for detall in detalls:
+            subtotal = float(detall.producte.preu)*detall.quantitat
+            detall.subtotal = subtotal
+            total += subtotal
+        comanda.total = total
     return render( request, 'comandes.html', {"comandes":comandes} )
 
 
