@@ -143,4 +143,6 @@ class DetallComanda(models.Model):
         return self.comanda.soci.user.last_name
     def proveidor(self):
         return self.producte.proveidor
+    def username(self):
+        return self.comanda.soci.user.username
 

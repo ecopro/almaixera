@@ -31,7 +31,7 @@ Data: {{data|date:'SHORT_DATE_FORMAT'}}<br>
     {% for detall in prod.list %}
     <tr>
         <td style="text-align:center;">{{detall.comanda__soci__num_caixa}}</td>
-        <td style="text-align:center;">{{detall.comanda__soci__user__first_name}} {{detall.comanda__soci__user__last_name}}</td>
+        <td style="text-align:center;">( {{detall.comanda__soci__user__username}} ) {{detall.comanda__soci__user__first_name}} {{detall.comanda__soci__user__last_name}}</td>
         <td style="text-align:center;">{{detall.quantitat}}
         {% if detall.producte__granel %}
         kgs.

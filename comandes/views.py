@@ -295,6 +295,7 @@ def informe_caixes( request ):
             comanda__data_recollida=data )\
             .values('producte__nom','producte__granel','producte__proveidor__nom',
                 'comanda__soci__num_caixa','quantitat',
+                'comanda__soci__user__username',
                 'comanda__soci__user__first_name',
                 'comanda__soci__user__last_name')\
             .order_by('producte__nom','comanda__soci__num_caixa')
