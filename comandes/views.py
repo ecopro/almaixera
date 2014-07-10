@@ -151,7 +151,7 @@ def fer_comanda(request):
 
     # dafalut forms
     # TODO: no extra sino JS amb afegir prod.
-    detalls_formset = formset_factory( DetallForm, extra=30 )
+    detalls_formset = formset_factory( DetallForm, extra=20 )
     # data a triar (choice)
     comanda_form = ProperesComandesForm()
     # form amb data prefixada (readonly)
@@ -179,15 +179,12 @@ def fer_comanda(request):
                 detall['producte'] = detall['producte_id']
                 detalls_dicts.append( detall )
             # generem form i omplim amb dades amb initial
-            DetallsFormSet = formset_factory( DetallForm, extra=30 )
+            DetallsFormSet = formset_factory( DetallForm, extra=20 )
             detalls_formset = DetallsFormSet( initial=detalls_dicts )
         # TODO: invalidar si no posem data? (anular defaults)
-    # TODO: filtrar avisos per soci/coope
     productes = Producte.objects.filter(actiu=True).extra(select={'lower_name':'lower(nom)'}).order_by('lower_name')
+    # TODO: filtrar avisos per soci/coope
     avisos = Avis.objects.filter( data=request.GET.get("data_recollida") )
-
-    #import pdb; pdb.set_trace()
-
     return render( request, 'fer_comanda.html',
             {   'form':comanda_form,
                 'formset':detalls_formset,

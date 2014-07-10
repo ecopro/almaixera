@@ -37,8 +37,8 @@
     </div>
 
     <h2>Comanda</h2>
-    <button onclick="calcula_tot()">Recalcula</button>
-    Total aproximat: <input type="text" id="total" disabled />
+    <!--button onclick="calcula_tot()">Recalcula</button-->
+    Total aproximat: <input type="text" class="total" disabled />
 
     <form method="post" id="comanda">{% csrf_token %}
     {% if form %}
@@ -62,6 +62,8 @@
         {% endfor %}
 
     {% endif %}
+
+        Total aproximat: <input type="text" class="total" disabled /><br>
 
         <input style="align:center" type="submit" value="Envia" />
     </form>
@@ -107,7 +109,7 @@ function calcula_tot() {
             item_subtotal.val( subtotal )
         }
     )
-    $('#total').val( total.toFixed(2) +" €")
+    $('.total').val( total.toFixed(2) +" €")
 }
 
 calcula_tot()
