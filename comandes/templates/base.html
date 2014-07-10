@@ -155,6 +155,7 @@
     {% block estilscss %}
     {% endblock %}
     </style>
+
 </head>
 
 <body>
@@ -192,7 +193,15 @@
         <p>Aquest és programari lliure disponible a <a href="https://github.com/ecopro/almaixera">GitHub</a></p>
         <p>Podeu copiar-ho tant com vulgueu i, per suposat, contribuir-hi :)</p>
     </div>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script>
+        {% block custom_scripts %}
+        {% endblock %}
+    </script>
+
 </div><!-- mainwrapper -->
+
 </body>
 
 </html>

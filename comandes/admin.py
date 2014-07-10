@@ -41,6 +41,7 @@ desactiva.short_description = "Desctiva els productes"
 
 class ProducteAdmin(admin.ModelAdmin):
     list_display = ('__unicode__','actiu','preu','granel','proveidor')#'__unicode__'
+    search_fields = ('nom','proveidor__nom')
     list_editable = ('actiu',)
     ordering = ('nom',)
     actions = [ activa , desactiva ]

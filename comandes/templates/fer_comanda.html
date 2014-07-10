@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block estilscss %}
+.item input {
+    width: 70px;
+}
+@media (max-device-width: 650px) , (max-width: 650px) {
+    .item {
+        width: 100%;
+    }
+    .item select {
+        width: 100%;
+    }
+    .item input , .item subtotal {
+        //width: 49%;
+    }
+}
+{% endblock %}
+
+
+{% block contingut %}
+
+    <!--h2 style="text-align:center">Pissarra</h2-->
+    <!--b style="background-color:yellow;">{{form.cleaned_data.data_recollida}}</b-->
+    
+    <div class="pissarra">
+        <div class="pissarratitol">La Pissarra</div>
+        <br>
+    {% if avisos %}
+        {% for avis in avisos %}
+            <div class="avis">
+                <h3>{{ avis.titol }}</h3>
+                <p>{{ avis.text | linebreaks }}</p>
+            </div>
+        {% endfor %}
+    {% endif %}
+    </div>
+
+    <h2>Comanda</h2>
+    <button onclick="calcula_tot()">Recalcula</button>
+    Total aproximat: <input type="text" id="total" disabled />
+
+    <form method="post" id="comanda">{% csrf_token %}
+    {% if form %}
+        {{ form.as_p }}
+    {% endif %}
+    <b style="background-color:yellow;">{{form.cleaned_data.data_recollida}}</b>
+    <input type="submit" value="Envia" /> <br>
+
+    <!--p style="display:block;text-align:center;">Utiltiza <b>punts pels decimals</b> a les quantitats.</p-->
+    {% if formset %}
+        {{ formset.management_form }}
+        {% for detall in formset.forms %}
+            <div class="detall_form">
+                <div class="item">
+                    <!--{{ field.label_tag }}-->
+                    {{ detall }}
+                    {{ detall.errors }}
+                    <input class="subtotal" type="text" id="{{detall.producte.html_name}}-subtotal" name="{{detall.producte.html_name}}-subtotal" value="" disabled title="subtotal" />
+                </div>
+            </div>
+        {% endfor %}
+
+    {% endif %}
+
+        <input style="align:center" type="submit" value="Envia" />
+    </form>
+{% endblock %}
+
+
+{% block custom_scripts %}
+/*
+ * Scripts per calcular total aproximat i subtotals
+ *
+ */
+var preus = {
+{% for producte in productes %} {{producte.id}}:{{producte.preu|stringformat:".2f"}},
+{% endfor %}
+}
+
+var granel = {
+{% for producte in productes %} {{producte.id}}:{{producte.granel|yesno:"true,false"}},
+{% endfor %}
+}
+
+var total
+function calcula_tot() {
+    total = 0.0
+    $('.item').each( function(index) {
+            // items
+            var item = $(this)
+            var item_quantitat = item.find('#id_form-'+index+'-quantitat')
+            var item_idprod = item.find('#id_form-'+index+'-producte > option:selected')
+            var item_subtotal = item.find('#form-'+index+'-producte-subtotal')
+            // calculs
+            var idprod = item_idprod.val()
+            var quantitat = item_quantitat.val()
+            if( !granel[idprod] ) {
+                quantitat = parseInt( item_quantitat.val() )
+                item_quantitat.val( quantitat )
+            }
+            subtotal = (quantitat*preus[idprod]).toFixed(2)
+            if( isNaN(subtotal) )
+                subtotal = ""
+            else
+                total += parseFloat(subtotal)
+            item_subtotal.val( subtotal )
+        }
+    )
+    $('#total').val( total.toFixed(2) +" €")
+}
+
+calcula_tot()
+
+$('select').change( calcula_tot )
+$('input').change( calcula_tot )
+
+{% endblock %}

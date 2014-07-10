@@ -1,11 +1,7 @@
 # Create your views here.
 
 from django.http import HttpResponse
+from django import http
 
 def home(request):
-    return HttpResponse("""
-	Benvinguts a l'Almaixera.<br>
-	Realitza la teva <a href="comandes">comanda</a>.
-""")
-    
-    
+	return http.HttpResponsePermanentRedirect('/comandes')

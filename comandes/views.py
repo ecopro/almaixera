@@ -100,14 +100,17 @@ def fer_comanda(request):
         DetallsFormSet = formset_factory( DetallForm )
         detalls_formset = DetallsFormSet( request.POST )
         user = request.user
+        productes = Producte.objects.filter(actiu=True).extra(select={'lower_name':'lower(nom)'}).order_by('lower_name')
         # TODO: check user (no cal: @login_required / no admins?)
         if not comanda_form.is_valid() or not detalls_formset.is_valid() or not user.is_active:
             print comanda_form.is_valid()
             print detalls_formset.is_valid()
             #return menu(request,"ERROR: dades incorrectes")
-            return render( request, 'form.html', {'form':comanda_form,
-                                                  'formset':detalls_formset,
-                                                  'missatge':"ERROR: dades incorrectes"} )
+            return render( request, 'fer_comanda.html',
+                    {   'form':comanda_form,
+                        'formset':detalls_formset,
+                        'productes':productes,
+                        'missatge':"ERROR: dades incorrectes"} )
         else:
             # processem comanda
             soci = user.soci
@@ -175,13 +178,22 @@ def fer_comanda(request):
                 # arreglem IDs
                 detall['producte'] = detall['producte_id']
                 detalls_dicts.append( detall )
-            # generem form i omplim amb dades
+            # generem form i omplim amb dades amb initial
             DetallsFormSet = formset_factory( DetallForm, extra=30 )
             detalls_formset = DetallsFormSet( initial=detalls_dicts )
         # TODO: invalidar si no posem data? (anular defaults)
     # TODO: filtrar avisos per soci/coope
+    productes = Producte.objects.filter(actiu=True).extra(select={'lower_name':'lower(nom)'}).order_by('lower_name')
     avisos = Avis.objects.filter( data=request.GET.get("data_recollida") )
-    return render( request, 'form.html', {'form':comanda_form,'formset':detalls_formset,'avisos':avisos} )
+
+    #import pdb; pdb.set_trace()
+
+    return render( request, 'fer_comanda.html',
+            {   'form':comanda_form,
+                'formset':detalls_formset,
+                'avisos':avisos,
+                'productes':productes,
+            } )
 
 
 @login_required
