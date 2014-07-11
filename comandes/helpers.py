@@ -47,3 +47,21 @@ def dates_informe():
     return tuple( llista )
     #return [ (str(d['data_recollida']),str(d['data_recollida'])) for d in dates ]
 
+
+def propera_comanda():
+    dates = properes_comandes()
+    return dates[0][0]
+
+def proper_tancament():
+    ara = datetime.now()
+    avui = date.today()
+    
+    conf = GlobalConf.objects.get()
+    dow_tancament = conf.dow_tancament
+    hora_tancament = conf.hora_tancament
+    proper_tanc = datetime.combine( avui + timedelta(dow_tancament-avui.weekday()) , hora_tancament )
+
+    if proper_tanc < ara:
+        proper_tanc += timedelta(7)
+
+    return proper_tanc

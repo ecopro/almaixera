@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django import forms
 from django.forms import ModelForm
 from django.forms.formsets import formset_factory, BaseFormSet
-from helpers import properes_comandes, dates_informe, recollida_tancada
+from helpers import *
 from multiform import MultiForm
 from datetime import datetime, date, timedelta
 from django.db.models import Sum
@@ -62,7 +62,9 @@ def menu( request, missatge=None ):
             "data_form" : ProperesComandesForm,
             "super" : request.user.is_superuser,
             "prov_form" : InformeForm,
-            "caixes_form": InformeForm
+            "caixes_form": InformeForm,
+            "proper_tancament": proper_tancament(),
+            "remaining_secs": (proper_tancament()-datetime.now()).total_seconds(),
     } )
 
 """

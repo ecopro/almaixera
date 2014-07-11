@@ -1,6 +1,30 @@
 {% extends "base.html" %}
 
+
+{% block estilscss %}
+@media (min-width:650px) {
+    .columna1 {
+        flex: 4;
+    }
+    .columna2 {
+        flex: 4;
+    }
+    .contingut {
+        display: flex;
+    }
+}
+
+#temps_restant {
+    color: red;
+}
+.pissarra {
+    border-radius: 4px;
+}
+{% endblock %}
+
+
 {% block contingut %}
+<div class="columna1">
 Menú usuari:
 <ul>
     <li><form action="fer_comanda" method="get">
@@ -37,5 +61,40 @@ Menú admin:
     <li><a href="/admin">Panell d'administració</a></li>
 </ul>
 {% endif %}
+</div> <!-- columna1 -->
+
+<div class="columna2">
+    <div class="pissarra">
+        <div class="pissarratitol">La Pissarra</div>
+        <p>proper tancament: {{proper_tancament}}.</p>
+        <p>Temps restant: <span id="temps_restant"></span></p>
+        <p>... però tranquils, no us estresseu ;)</p>
+    </div>
+</div>
+
+{% endblock %}
+
+
+
+{% block custom_scripts %}
+
+var item = $('#temps_restant')
+var temps_restant = parseInt( "{{remaining_secs}}" )
+
+setInterval( actualitza, 1000 )
+
+function actualitza() {
+    --temps_restant
+    var dies = Math.floor(temps_restant / (3600*24))
+    var hores = Math.floor( (temps_restant-dies*(3600*24)) / 3600 )
+    var minuts = Math.floor( (temps_restant-dies*(3600*24)-hores*3600) / 60 )
+    var segons = Math.floor( (temps_restant-dies*(3600*24)-hores*3600-minuts*60) )
+    var mostra = ""
+    if( dies ) mostra += dies + " dies "
+    if( hores ) mostra += hores +" h "
+    if( minuts ) mostra += minuts + " min "
+    mostra += segons + "'"
+    item.html( mostra )
+}
 
 {% endblock %}
