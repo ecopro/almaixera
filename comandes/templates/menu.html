@@ -81,7 +81,7 @@ Menú admin:
 var item = $('#temps_restant')
 var temps_restant = parseInt( "{{remaining_secs}}" )
 
-actualitza()
+//actualitza()
 if( temps_restant>0 ) // proteccio per si alguna cosa falla no vagi recarregant
     setInterval( actualitza, 1000 )
 
@@ -102,7 +102,7 @@ function actualitza() {
     if( dies==0 && hores<2 )
         item.css('color','red')
     // recarreguem si acabem el temps
-    if( temps_restant==0 )
+    if( temps_restant<0 )
         window.location.reload()
 }
 
