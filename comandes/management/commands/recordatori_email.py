@@ -34,7 +34,7 @@ Comissió d'informàtica conscient de l'Almàixera :)
             if e.user.email:
                 dest.append( e.user.email )
         # Envia email
-        email.to = dest #['emieza@xtec.cat']
+        email.bcc = dest #['emieza@xtec.cat']
         #print email.message() # debug
         email.send()
 
