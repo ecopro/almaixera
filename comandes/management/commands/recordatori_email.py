@@ -24,7 +24,7 @@ La propera comanda es tanca %s a les %s h,
 
 Per fer la comanda vés a www.almaixera.cat
 
-Comissió d'informàtica conscient de l'Almàixera :)
+Comissió d'informàtica responsable de l'Almàixera :)
 """ % ("Almaixerenc@", dow_tancament, hora_tancament )
         assumpte = "Recordatori per fer comanda"
         email = EmailMessage( assumpte, text )
