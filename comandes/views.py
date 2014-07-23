@@ -295,7 +295,10 @@ def informe_caixes( request ):
     ## METODE 2: 1 sola query. agrupem en el template
     detalls = DetallComanda.objects.filter(
             comanda__data_recollida=data )\
-            .values('producte__nom','producte__granel','producte__proveidor__nom',
+            .values('producte__nom',
+                'producte__granel',
+                'producte__preu',
+                'producte__proveidor__nom',
                 'comanda__soci__num_caixa','quantitat',
                 'comanda__soci__user__username',
                 'comanda__soci__user__first_name',
