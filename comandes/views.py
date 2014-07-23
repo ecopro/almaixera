@@ -323,4 +323,3 @@ def test_email( request ):
     email.send()
     return HttpResponse( "Enviant email" )
     
-    

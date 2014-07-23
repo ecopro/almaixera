@@ -93,9 +93,9 @@ function actualitza() {
     var segons = Math.floor( (temps_restant-dies*(3600*24)-hores*3600-minuts*60) )
     var mostra = ""
     if( dies ) mostra += dies + " dies "
-    if( hores ) mostra += hores +" h "
-    if( minuts ) mostra += minuts + " min "
-    mostra += segons + "'"
+    if( hores ) mostra += hores +"h "
+    if( minuts ) mostra += minuts + "' "
+    mostra += segons + "''"
     item.html( mostra )
     --temps_restant
     // colors
