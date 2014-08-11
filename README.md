@@ -10,7 +10,12 @@ Cal instal·lar (en un virtualenv):
 
 Ajustos:
 - copiar django1/email_settings.sample.py a django1/email_settings.py
-- modificar Site (a django admin) i posar el nou domini
+- Crear DB amb:
+	$ python manage.py syncdb --migrate
+- entrar a Django admin i canviar
+	- crear nou GlobalConf
+	- modificar Site i posar el nou domini
+
 
 Run
 ---
