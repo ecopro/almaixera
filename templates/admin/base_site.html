@@ -3,8 +3,37 @@
 
 {% block title %}{{ title }} | {% trans 'Django site admin' %}{% endblock %}
 
+{% block extrastyle %}
+<style>
+    #header, #branding h1 {
+        background-color: #81993C;/*#B5C780;*/
+        color: white;
+    }
+    .module caption, .module h2 {
+        background-color: #81993C;
+        background-image: none;
+        background: linear-gradient(#B5C780,#81993C);
+    }
+    a:link, a:visited {
+        color: #81993C;
+    }
+    .row1 {
+        background-color: #DEEFAE;
+    }
+    #changelist-filter li.selected a {
+        color: #81993C !important;
+    }
+    .button.default, input.default[type="submit"], .submit-row input.default {
+        background-image: none;
+        background-color: #81993C;
+        background: linear-gradient(#B5C780,#495A19);
+        border-color:  #495A19;
+    }
+</style>
+{% endblock %}
+
 {% block branding %}
-<h1 id="site-name">{% trans 'Django administration' %} - Almàixera online! :)</h1>
+<h1 id="site-name">Almàixera online! :)</h1>
 <div style="text-align:center;">
     <span style="padding:2px 8px;margin:0.3em;display:inline-block;background-color:yellow;border-radius:4px">
         <a href="{% url 'index' %}" style="color:black;">Tornar al menú principal</a>

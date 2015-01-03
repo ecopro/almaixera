@@ -8,7 +8,7 @@ from django import forms
 from django.forms import ModelForm
 from django.forms.formsets import formset_factory, BaseFormSet
 from helpers import *
-from multiform import MultiForm
+#from multiform import MultiForm
 from datetime import datetime, date, timedelta
 from django.db.models import Sum
 
@@ -96,13 +96,27 @@ def fer_comanda(request):
     if recollida_tancada(data_recollida):
         return menu(request,"ERROR: comanda tancada")
 
+    # filtrar llista de productes disponibles per cada coope
+    coope = request.user.soci.cooperativa
+    activacions = Activacio.objects.filter(cooperativa=coope)
+    active_prods = []
+    for activacio in activacions:
+        prov = activacio.proveidor
+        prods = Producte.objects.filter(proveidor=prov)
+        for prod in prods:
+            active_prods.append( prod.id )
+    productes = Producte.objects\
+                    .filter( actiu=True, id__in=active_prods )\
+                    .extra(select={'lower_name':'lower(nom)'})\
+                    .order_by('lower_name')
+    #
     # PROCES COMANDA
+    #
     if request.method=="POST":
         comanda_form = ComandaForm( request.POST )
         DetallsFormSet = formset_factory( DetallForm )
         detalls_formset = DetallsFormSet( request.POST )
         user = request.user
-        productes = Producte.objects.filter(actiu=True).extra(select={'lower_name':'lower(nom)'}).order_by('lower_name')
         # TODO: check user (no cal: @login_required / no admins?)
         if not comanda_form.is_valid() or not detalls_formset.is_valid() or not user.is_active:
             print comanda_form.is_valid()
@@ -148,43 +162,31 @@ def fer_comanda(request):
             #return render( request, 'menu.html', {"data_form":ProperesDatesForm(),
             #                        "missatge":"Comanda realitzada correctament."} )
             return menu(request,"Comanda realitzada correctament")
-
+    #
     # RENDER FORM
-
-    # dafalut forms
-    # TODO: no extra sino JS amb afegir prod.
-    detalls_formset = formset_factory( DetallForm, extra=20 )
-    # data a triar (choice)
-    comanda_form = ProperesComandesForm()
+    #
     # form amb data prefixada (readonly)
     if request.method=="GET":
-        """
-            Forms amb data prefixada (del menu anterior)
-        """
-        if request.GET.get("data_recollida"):
-            # data form (comanda)
-            comanda_form = ComandaForm( request.GET )
-            # camp de data amagat (form en format compacte, display llegible)
-            comanda_form.fields['data_recollida'].widget.attrs['readonly'] = True
-            comanda_form.fields['data_recollida'].widget.attrs['hidden'] = True
-            # detalls: els traiem de la BBDD
-            comanda = Comanda.objects.filter( soci=request.user.soci,
-                                              data_recollida=request.GET.get("data_recollida")
-                                            )
-            detalls = DetallComanda.objects.filter( comanda=comanda )
-            # trasnformar objectes en diccionaris per reconstruir menu
-            detalls_dicts = []
-            for item in detalls:
-                # transformen attrs en dict
-                detall = item.__dict__
-                # arreglem IDs
-                detall['producte'] = detall['producte_id']
-                detalls_dicts.append( detall )
-            # generem form i omplim amb dades amb initial
-            DetallsFormSet = formset_factory( DetallForm, extra=20 )
-            detalls_formset = DetallsFormSet( initial=detalls_dicts )
-        # TODO: invalidar si no posem data? (anular defaults)
-    productes = Producte.objects.filter(actiu=True).extra(select={'lower_name':'lower(nom)'}).order_by('lower_name')
+        # data form (comanda)
+        comanda_form = ComandaForm( request.GET )
+        # camp de data amagat (form en format compacte, display llegible)
+        comanda_form.fields['data_recollida'].widget.attrs['readonly'] = True
+        comanda_form.fields['data_recollida'].widget.attrs['hidden'] = True
+        # detalls: els traiem de la BBDD . data_recollida testejada al ppi de la view
+        comanda = Comanda.objects.filter( soci=request.user.soci,
+                        data_recollida=request.GET.get("data_recollida"))
+        detalls = DetallComanda.objects.filter( comanda=comanda )
+        # trasnformar objectes en diccionaris per reconstruir menu
+        detalls_dicts = []
+        for item in detalls:
+            # transformen attrs en dict
+            detall = item.__dict__
+            # arreglem IDs
+            detall['producte'] = detall['producte_id']
+            detalls_dicts.append( detall )
+        # generem form i omplim amb dades amb initial
+        DetallsFormSet = formset_factory( DetallForm, extra=23 )
+        detalls_formset = DetallsFormSet( initial=detalls_dicts )
     # TODO: filtrar avisos per soci/coope
     avisos = Avis.objects.filter( data=request.GET.get("data_recollida") )
     return render( request, 'fer_comanda.html',
@@ -262,7 +264,6 @@ def pagament(request):
     ADMIN VIEWS
 """
 
-# TODO: super required
 @login_required
 def informe_proveidors( request ):
     # data informe
@@ -279,22 +280,27 @@ def informe_proveidors( request ):
         prov.detalls = detalls"""
     ## METODE 2: 1 sola query. agrupem en el template
     # annotate: agrupa les comandes del mateix producte d'un mateix soci
+    coope = request.user.soci.cooperativa
     productes = DetallComanda.objects.filter(
-            comanda__data_recollida=data )\
+            comanda__data_recollida=data,
+            comanda__soci__cooperativa=coope )\
             .values('producte__nom','producte__proveidor__nom',
                 'producte__proveidor__email','producte__granel',
                 'producte__proveidor__telefon1',)\
             .annotate( Sum("quantitat") )\
             .order_by('producte__proveidor__nom')
-    return render( request, 'informe_proveidors.html', {"data":data,"productes":productes} )
+    return render( request, 'informe_proveidors.html',
+                    {"data":data,"productes":productes,"cooperativa":coope} )
 
 @login_required    
 def informe_caixes( request ):
     # data informe
     data = datetime.strptime( request.GET.get('data_informe'), "%Y-%m-%d" )
     ## METODE 2: 1 sola query. agrupem en el template
+    coope = request.user.soci.cooperativa
     detalls = DetallComanda.objects.filter(
-            comanda__data_recollida=data )\
+            comanda__data_recollida=data,
+            comanda__soci__cooperativa=coope )\
             .values('producte__nom',
                 'producte__granel',
                 'producte__preu',
@@ -316,7 +322,8 @@ def informe_caixes( request ):
         for elem in qs:
             total += elem['quantitat']
         detall['total'] = total
-    return render( request, 'informe_caixes.html', {"data":data,"productes":detalls} )
+    return render( request, 'informe_caixes.html',
+                    {"data":data,"productes":detalls,"cooperativa":coope} )
 
 #http://stackoverflow.com/questions/10567845/how-to-use-the-built-in-password-reset-view-in-django
 @login_required

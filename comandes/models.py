@@ -13,11 +13,9 @@ import datetime
 class SingletonModel(models.Model):
     class Meta:
         abstract = True
-
     def save(self, *args, **kwargs):
         self.__class__.objects.exclude(id=self.id).delete()
         super(SingletonModel, self).save(*args, **kwargs)
-
     @classmethod
     def load(cls):
         try:
@@ -53,6 +51,8 @@ class Avis(models.Model):
     data = models.DateField()
     cooperativa = models.ForeignKey( Cooperativa )
 
+# Soci es crea aparellat amb User (OneToOne)
+# dit d'altra manera, es una extensió del model del Django User
 class Soci(models.Model):
     user = models.OneToOneField( User )
     cooperativa = models.ForeignKey( Cooperativa, blank=True, null=True, default=None)
@@ -69,11 +69,6 @@ class Soci(models.Model):
     def __unicode__(self):
         return self.user.username
 
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        profile, created = Soci.objects.get_or_create(user=instance)
-
-post_save.connect(create_user_profile, sender=User)
 
 class Proveidor(models.Model):
     nom = models.CharField(max_length=200)
@@ -146,3 +141,13 @@ class DetallComanda(models.Model):
     def username(self):
         return self.comanda.soci.user.username
 
+# Activa proveidors per cada coope
+class Activacio(models.Model):
+    proveidor = models.ForeignKey(Proveidor)
+    cooperativa = models.ForeignKey(Cooperativa)
+    actiu = models.BooleanField(default=True)
+    data = models.DateField('data de restriccio',blank=True,null=True,
+                    help_text="Optatiu, per si vols activar un proveidor només per una data.")
+    notes = models.TextField(blank=True)
+    def __unicode__(self):
+        return unicode(self.proveidor)+u" "+unicode(self.cooperativa)

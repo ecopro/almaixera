@@ -1,6 +1,7 @@
 from django.contrib import admin
 from models import *
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
+from django.contrib.auth.admin import UserAdmin
 from django import forms
 
 class DetallAdmin(admin.ModelAdmin):
@@ -30,17 +31,15 @@ class ComandaAdmin(admin.ModelAdmin):
         # TODO: filtrar comandes ja tancades
         return qs.filter( soci=request.user.soci )
 
-
 def activa(modeladmin, request, queryset):
     queryset.update(actiu=True)
 activa.short_description = "Activa els productes"
-
 def desactiva(modeladmin, request, queryset):
     queryset.update(actiu=False)
 desactiva.short_description = "Desctiva els productes"
 
 class ProducteAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__','actiu','preu','granel','proveidor')#'__unicode__'
+    list_display = ('__unicode__','actiu','preu','granel','proveidor')
     search_fields = ('nom','proveidor__nom')
     list_editable = ('actiu',)
     ordering = ('nom',)
@@ -68,19 +67,26 @@ class SociForm(forms.ModelForm):
             self.fields['email'].initial = soci.user.email
         
 class SociAdmin(admin.ModelAdmin):
+    list_display = ('user','cooperativa','get_superuser','get_groups')
     form = SociForm
-    readonly_fields = ('user','cooperativa')
+    readonly_fields = ('user',)
 
+    def get_superuser(self, obj):
+        return obj.user.is_superuser
+    get_superuser.short_description = "Super"
+    get_superuser.admin_order_field = 'user__is_superuser'
+    get_superuser.boolean = True
+    def get_groups(self, obj):
+        grps = ""
+        for group in obj.user.groups.all():
+            grps = grps + str(group)
+        return grps
+    get_groups.short_description = "Grups"
+    get_groups.admin_order_field = 'user__groups'
     def get_form(self, request, obj=None, **kwargs):
-        # Exclude changes from num_caixa if not admin
-        self.exclude = []
         if not request.user.is_superuser:
-            pass
-            # de moment deshabilitat TODO: habilitar
-            #self.exclude.append('num_caixa')
-            # el de aqui a baix no va, dona error com camp a completar
-            #soci_form = super(SociAdmin, self).get_form(request, obj, **kwargs)
-            #soci_form.base_fields['num_caixa'].widget.attrs['disabled'] = True
+            # fixem la coope si no es admin
+            self.readonly_fields = ('user','cooperativa')
         soci_form = super(SociAdmin, self).get_form(request, obj, **kwargs)
         return soci_form
     def queryset( self, request ):
@@ -88,6 +94,11 @@ class SociAdmin(admin.ModelAdmin):
         # super-users can see all info
         if request.user.is_superuser:
             return qs
+        # coopeadmin can see all users of his coope
+        grp = Group.objects.get(name="coopeadmin")
+        if grp in request.user.groups.all():
+            coope = request.user.soci.cooperativa
+            return qs.filter( cooperativa=coope )
         # non-admins only can edit their personal info
         return qs.filter( user=request.user )
     def save_model(self, request, soci, form, change):
@@ -98,30 +109,76 @@ class SociAdmin(admin.ModelAdmin):
         user.email = form.cleaned_data['email']
         user.save()
             
-""" # No cal per l'usuari: nomes accessible per l'admin
-class UserAdmin(admin.ModelAdmin):
-    def queryset(self, request ):
-        qs = super(UserAdmin,self).queryset(request)
-        # super-users can see all info
-        if request.user.is_superuser:
-            return qs
-        # non-admins only can edit their personal info
-        return qs.filter( id=request.user.id )
-
-admin.site.unregister( User )
-admin.site.register( User, UserAdmin )"""
-
 class AvisAdmin(admin.ModelAdmin):
     list_display = ('titol','data','cooperativa')
     ordering = ('data',)
 
+# inline dels productes en els proveidors
+class ProducteInline(admin.StackedInline):
+	fieldsets = [
+		(None,			{'fields': ['nom','actiu','proveidor','preu','granel'] }),
+		('Mes info',	{'fields': ['stock','notes'], 'classes':['collapse'] }),
+	]
+	model = Producte
+	extra = 1
+
+class ProveidorAdmin(admin.ModelAdmin):
+	inlines = [ProducteInline]
+
+class CustomUserAdmin(UserAdmin):
+	# TODO: forzar cooperativa a la del usuari actual
+	
+    def queryset(self, request ):
+        users = super(CustomUserAdmin,self).queryset(request)
+        # superuser can see all users
+        if request.user.is_superuser:
+            return users
+        # coopeadmins can see their coope users and blank coope
+        coope = request.user.soci.cooperativa
+        exclude_ids = []
+        for user in users:
+            if hasattr(user,'soci') and user.soci.cooperativa!=coope:
+                exclude_ids.append(user.id)
+		users = users.exclude( id__in=exclude_ids )
+        return users
+    def save_model( self, request, user, form, change):
+        # always staff members
+        user.is_staff = True
+        # avoid non-superusers creating superusers
+        if not request.user.is_superuser:
+            user.is_superuser = False
+        user.save()
+        # creem soci
+        soci, creat = Soci.objects.get_or_create(user=user)
+        # forzem coope del nou soci a la del usuari creador
+        soci.cooperativa = request.user.soci.cooperativa
+        soci.save()
+
+class ActivacioAdmin(admin.ModelAdmin):
+    list_display = ('cooperativa','proveidor','actiu','data')
+    order = ('-data',)
+    def get_form(self, request, obj=None, **kwargs):
+        if not request.user.is_superuser:
+            # fixem la coope si no es super
+            self.readonly_fields = ('cooperativa',)
+            #form.cleaned_data['cooperativa'] = request.user.soci.cooperativa
+        form = super(ActivacioAdmin, self).get_form(request, obj, **kwargs)
+        return form
+    def save_model(self, request, obj, form, change):
+        # fixem la coope si no es super
+        if not request.user.is_superuser:
+            obj.cooperativa = request.user.soci.cooperativa
+        obj.save()
+
+admin.site.unregister( User )
+admin.site.register( User, CustomUserAdmin )
 
 admin.site.register( GlobalConf )
 admin.site.register( Avis, AvisAdmin )
 admin.site.register( Cooperativa )
 admin.site.register( Soci, SociAdmin )
-admin.site.register( Proveidor )
+admin.site.register( Proveidor, ProveidorAdmin )
 admin.site.register( Producte, ProducteAdmin )
 admin.site.register( Comanda, ComandaAdmin )
 admin.site.register( DetallComanda, DetallAdmin )
-
+admin.site.register( Activacio, ActivacioAdmin )

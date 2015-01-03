@@ -1,24 +1,22 @@
 {% extends "base.html" %}
 
+{% block title %}
+Informe per proveïdors - {{data|date:'SHORT_DATE_FORMAT'}} - {{cooperativa}}
+{% endblock %}
+
 {% block contingut %}
-<h2>Informe per proveïdors</h2>
 
-Data: {{data|date:'SHORT_DATE_FORMAT'}}<br>
-<input type="text" disabled value="{{data|date:'j F, Y'}}" />
-
-
-{% if proveidors %}
-<ul>
-{% for prov in proveidors %}
-    <li>{{prov}}</li>
-    <ul>
-        {% for prod in prov.detalls %}
-            {{prod}}
-        {% endfor %}
-    </ul>
-{% endfor %}
-</ul>
-{% endif %}
+<div class="requadre">
+    <h2>Informe per proveïdors</h2>
+    Data: {{data|date:'SHORT_DATE_FORMAT'}}<br>
+    {% if cooperativa %}
+    Cooperativa: {{cooperativa}}<br>
+    {% else %}
+    Cooperativa: TOTES<br>
+    {% endif %}
+    <!--input type="text" disabled value="{{data|date:'j F, Y'}}" /-->
+    <br>
+</div>
 
 <h2>Productes</h2>
 {% regroup productes by producte__proveidor__nom as prov_list %}

@@ -1,11 +1,24 @@
 {% extends "base.html" %}
 
+{% block title %}
+Informe per caixes - {{data|date:'SHORT_DATE_FORMAT'}} - {{cooperativa}}
+{% endblock %}
+
 {% block contingut %}
-<h2>Informe per caixes</h2>
 
-Data: {{data|date:'SHORT_DATE_FORMAT'}}<br>
-<input type="text" disabled value="{{data|date:'j F, Y'}}" />
+<div class="requadre">
+    <h2>Informe per caixes</h2>
+    Data: {{data|date:'SHORT_DATE_FORMAT'}}<br>
+    {% if cooperativa %}
+    Cooperativa: {{cooperativa}}<br>
+    {% else %}
+    Cooperativa: TOTES<br>
+    {% endif %}
+    <!--input type="text" disabled value="{{data|date:'j F, Y'}}" /-->
+    <br>
+</div>
 
+<br>
 {% regroup productes by producte__nom as prod_list %}
 
 {% for prod in prod_list %}
