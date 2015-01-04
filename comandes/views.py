@@ -17,14 +17,17 @@ from django.db.models import Sum
 """
 
 class DetallForm(ModelForm):
-    def __init__(self,*args,**kwargs):
+    '''def __init__(self,*args,**kwargs):
+        # si no el traiem amb 'pop' el init del form peta
+        request = kwargs.pop('request')
         super(DetallForm,self).__init__(*args,**kwargs)
-        #self.fields["producte"].queryset = self.fields["producte"].queryset.exclude(actiu=False)
-        self.fields["producte"].queryset = \
-            Producte.objects.filter(actiu=True).extra(select={'lower_name':'lower(nom)'}).order_by('lower_name')
-        self.fields["producte"].label = ""
-        self.fields["quantitat"].label = ""
-        self.fields["quantitat"].placeholder = "quantitat"
+        self.fields["producte"].queryset = get_productes( request )
+        #self.fields["producte"].queryset = Producte.objects.filter(actiu=True)\
+        #    .extra(select={'lower_name':'lower(nom)'}).order_by('lower_name')
+        # lo seguent era per evitar etiquetes, pero les hem tret al template
+        #self.fields["producte"].label = ""
+        #self.fields["quantitat"].label = ""
+        #self.fields["quantitat"].placeholder = "quantitat"'''
     class Meta:
         model = DetallComanda
         fields = ['producte','quantitat']
@@ -67,6 +70,24 @@ def menu( request, missatge=None ):
             "remaining_secs": (proper_tancament()-datetime.now()).total_seconds(),
     } )
 
+# filtrem llista de productes disponibles segons la coope de l'usuari visitant
+from django.db.models import Q
+def get_productes( request, data_recollida ):
+    coope = request.user.soci.cooperativa
+    activacions = Activacio.objects.filter(Q(data=None)|Q(data=data_recollida))\
+                    .filter(cooperativa=coope,actiu=True)
+    active_prods = []
+    for activacio in activacions:
+        prov = activacio.proveidor
+        prods = Producte.objects.filter(proveidor=prov)
+        for prod in prods:
+            active_prods.append( prod.id )
+    productes = Producte.objects\
+                    .filter( actiu=True, id__in=active_prods )\
+                    .extra(select={'lower_name':'lower(nom)'})\
+                    .order_by('lower_name')
+    return productes
+
 """
     VIEWS
 """
@@ -97,18 +118,8 @@ def fer_comanda(request):
         return menu(request,"ERROR: comanda tancada")
 
     # filtrar llista de productes disponibles per cada coope
-    coope = request.user.soci.cooperativa
-    activacions = Activacio.objects.filter(cooperativa=coope)
-    active_prods = []
-    for activacio in activacions:
-        prov = activacio.proveidor
-        prods = Producte.objects.filter(proveidor=prov)
-        for prod in prods:
-            active_prods.append( prod.id )
-    productes = Producte.objects\
-                    .filter( actiu=True, id__in=active_prods )\
-                    .extra(select={'lower_name':'lower(nom)'})\
-                    .order_by('lower_name')
+    productes = get_productes( request, data_recollida )
+    
     #
     # PROCES COMANDA
     #
@@ -116,12 +127,12 @@ def fer_comanda(request):
         comanda_form = ComandaForm( request.POST )
         DetallsFormSet = formset_factory( DetallForm )
         detalls_formset = DetallsFormSet( request.POST )
+        # filter products
+        for form in detalls_formset:
+            form.fields['producte'].queryset = productes
         user = request.user
         # TODO: check user (no cal: @login_required / no admins?)
         if not comanda_form.is_valid() or not detalls_formset.is_valid() or not user.is_active:
-            print comanda_form.is_valid()
-            print detalls_formset.is_valid()
-            #return menu(request,"ERROR: dades incorrectes")
             return render( request, 'fer_comanda.html',
                     {   'form':comanda_form,
                         'formset':detalls_formset,
@@ -136,7 +147,7 @@ def fer_comanda(request):
 
             # esborrar comanda previa si n'hi ha
             comanda = Comanda.objects.filter( soci=request.user.soci,
-                                              data_recollida=request.POST.get("data_recollida") )
+                            data_recollida=request.POST.get("data_recollida") )
             if comanda:
                 comanda.delete() # esborra en cascada els detalls
             # creem comanda
@@ -166,13 +177,14 @@ def fer_comanda(request):
     # RENDER FORM
     #
     # form amb data prefixada (readonly)
-    if request.method=="GET":
+    elif request.method=="GET":
         # data form (comanda)
         comanda_form = ComandaForm( request.GET )
         # camp de data amagat (form en format compacte, display llegible)
         comanda_form.fields['data_recollida'].widget.attrs['readonly'] = True
         comanda_form.fields['data_recollida'].widget.attrs['hidden'] = True
-        # detalls: els traiem de la BBDD . data_recollida testejada al ppi de la view
+        # detalls: els traiem de la BBDD
+        # data_recollida testejada al ppi de la view
         comanda = Comanda.objects.filter( soci=request.user.soci,
                         data_recollida=request.GET.get("data_recollida"))
         detalls = DetallComanda.objects.filter( comanda=comanda )
@@ -187,6 +199,11 @@ def fer_comanda(request):
         # generem form i omplim amb dades amb initial
         DetallsFormSet = formset_factory( DetallForm, extra=23 )
         detalls_formset = DetallsFormSet( initial=detalls_dicts )
+        # filtrar productes disponibles
+        # A mes, accelera la query de render del formset!!! :)
+        # (tots els forms de la request tenen el mateix set de productes
+        for form in detalls_formset:
+            form.fields['producte'].queryset = productes
     # TODO: filtrar avisos per soci/coope
     avisos = Avis.objects.filter( data=request.GET.get("data_recollida") )
     return render( request, 'fer_comanda.html',

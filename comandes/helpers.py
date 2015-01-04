@@ -65,3 +65,12 @@ def proper_tancament():
         proper_tanc += timedelta(7)
 
     return proper_tanc
+
+
+def regenera_activacions():
+    '''
+    Regenera activacions de tots els productes per totes les coopes.
+    Es cridara amb cada modificacio de coopes i proveidors (afegir)
+    '''
+    pass
+    

@@ -146,7 +146,7 @@ class Activacio(models.Model):
     proveidor = models.ForeignKey(Proveidor)
     cooperativa = models.ForeignKey(Cooperativa)
     actiu = models.BooleanField(default=True)
-    data = models.DateField('data de restriccio',blank=True,null=True,
+    data = models.DateField("data d'activacio",blank=True,null=True,
                     help_text="Optatiu, per si vols activar un proveidor només per una data.")
     notes = models.TextField(blank=True)
     def __unicode__(self):

@@ -54,17 +54,22 @@
             <div class="detall_form">
                 <div class="item">
                     {{ field.label_tag }}
-                    {% comment %} Acceleration/optimization for formset slow rendering{% endcomment %}
-                    {% if detall.quantitat.value %}
-                        {{ detall.producte }}
-                    {% else %}
+                    {{ detall.producte }}
+                    
+                    {% comment %} Acceleration/optimization for slow formset rendering
+                    NO IMPLEMENTAT, nomes per documentar-ho
+                    % if detall.quantitat.value %
+                        { detall.producte }
+                    % else %
                     <select id="id_form-{{forloop.counter0}}-producte" name="form-{{forloop.counter0}}-producte">
                         <option value="" selected="selected">---------</option>
-                        {%  for prod in productes %}
-                            <option value="{{prod.id}}">{{prod}}</option>
-                        {% endfor %}
+                        %  for prod in productes %
+                            <option value="{{prod.id}}">{prod}</option>
+                        % endfor %
                     </select>
-                    {% endif %}
+                    % endif %
+                    {% endcomment %}
+                    
                     {{ detall.quantitat }}
                     {{ detall.errors }}
                     <!-- subtotal nomes per calcul aproximat de la comanda en curs (js) -->

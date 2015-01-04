@@ -10,8 +10,8 @@ class DetallAdmin(admin.ModelAdmin):
     # FK with "__"
     search_fields = ('quantitat','producte__nom','comanda__data_recollida','producte__proveidor__nom','comanda__soci__user__username','comanda__soci__user__first_name')
     # filter by user
-    def queryset( self, request):
-        qs = super(DetallAdmin, self).queryset(request)
+    def get_queryset( self, request):
+        qs = super(DetallAdmin, self).get_queryset(request)
         if request.user.is_superuser:
             # superuser no filtrat
             return qs
@@ -21,9 +21,9 @@ class DetallAdmin(admin.ModelAdmin):
 
 class ComandaAdmin(admin.ModelAdmin):
     # filter by user
-    def queryset( self, request):
+    def get_queryset( self, request):
         user = request.user
-        qs = super(ComandaAdmin, self).queryset(request)
+        qs = super(ComandaAdmin, self).get_queryset(request)
         # admin sees everything
         if user.is_superuser:
             return qs
@@ -89,8 +89,8 @@ class SociAdmin(admin.ModelAdmin):
             self.readonly_fields = ('user','cooperativa')
         soci_form = super(SociAdmin, self).get_form(request, obj, **kwargs)
         return soci_form
-    def queryset( self, request ):
-        qs = super(SociAdmin,self).queryset(request)
+    def get_queryset( self, request ):
+        qs = super(SociAdmin,self).get_queryset(request)
         # super-users can see all info
         if request.user.is_superuser:
             return qs
@@ -112,6 +112,15 @@ class SociAdmin(admin.ModelAdmin):
 class AvisAdmin(admin.ModelAdmin):
     list_display = ('titol','data','cooperativa')
     ordering = ('data',)
+    def get_queryset(self, request):
+        qs = super(AvisAdmin,self).get_queryset(request)
+        # si super retorna tot
+        if request.user.is_superuser:
+            return qs
+        # coopeadmins nomes poden veure avisos de la seva coope
+        coope = request.user.soci.cooperativa
+        qs = avisos.filter(cooperativa=coope)
+        return qs
 
 # inline dels productes en els proveidors
 class ProducteInline(admin.StackedInline):
@@ -128,13 +137,14 @@ class ProveidorAdmin(admin.ModelAdmin):
 class CustomUserAdmin(UserAdmin):
 	# TODO: forzar cooperativa a la del usuari actual
 	
-    def queryset(self, request ):
-        users = super(CustomUserAdmin,self).queryset(request)
+    def get_queryset(self, request):
+        users = super(CustomUserAdmin,self).get_queryset(request)
         # superuser can see all users
         if request.user.is_superuser:
             return users
         # coopeadmins can see their coope users and blank coope
         coope = request.user.soci.cooperativa
+        #TODO: filter(soci__cooperativa=coope) easier!
         exclude_ids = []
         for user in users:
             if hasattr(user,'soci') and user.soci.cooperativa!=coope:
@@ -157,6 +167,7 @@ class CustomUserAdmin(UserAdmin):
 class ActivacioAdmin(admin.ModelAdmin):
     list_display = ('cooperativa','proveidor','actiu','data')
     order = ('-data',)
+    list_editable = ('actiu','data')
     def get_form(self, request, obj=None, **kwargs):
         if not request.user.is_superuser:
             # fixem la coope si no es super
@@ -169,6 +180,15 @@ class ActivacioAdmin(admin.ModelAdmin):
         if not request.user.is_superuser:
             obj.cooperativa = request.user.soci.cooperativa
         obj.save()
+    def get_queryset(self, request):
+        activacions = super(ActivacioAdmin,self).get_queryset(request)
+        # si super retorna tot
+        if request.user.is_superuser:
+            return activacions
+        # coopeadmins nomes poden veure restriccions de la seva coope
+        coope = request.user.soci.cooperativa
+        activacions = activacions.filter(cooperativa=coope)
+        return activacions
 
 admin.site.unregister( User )
 admin.site.register( User, CustomUserAdmin )
