@@ -1,4 +1,9 @@
 # Django settings for django1 project.
+from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS as TCP
+
+TEMPLATE_CONTEXT_PROCESSORS = TCP + (
+    'django.core.context_processors.request',
+)
 
 import os, sys
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))

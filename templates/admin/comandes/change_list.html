@@ -1,0 +1,11 @@
+{% extends "admin/change_list.html" %}
+{% block object-tools-items %}
+
+    {{ block.super }}
+    {% if request.path == '/admin/comandes/activacio/' %}
+    <li>
+        <a href="/comandes/afegeix_proveidors/" class="grp-state-focus" class="addlink">Afegeix tots els proveidors</a>
+    </li>
+    {% endif %}
+
+{% endblock %}

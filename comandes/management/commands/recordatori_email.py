@@ -6,7 +6,7 @@ from comandes.models import GlobalConf, Soci
 dows = ['dilluns','dimarts','dimecres','dijous','divendres','dissabte','diumenge']
 
 class Command(BaseCommand):
-    help = 'Closes the specified poll for voting'
+    help = 'Envia email de recordatori'
 
     def add_arguments(self, parser):
         pass

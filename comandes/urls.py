@@ -19,6 +19,8 @@ urlpatterns = patterns('',
     url(r'^password_reset_done/$', password_reset_done, name="password_reset_done"),
     url(r'^password_reset_confirm/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$', password_reset_confirm, name="password_reset_confirm"),
     url(r'^password_reset_complete/$', password_reset_complete, name="password_reset_complete"),
+    url(r'^afegeix_proveidors/', views.afegeix_proveidors, name="afegeix_proveidors" ),
+
 )
 
 #http://stackoverflow.com/questions/21284672/django-password-reset-password-reset-confirm

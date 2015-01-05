@@ -1,6 +1,6 @@
 # Create your views here.
 
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from comandes.models import *
 from django.contrib.auth.decorators import login_required
@@ -349,4 +349,19 @@ def test_email( request ):
     email = EmailMessage('Hello', 'World', to=['emieza@xtec.cat'])
     email.send()
     return HttpResponse( "Enviant email" )
+    
+
+#http://stackoverflow.com/questions/17968781/how-to-add-button-next-to-add-user-button-in-django-admin-site
+@login_required
+def afegeix_proveidors( request ):
+    coope = request.user.soci.cooperativa
+    if coope:
+        activacions_fetes = Activacio.objects.filter(cooperativa=coope)
+        proveidors_fets = [ act.proveidor.id for act in activacions_fetes ]
+        proveidors = Proveidor.objects.exclude( id__in=proveidors_fets )
+        for prov in proveidors:
+            activacio = Activacio(cooperativa=coope,proveidor=prov)
+            activacio.actiu = False
+            activacio.save()
+    return HttpResponseRedirect(request.META['HTTP_REFERER'])
     

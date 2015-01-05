@@ -67,10 +67,14 @@ class SociForm(forms.ModelForm):
             self.fields['email'].initial = soci.user.email
         
 class SociAdmin(admin.ModelAdmin):
-    list_display = ('user','cooperativa','get_superuser','get_groups')
+    list_display = ('user','cooperativa','get_groups','get_actiu')
     form = SociForm
     readonly_fields = ('user',)
-
+    def get_actiu(self,obj):
+        return obj.user.is_active
+    get_actiu.short_description = "Actiu"
+    get_actiu.admin_order_field = "user__is_active"
+    get_actiu.boolean = True
     def get_superuser(self, obj):
         return obj.user.is_superuser
     get_superuser.short_description = "Super"
@@ -91,8 +95,9 @@ class SociAdmin(admin.ModelAdmin):
         return soci_form
     def get_queryset( self, request ):
         qs = super(SociAdmin,self).get_queryset(request)
-        # super-users can see all info
+        # super-users can see all info (+superuser status)
         if request.user.is_superuser:
+            self.list_display = ('user','cooperativa','get_superuser','get_groups')
             return qs
         # coopeadmin can see all users of his coope
         grp = Group.objects.get(name="coopeadmin")
@@ -119,14 +124,25 @@ class AvisAdmin(admin.ModelAdmin):
             return qs
         # coopeadmins nomes poden veure avisos de la seva coope
         coope = request.user.soci.cooperativa
-        qs = avisos.filter(cooperativa=coope)
+        qs = qs.filter(cooperativa=coope)
         return qs
+    def get_form(self, request, obj=None, **kwargs):
+        if not request.user.is_superuser:
+            # fixem la coope si no es admin
+            self.readonly_fields = ('cooperativa',)
+        form = super(AvisAdmin, self).get_form(request, obj, **kwargs)
+        return form
+    def save_model(self, request, avis, form, change):
+        if not request.user.is_superuser:
+            # fixem la coope si no es admin
+            avis.cooperativa = request.user.soci.cooperativa
+        avis.save()
 
 # inline dels productes en els proveidors
 class ProducteInline(admin.StackedInline):
 	fieldsets = [
-		(None,			{'fields': ['nom','actiu','proveidor','preu','granel'] }),
-		('Mes info',	{'fields': ['stock','notes'], 'classes':['collapse'] }),
+		(None,			{'fields': ['nom','preu','actiu'] }),
+		('Mes info',	{'fields': ['stock','granel','notes'], 'classes':['collapse'] }),
 	]
 	model = Producte
 	extra = 1
@@ -134,15 +150,24 @@ class ProducteInline(admin.StackedInline):
 class ProveidorAdmin(admin.ModelAdmin):
 	inlines = [ProducteInline]
 
+from django.contrib.admin.util import flatten_fieldsets
 class CustomUserAdmin(UserAdmin):
-	# TODO: forzar cooperativa a la del usuari actual
-	
+    list_display = ('username','first_name','last_name','email',
+                    'is_active','is_superuser','get_groups')
+    # visualitzacio
+    def get_groups(self, obj):
+        grps = ""
+        for group in obj.groups.all():
+            grps = grps + str(group)
+        return grps
+    get_groups.short_description = "Grups"
+    get_groups.admin_order_field = 'user__groups'
     def get_queryset(self, request):
         users = super(CustomUserAdmin,self).get_queryset(request)
         # superuser can see all users
         if request.user.is_superuser:
             return users
-        # coopeadmins can see their coope users and blank coope
+        # coopeadmins can only see their coope users
         coope = request.user.soci.cooperativa
         #TODO: filter(soci__cooperativa=coope) easier!
         exclude_ids = []
@@ -151,6 +176,11 @@ class CustomUserAdmin(UserAdmin):
                 exclude_ids.append(user.id)
 		users = users.exclude( id__in=exclude_ids )
         return users
+    # form i detall
+    def get_form(self, request, obj=None, **kwargs):
+        if not request.user.is_superuser:
+            self.readonly_fields = ('is_staff','is_superuser','groups','user_permissions',)
+        return super(CustomUserAdmin,self).get_form(request,obj,**kwargs)
     def save_model( self, request, user, form, change):
         # always staff members
         user.is_staff = True
@@ -166,8 +196,9 @@ class CustomUserAdmin(UserAdmin):
 
 class ActivacioAdmin(admin.ModelAdmin):
     list_display = ('cooperativa','proveidor','actiu','data')
-    order = ('-data',)
+    ordering = ('proveidor__nom',)
     list_editable = ('actiu','data')
+    actions = [ activa, desactiva ]
     def get_form(self, request, obj=None, **kwargs):
         if not request.user.is_superuser:
             # fixem la coope si no es super
