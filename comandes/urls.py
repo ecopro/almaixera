@@ -9,8 +9,6 @@ urlpatterns = patterns('',
     url(r'^fer_comanda', views.fer_comanda, name='fer_comanda'),
     url(r'^esborra_comanda', views.esborra_comanda, name='esborra_comanda'),
     url(r'^comandes', views.veure_comandes, name='comandes'),
-    url(r'^caixa', views.caixa, name='caixa'),
-    url(r'^pagament', views.pagament, name='pagament'),
     url(r'^informe_proveidors', views.informe_proveidors, name='informe_proveidors'),
     url(r'^informe_caixes', views.informe_caixes, name='informe_caixes'),
     url(r'^test_email', views.test_email, name="test_email"),
@@ -20,7 +18,7 @@ urlpatterns = patterns('',
     url(r'^password_reset_confirm/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$', password_reset_confirm, name="password_reset_confirm"),
     url(r'^password_reset_complete/$', password_reset_complete, name="password_reset_complete"),
     url(r'^afegeix_proveidors/', views.afegeix_proveidors, name="afegeix_proveidors" ),
-
+    url(r'^distribueix_productes/(?P<data_recollida>[0-9-]+)/(?P<producte>\w{0,50})/$', views.distribueix_productes, name="distribueix_productes" ),
 )
 
 #http://stackoverflow.com/questions/21284672/django-password-reset-password-reset-confirm

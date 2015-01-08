@@ -33,7 +33,7 @@ Informe per caixes - {{data|date:'SHORT_DATE_FORMAT'}} - {{cooperativa}}
             {{prod.list.0.producte__preu}} €/{% if prod.list.0.producte__granel %}kg.
             {% else %}unitat-manat
             {% endif %}
-            
+            <button onclick="window.location.href='/comandes/distribueix_productes/{{data|date:'Y-m-d'}}/{{prod.list.0.producte__id}}'">Distribueix</button>
         </td>
         <td style="background-color:#aaaaaa;">total: {{prod.list.0.total}}
             {% if prod.list.0.producte__granel %}

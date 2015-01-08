@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}
+Distribueix producte - {{data|date:'SHORT_DATE_FORMAT'}} - {{producte}}
+{% endblock %}
+
+{% block contingut %}
+
+<button onclick="window.location.href='/comandes/informe_caixes?data_informe={{data}}'">Torna a l'informe</button>
+
+<h2>Distribueix {{producte.nom}}</h2>
+DATA: {{data}} - Proveidor: {{producte.proveidor.nom}}<br><br>
+
+<form method="post" id="comanda">{% csrf_token %}
+{{ detalls_formset.management_form }}
+<input type="submit" value="Envia" />
+
+<table>
+<tr>
+    <td>Soci</td>
+    <td>Quantitat demanada</td>
+    <td>Quantitat rebuda</td>
+    <td>Preu rebut</td>
+</tr>
+{% for detall in detalls_formset %}
+<tr>
+    <td>{{detall.comanda__soci__user__username}}</td>
+    <td>{{detall.quantitat}}</td>
+    <td>{{detall.quantitat_rebuda}}</td>
+    <td>{{detall.preu_rebut}}</td>
+</tr>
+{% endfor %}
+</table>
+
+<input type="submit" value="Envia" />
+</form>
+
+{% endblock %}

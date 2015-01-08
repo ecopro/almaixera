@@ -15,7 +15,6 @@ from django.db.models import Sum
 """
     FORMS
 """
-
 class DetallForm(ModelForm):
     '''def __init__(self,*args,**kwargs):
         # si no el traiem amb 'pop' el init del form peta
@@ -127,7 +126,7 @@ def fer_comanda(request):
         comanda_form = ComandaForm( request.POST )
         DetallsFormSet = formset_factory( DetallForm )
         detalls_formset = DetallsFormSet( request.POST )
-        # filter products
+        # filter products (and optimize! :)
         for form in detalls_formset:
             form.fields['producte'].queryset = productes
         user = request.user
@@ -213,7 +212,6 @@ def fer_comanda(request):
                 'productes':productes,
             } )
 
-
 @login_required
 def veure_comandes(request):
     user = request.user
@@ -236,7 +234,6 @@ def veure_comandes(request):
             total += subtotal
         comanda.total = total
     return render( request, 'comandes.html', {"comandes":comandes} )
-
 
 @login_required
 def esborra_comanda(request):
@@ -266,15 +263,6 @@ def esborra_comanda(request):
                    {"data_recollida":data_recollida,
                     #"missatge":"ERROR: en comanda="+str(comanda)+" confirma="+str(confirma)
                     })
-
-@login_required
-def caixa(request):
-    return HttpResponse("Torn de caixa: ...")
-
-
-@login_required
-def pagament(request):
-    return HttpResponse("Pagament: ...")
 
 
 """
@@ -309,16 +297,13 @@ def informe_proveidors( request ):
     return render( request, 'informe_proveidors.html',
                     {"data":data,"productes":productes,"cooperativa":coope} )
 
-@login_required    
-def informe_caixes( request ):
-    # data informe
-    data = datetime.strptime( request.GET.get('data_informe'), "%Y-%m-%d" )
-    ## METODE 2: 1 sola query. agrupem en el template
-    coope = request.user.soci.cooperativa
+
+def detalls_informe_caixes( data, coope, producte=None ):
+    # METODE 2: 1 sola query. agrupem en el template
     detalls = DetallComanda.objects.filter(
             comanda__data_recollida=data,
             comanda__soci__cooperativa=coope )\
-            .values('producte__nom',
+            .values('producte__nom','producte__id',
                 'producte__granel',
                 'producte__preu',
                 'producte__proveidor__nom',
@@ -327,10 +312,16 @@ def informe_caixes( request ):
                 'comanda__soci__user__first_name',
                 'comanda__soci__user__last_name')\
             .order_by('producte__nom','comanda__soci__num_caixa')
-    """# TODO: subtotals amb annotate
-    subtotals = DetallComanda.objects.filter(
-                comanda__data_recollida=data ).annotate( Sum("quantitat") )
-    print subtotals"""
+    if producte:
+        detalls = detalls.filter( producte=producte )
+    return detalls
+
+@login_required    
+def informe_caixes( request ):
+    # data informe
+    data = datetime.strptime( request.GET.get('data_informe'), "%Y-%m-%d" )
+    coope = request.user.soci.cooperativa
+    detalls = detalls_informe_caixes( data, coope )
     # calculem subtotals (iterant, de moment)
     for detall in detalls:
         qs = detalls.filter(producte__nom=detall['producte__nom'])
@@ -350,7 +341,6 @@ def test_email( request ):
     email.send()
     return HttpResponse( "Enviant email" )
     
-
 #http://stackoverflow.com/questions/17968781/how-to-add-button-next-to-add-user-button-in-django-admin-site
 @login_required
 def afegeix_proveidors( request ):
@@ -364,4 +354,31 @@ def afegeix_proveidors( request ):
             activacio.actiu = False
             activacio.save()
     return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
     
+class DetallFormComplet(ModelForm):
+    readonly_fields = ('quantitat_demanada', 'soci',)
+    class Meta:
+        model = DetallComanda
+        #fields = ['producte','quantitat']
+
+@login_required
+def distribueix_productes( request, data_recollida, producte ):
+    data = data_recollida
+    producte_obj = Producte.objects.get(id=producte)
+    coope = request.user.soci.cooperativa
+    # TODO: afegir dades de cada caixa (enlloc de comanda) per renderitzar
+    
+    if request.method=="POST":
+        # valors retornats: actualitzar
+        DetallsFormSet = formset_factory( DetallFormComplet )
+        detalls_formset = DetallsFormSet( request.POST )
+        # TODO: processar formset si valid i salvar detalls
+    else:
+        # generem form i omplim amb dades amb initial
+        detalls = detalls_informe_caixes( data, coope, producte_obj )
+        DetallsFormSet = formset_factory( DetallFormComplet )
+        detalls_formset = DetallsFormSet( initial=detalls )
+    return render( request, 'distribueix_producte.html',
+                {"producte": producte_obj, "data":data, "detalls_formset":detalls_formset} )
+
