@@ -4,6 +4,9 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 admin.autodiscover()
 
+from django.conf.urls.static import static
+import settings
+
 urlpatterns = patterns('',
     # Examples:
     url(r'^$', 'django1.views.home', name='home'),
@@ -17,4 +20,4 @@ urlpatterns = patterns('',
     url(r'^comandes/', include('comandes.urls')),
     url(r'^accounts/login/$', 'django.contrib.auth.views.login',{'template_name': 'login.html'}),
     url(r'^accounts/logout/$', 'django.contrib.auth.views.logout',{'next_page': '/'}),
-)
+) #+ static( settings.STATIC_URL, document_root=settings.STATIC_ROOT)

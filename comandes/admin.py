@@ -91,6 +91,8 @@ class SociAdmin(admin.ModelAdmin):
         if not request.user.is_superuser:
             # fixem la coope si no es admin
             self.readonly_fields = ('user','cooperativa')
+        else:
+            self.readonly_fields = ()
         soci_form = super(SociAdmin, self).get_form(request, obj, **kwargs)
         return soci_form
     def get_queryset( self, request ):
