@@ -24,15 +24,19 @@ DATA: {{data}} - Proveidor: {{producte.proveidor.nom}}<br><br>
     <td>Preu rebut</td>
 </tr>
 {% for detall in detalls_formset %}
-<tr>
+<!--tr>
     <td>{{detall.producte}}</td>
     <td>{{detall.comanda}}</td>
     <td>{{detall.quantitat}}</td>
     <td>{{detall.quantitat_rebuda}}</td>
     <td>{{detall.preu_rebut}}</td>
-</tr>
+</tr-->
 {% endfor %}
 </table>
+
+
+{{detalls_formset}}
+
 
 <input type="submit" value="Envia" />
 </form>
