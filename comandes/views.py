@@ -187,7 +187,7 @@ def fer_comanda(request):
         comanda = Comanda.objects.filter( soci=request.user.soci,
                         data_recollida=request.GET.get("data_recollida"))
         detalls = DetallComanda.objects.filter( comanda=comanda )
-        # trasnformar objectes en diccionaris per reconstruir menu
+        # transformar objectes en diccionaris per reconstruir menu
         detalls_dicts = []
         for item in detalls:
             # transformen attrs en dict
@@ -297,12 +297,11 @@ def informe_proveidors( request ):
     return render( request, 'informe_proveidors.html',
                     {"data":data,"productes":productes,"cooperativa":coope} )
 
-
+# dades per informes
 def detalls_informe_caixes( data, coope, producte=None ):
-    # METODE 2: 1 sola query. agrupem en el template
+    # METODE 2: 1 sola query, agrupem en el template
     detalls = DetallComanda.objects.filter(
-            comanda__data_recollida=data,
-            comanda__soci__cooperativa=coope )\
+            comanda__data_recollida=data, )\
             .values('producte__nom','producte__id',
                 'producte__granel',
                 'producte__preu',
@@ -310,10 +309,13 @@ def detalls_informe_caixes( data, coope, producte=None ):
                 'comanda__soci__num_caixa','quantitat',
                 'comanda__soci__user__username',
                 'comanda__soci__user__first_name',
-                'comanda__soci__user__last_name')\
+                'comanda__soci__user__last_name',
+                'comanda','producte',)\
             .order_by('producte__nom','comanda__soci__num_caixa')
     if producte:
         detalls = detalls.filter( producte=producte )
+    if coope:
+        detalls = detalls.filter( cooperativa=coope )
     return detalls
 
 @login_required    
@@ -357,10 +359,10 @@ def afegeix_proveidors( request ):
 
     
 class DetallFormComplet(ModelForm):
-    readonly_fields = ('quantitat_demanada', 'soci',)
     class Meta:
         model = DetallComanda
-        #fields = ['producte','quantitat']
+        #fields = ['producte','quantitat','quantitat_rebuda','preu_rebut']
+
 
 @login_required
 def distribueix_productes( request, data_recollida, producte ):
@@ -371,14 +373,31 @@ def distribueix_productes( request, data_recollida, producte ):
     
     if request.method=="POST":
         # valors retornats: actualitzar
-        DetallsFormSet = formset_factory( DetallFormComplet )
+        DetallsFormSet = formset_factory( DetallFormComplet, extra=0 )
         detalls_formset = DetallsFormSet( request.POST )
-        # TODO: processar formset si valid i salvar detalls
+        # processar formset si valid i salvar detalls
+        if not detalls_formset.is_valid():
+            return render( request, 'distribueix_producte.html',
+                        {"producte": producte_obj, "data":data,
+                        "detalls_formset":detalls_formset,
+                        "missatge": "ERROR: dades incorrectes"} )
+        else:
+            # processar formset valid
+            for detall in detalls_formset.forms:
+                detall.save()
     else:
-        # generem form i omplim amb dades amb initial
+        # generem form i omplim dades amb initial
         detalls = detalls_informe_caixes( data, coope, producte_obj )
-        DetallsFormSet = formset_factory( DetallFormComplet )
+        DetallsFormSet = formset_factory( DetallFormComplet, extra=0 )
         detalls_formset = DetallsFormSet( initial=detalls )
+    # ajustar camps de nomes-lectura
+    for detall in detalls_formset:
+        detall.fields['quantitat'].widget.attrs['readonly'] = True
+        detall.fields['producte'].widget.attrs['readonly'] = True
+        detall.fields['comanda'].widget.attrs['readonly'] = True
+        detall.fields['producte'].widget.attrs['hidden'] = True
+        detall.fields['comanda'].widget.attrs['hidden'] = True
     return render( request, 'distribueix_producte.html',
-                {"producte": producte_obj, "data":data, "detalls_formset":detalls_formset} )
+                {"producte": producte_obj, "data":data,
+                "detalls_formset":detalls_formset} )
 
