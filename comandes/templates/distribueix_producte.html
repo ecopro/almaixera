@@ -4,6 +4,12 @@
 Distribueix producte - {{data|date:'SHORT_DATE_FORMAT'}} - {{producte}}
 {% endblock %}
 
+{% block estilscss %}
+input[type="number"] {
+    width: 90px;
+}
+{% endblock %}
+
 {% block contingut %}
 
 <button onclick="window.location.href='/comandes/informe_caixes?data_informe={{data}}'">Torna a l'informe</button>
@@ -15,27 +21,29 @@ DATA: {{data}} - Proveidor: {{producte.proveidor.nom}}<br><br>
 {{ detalls_formset.management_form }}
 <input type="submit" value="Envia" />
 
-<table>
-<tr>
+<table class="taula_informe" style="border:1px solid black">
+<thead>
     <td>Caixa</td>
     <td>Soci</td>
-    <td>Quantitat demanada</td>
-    <td>Quantitat rebuda</td>
+    <td>Quantitat<br>demanada</td>
+    <td>Quantitat<br>rebuda</td>
     <td>Preu rebut</td>
-</tr>
+</thead>
 {% for detall in detalls_formset %}
-<!--tr>
-    <td>{{detall.producte}}</td>
-    <td>{{detall.comanda}}</td>
-    <td>{{detall.quantitat}}</td>
+<tr>
+    <td>
+        <!-- hidden fields -->
+        {{detall.id}}
+        <!-- not hidden -->
+        {{detall.num_caixa}}
+    </td>
+    <td>{{detall.soci}}</td>
+    <td>{{detall.quant}}</td>
     <td>{{detall.quantitat_rebuda}}</td>
     <td>{{detall.preu_rebut}}</td>
-</tr-->
+</tr>
 {% endfor %}
 </table>
-
-
-{{detalls_formset}}
 
 
 <input type="submit" value="Envia" />

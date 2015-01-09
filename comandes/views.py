@@ -312,7 +312,7 @@ def detalls_informe_caixes( data, coope, producte=None ):
                 'comanda__soci__user__first_name',
                 'comanda__soci__user__last_name',
                 'comanda__soci__cooperativa',
-                'comanda','producte',)\
+                'comanda','producte','quantitat','quantitat_rebuda')\
             .order_by('producte__nom','comanda__soci__num_caixa')
     if producte:
         detalls = detalls.filter( producte=producte )
@@ -363,8 +363,8 @@ def afegeix_proveidors( request ):
 class DetallFormComplet(ModelForm):
     class Meta:
         model = DetallComanda
-        #fields = ['comanda','producte','quantitat','quantitat_rebuda','preu_rebut']
-
+        exclude = ['comanda','producte','quantitat']
+        #fields = ['quantitat','quantitat_rebuda','preu_rebut']
 
 @login_required
 def distribueix_productes( request, data_recollida, producte ):
@@ -373,19 +373,18 @@ def distribueix_productes( request, data_recollida, producte ):
     coope = request.user.soci.cooperativa
     # TODO: afegir dades de cada caixa (enlloc de comanda) per renderitzar
 
-    # generem form i omplim dades amb initial
+    # generem dades pel form
     #detalls = detalls_informe_caixes( data, coope, producte_obj )
     detalls = DetallComanda.objects.filter(
-                comanda__data_recollida=data, producte=producte_obj,
-                comanda__soci__cooperativa=coope)
+                comanda__data_recollida=data, producte=producte_obj)\
+                .order_by('comanda__soci__num_caixa')
     if coope:
         detalls = detalls.filter( comanda__soci__cooperativa=coope )
+    # creem formset class
     DetallsFormSet = modelformset_factory( DetallComanda, form=DetallFormComplet, extra=0 )
-    detalls_formset = DetallsFormSet( queryset=detalls )
     
     if request.method=="POST":
         # valors retornats: actualitzar
-        #DetallsFormSet = formset_factory( DetallFormComplet, extra=0 )
         detalls_formset = DetallsFormSet( request.POST )
         # processar formset si valid i salvar detalls
         if not detalls_formset.is_valid():
@@ -397,15 +396,25 @@ def distribueix_productes( request, data_recollida, producte ):
             # processar formset valid
             for detall in detalls_formset.forms:
                 detall.save()
+    else:
+        # generem form i omplim dades amb initial/queryset
+        detalls_formset = DetallsFormSet( queryset=detalls )
 
-    # ajustar camps de nomes-lectura
-    for detall in detalls_formset:
-        pass
-        detall.fields['quantitat'].widget.attrs['readonly'] = "True"
-        detall.fields['producte'].widget.attrs['readonly'] = "True"
-        detall.fields['comanda'].widget.attrs['readonly'] = "True"
-        detall.fields['producte'].widget.attrs['hidden'] = True
-        detall.fields['comanda'].widget.attrs['hidden'] = True
+    # ajustar camps de nomes-lectura i dades a mostrar afegides
+    for detall_form in detalls_formset:
+        # dades afegides per mostrar
+        detall_id = detall_form['id'].value()
+        detall_obj = DetallComanda.objects.get(id=detall_id)
+        detall_form.num_caixa = detall_obj.comanda.soci.num_caixa
+        detall_form.soci = "("+detall_obj.comanda.soci.user.username+") " \
+                        + detall_obj.comanda.soci.user.first_name +" " \
+                        + detall_obj.comanda.soci.user.last_name
+        detall_form.quant = detall_obj.quantitat
+        # tamany dels camps
+        #detall_form.fields['quantitat'].widget.attrs['size'] = 4
+        detall_form.fields['quantitat_rebuda'].widget.attrs['pattern'] = "\f*"
+        # camps de nomes-lectura
+        #detall_form.fields['quantitat'].widget.attrs['readonly'] = True
     return render( request, 'distribueix_producte.html',
                 {"producte": producte_obj, "data":data,
                 "detalls_formset":detalls_formset} )

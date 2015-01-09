@@ -5,16 +5,20 @@ Install
 
 Cal instal·lar (en un virtualenv):
 
-- django 1.6 minim
-- django_multiform
+- django 1.7 minim
 
 Ajustos:
 - copiar django1/email_settings.sample.py a django1/email_settings.py
 - Crear DB amb:
-	$ python manage.py syncdb --migrate
+	$ python manage.py migrate
+- crear superuser Django
 - entrar a Django admin i canviar
 	- crear nou GlobalConf
 	- modificar Site i posar el nou domini
+	- crear 2 grups 'coopeadmin' i 'soci'
+		- soci: permisos per modificar objecte Soci
+		- coopeadmin: permisos totals sobre avisos, activacions, usuaris, 
+			i permisos de modificacio i eliminacio de socis (no de creacio)
 
 
 Run
@@ -35,6 +39,6 @@ Deploy
 
 Database Migrations
 -------------------
-Per migrar els canvis de la base de dades hi ha instal·lat South:
-$ python manage.py schemamigration comandes --auto
+Ja no s'utilitza South des de Django 1.7. Per tant:
+$ python manage.py makemigrations
 $ python manage.py migrate comandes

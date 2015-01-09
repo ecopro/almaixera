@@ -26,7 +26,7 @@ Informe per caixes - {{data|date:'SHORT_DATE_FORMAT'}} - {{cooperativa}}
 <p>Proveidor: {{prod.list.0.producte__proveidor__nom}}</p-->
 <table class="taula_informe" style="border:1px solid black">
     <thead>
-        <td colspan="3" style="background-color:#aaaaaa;">
+        <td colspan="3" style="text-align:left;">
             <b><big>{{prod.grouper}}</big></b>
             ({{prod.list.0.producte__proveidor__nom}})
             -
@@ -35,7 +35,7 @@ Informe per caixes - {{data|date:'SHORT_DATE_FORMAT'}} - {{cooperativa}}
             {% endif %}
             <button onclick="window.location.href='/comandes/distribueix_productes/{{data|date:'Y-m-d'}}/{{prod.list.0.producte__id}}'">Distribueix</button>
         </td>
-        <td style="background-color:#aaaaaa;">total: {{prod.list.0.total}}
+        <td>total: {{prod.list.0.total}}
             {% if prod.list.0.producte__granel %}
             kgs.
             {% else %}
@@ -51,16 +51,27 @@ Informe per caixes - {{data|date:'SHORT_DATE_FORMAT'}} - {{cooperativa}}
     </tr>
     {% for detall in prod.list %}
     <tr>
-        <td style="text-align:center;">{{detall.comanda__soci__num_caixa}}</td>
-        <td style="text-align:center;">( {{detall.comanda__soci__user__username}} ) {{detall.comanda__soci__user__first_name}} {{detall.comanda__soci__user__last_name}}</td>
-        <td style="text-align:center;">{{detall.quantitat}}
-        {% if detall.producte__granel %}
-        kgs.
-        {% else %}
-        unitats/manats
-        {% endif %}
+        <td>{{detall.comanda__soci__num_caixa}}</td>
+        <td>
+            ( {{detall.comanda__soci__user__username}} )
+            {{detall.comanda__soci__user__first_name}}
+            {{detall.comanda__soci__user__last_name}}
         </td>
-        <td style="text-align:center;"></td>
+        <td>
+            {{detall.quantitat}}
+            {% if detall.producte__granel %}
+            kgs.
+            {% else %}
+            unitats/manats
+            {% endif %}
+        </td>
+        <td>{{detall.quantitat_rebuda}}
+            {% if detall.producte__granel %}
+            kgs.
+            {% else %}
+            unitats/manats
+            {% endif %}
+        </td>
     </tr>
     {% endfor %}
 </table>
