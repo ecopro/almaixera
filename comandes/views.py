@@ -410,9 +410,6 @@ def distribueix_productes( request, data_recollida, producte ):
                         + detall_obj.comanda.soci.user.first_name +" " \
                         + detall_obj.comanda.soci.user.last_name
         detall_form.quant = detall_obj.quantitat
-        # tamany dels camps
-        #detall_form.fields['quantitat'].widget.attrs['size'] = 4
-        detall_form.fields['quantitat_rebuda'].widget.attrs['pattern'] = "\f*"
         # camps de nomes-lectura
         #detall_form.fields['quantitat'].widget.attrs['readonly'] = True
     return render( request, 'distribueix_producte.html',
