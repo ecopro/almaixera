@@ -38,7 +38,6 @@ Merci
         admins = Soci.objects.filter( user__is_superuser=True )
         adminemails = [ admin.user.email for admin in admins ]
         # Proveidors
-        dest = []
         for prov in Proveidor.objects.all():
             #print prov
             hihaproductes = False
@@ -75,10 +74,8 @@ Merci
                 data2 = data.strftime("%a, %d de %b")
                 email = EmailMessage( assumpte, text %
                         (unicode(prov.nom),data2,informe,contacte) )
-                dest.append( prov.email )
                 email.cc = adminemails
                 email.to = [prov.email]
-                email.to = ['emieza@xtec.cat']
                 # Envia email
                 #print email.message() # debug
                 email.send()
