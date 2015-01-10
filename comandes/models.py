@@ -35,13 +35,13 @@ class GlobalConf(SingletonModel):
 class Cooperativa(models.Model):
     nom = models.CharField( max_length=200 )
     # tots aquests camps s'inclouen en l'usuari coopeadmin enlloc d'aqui
-    #direccio = models.CharField( max_length=200 )
-    #cp = models.CharField( max_length=8 )
-    #poblacio = models.CharField( max_length=200 )
-    #contacte = models.CharField( max_length=200 )
-    #telefon1 = models.CharField( max_length=30, blank=True )
-    #telefon2 = models.CharField( max_length=30, blank=True )
-    #telefon3 = models.CharField( max_length=30, blank=True )
+    #direccio = models.CharField( max_length=200, null=True )
+    #cp = models.CharField( max_length=8, null=True )
+    #poblacio = models.CharField( max_length=200, null=True )
+    #contacte = models.CharField( max_length=200, null=True )
+    #telefon1 = models.CharField( max_length=30, blank=True, null=True )
+    #telefon2 = models.CharField( max_length=30, blank=True, null=True )
+    #telefon3 = models.CharField( max_length=30, blank=True, null=True )
     notes = models.TextField( blank=True )
     def __unicode__(self):
         return self.nom

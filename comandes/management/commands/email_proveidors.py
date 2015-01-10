@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.core.mail import EmailMessage
 from django.db.models import Sum
 from comandes.models import *
-from comandes.helpers import propera_comanda
+from comandes.helpers import *
 import locale, time
 
 locale.setlocale(locale.LC_TIME,"ca_ES.utf8")
@@ -33,15 +33,19 @@ Si hi hagués cap problema, contacti sisplau amb:
 Merci
 """
         assumpte = "Comanda online cooperatives almaixera.cat"
-        data = propera_comanda()
+        data = propera_recollida()
+        print data
         # Proveidors
         dest = []
         for prov in Proveidor.objects.all():
+            #print prov
             hihaproductes = False
             informe = ""
             contacte = ""
             # Creem informe de productes per proveidor i coope
             for coope in Cooperativa.objects.all():
+                hihaproductescoope = False
+                #print "\t"+str(coope)
                 detalls = DetallComanda.objects.filter(
                         producte__proveidor=prov,
                         comanda__data_recollida=data,
@@ -49,25 +53,30 @@ Merci
                         .values('producte__nom')\
                         .annotate(Sum('quantitat'))\
                         .order_by('producte__nom')
-                # afegim dades coopeadmin
-                coopeadmins = Soci.objects.filter(cooperativa=coope,user__groups__name='coopeadmin')
-                for coopeadmin in coopeadmins:
-                    contacte = coope.nom + ": " + coopeadmin.user.first_name\
-                            + " " + coopeadmin.user.email \
-                            + " telf=" + coopeadmin.telefon1
                 # afegim productes al informe
-                informe += "\n" + "COOPERTIVA "+coope.nom+"\n"
+                if len(detalls):
+                    informe += "\n" + "COOPERTIVA "+coope.nom+"\n"
                 for detall in detalls:
                     hihaproductes = True
+                    hihaproductescoope = True
                     informe += detall['producte__nom']+" : "+unicode(detall['quantitat__sum'])+"\n"
+                #if hihaproductes: print "\t\t"+str(hihaproductes)
+                # afegim dades coopeadmin
+                if hihaproductescoope:
+                    coopeadmins = Soci.objects.filter(cooperativa=coope,user__groups__name='coopeadmin')
+                    for coopeadmin in coopeadmins:
+                        contacte += coope.nom + ": " + coopeadmin.user.first_name\
+                                + " " + coopeadmin.user.email \
+                                + " telf=" + coopeadmin.telefon1 + "\n"
             if prov.email and hihaproductes:
                 # Crea email
-                data2 = datetime.datetime.strptime(data,"%Y-%m-%d").strftime("%a, %d de %b")
+                data2 = data.strftime("%a, %d de %b")
                 email = EmailMessage( assumpte, text %
                         (unicode(prov.nom),data2,informe,contacte) )
                 dest.append( prov.email )
-                email.bcc = ['emieza@xtec.cat']
+                email.cc = []
+                email.to = [prov.email]
                 # Envia email
-                print email.message() # debug
-                #email.send()
+                #print email.message() # debug
+                email.send()
 

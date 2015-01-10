@@ -288,13 +288,14 @@ def informe_proveidors( request ):
     # annotate: agrupa les comandes del mateix producte d'un mateix soci
     coope = request.user.soci.cooperativa
     productes = DetallComanda.objects.filter(
-            comanda__data_recollida=data,
-            comanda__soci__cooperativa=coope )\
+            comanda__data_recollida=data )\
             .values('producte__nom','producte__proveidor__nom',
                 'producte__proveidor__email','producte__granel',
                 'producte__proveidor__telefon1',)\
             .annotate( Sum("quantitat") )\
             .order_by('producte__proveidor__nom')
+    if coope:
+        productes = productes.filter( comanda__soci__cooperativa=coope )
     return render( request, 'informe_proveidors.html',
                     {"data":data,"productes":productes,"cooperativa":coope} )
 
@@ -371,8 +372,6 @@ def distribueix_productes( request, data_recollida, producte ):
     data = data_recollida
     producte_obj = Producte.objects.get(id=producte)
     coope = request.user.soci.cooperativa
-    # TODO: afegir dades de cada caixa (enlloc de comanda) per renderitzar
-
     # generem dades pel form
     #detalls = detalls_informe_caixes( data, coope, producte_obj )
     detalls = DetallComanda.objects.filter(
@@ -382,7 +381,7 @@ def distribueix_productes( request, data_recollida, producte ):
         detalls = detalls.filter( comanda__soci__cooperativa=coope )
     # creem formset class
     DetallsFormSet = modelformset_factory( DetallComanda, form=DetallFormComplet, extra=0 )
-    
+    # processem dades
     if request.method=="POST":
         # valors retornats: actualitzar
         detalls_formset = DetallsFormSet( request.POST )
