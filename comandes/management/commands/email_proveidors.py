@@ -51,7 +51,7 @@ Merci
                         producte__proveidor=prov,
                         comanda__data_recollida=data,
                         comanda__soci__cooperativa=coope )\
-                        .values('producte__nom')\
+                        .values('producte__nom','producte__granel')\
                         .annotate(Sum('quantitat'))\
                         .order_by('producte__nom')
                 # afegim productes al informe
@@ -60,7 +60,10 @@ Merci
                 for detall in detalls:
                     hihaproductes = True
                     hihaproductescoope = True
-                    informe += detall['producte__nom']+" : "+unicode(detall['quantitat__sum'])+"\n"
+                    informe += detall['producte__nom']+" : "+unicode(detall['quantitat__sum'])
+                    if detall['producte__granel']:
+                        informe += " kgs."
+                    informe += "\n"
                 #if hihaproductes: print "\t\t"+str(hihaproductes)
                 # afegim dades coopeadmin
                 if hihaproductescoope:
@@ -76,7 +79,8 @@ Merci
                         (unicode(prov.nom),data2,informe,contacte) )
                 email.cc = adminemails
                 email.to = [prov.email]
-                # Envia email
-                #print email.message() # debug
-                email.send()
-
+                #debug
+                email.to = ["emieza@xtec.cat"]
+                print email.message()
+                #Envia email
+                #email.send()

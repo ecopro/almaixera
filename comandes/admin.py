@@ -4,10 +4,14 @@ from django.contrib.auth.models import User, Group
 from django.contrib.auth.admin import UserAdmin
 from django import forms
 
+
+class DetallInline(admin.TabularInline):
+	model = DetallComanda
+	extra = 1
+
 class DetallAdmin(admin.ModelAdmin):
     # FK with getters
     list_display = ('data_recollida','nom','cognom','producte','quantitat','proveidor')
-    # FK with "__"
     search_fields = ('quantitat','producte__nom','comanda__data_recollida','producte__proveidor__nom','comanda__soci__user__username','comanda__soci__user__first_name')
     # filter by user
     def get_queryset( self, request):
@@ -16,10 +20,15 @@ class DetallAdmin(admin.ModelAdmin):
             # superuser no filtrat
             return qs
         # TODO: filtrar comandes ja tancades
-        # filtrar usuari
-        return qs.filter( comanda__soci=request.user.soci )
+        # filtrar coope usuari (per coopeadmins,
+        # usuaris normals no poden veure-ho)
+        return qs.filter( comanda__soci__cooperativa=request.user.soci.cooperativa )
 
 class ComandaAdmin(admin.ModelAdmin):
+    inlines = [ DetallInline ]
+    list_display = ('soci','data_recollida','data_creacio',)
+    ordering = ('-data_recollida','soci',)
+    search_fields = ('soci','data_recollida',)
     # filter by user
     def get_queryset( self, request):
         user = request.user
@@ -28,8 +37,7 @@ class ComandaAdmin(admin.ModelAdmin):
         if user.is_superuser:
             return qs
         # not admin: filter
-        # TODO: filtrar comandes ja tancades
-        return qs.filter( soci=request.user.soci )
+        return qs.filter( soci__cooperativa=request.user.soci.cooperativa )
 
 def activa(modeladmin, request, queryset):
     queryset.update(actiu=True)
@@ -115,7 +123,7 @@ class SociAdmin(admin.ModelAdmin):
         user.last_name = form.cleaned_data['cognom']
         user.email = form.cleaned_data['email']
         user.save()
-            
+        
 class AvisAdmin(admin.ModelAdmin):
     list_display = ('titol','data','cooperativa')
     ordering = ('data',)
@@ -234,5 +242,5 @@ admin.site.register( Soci, SociAdmin )
 admin.site.register( Proveidor, ProveidorAdmin )
 admin.site.register( Producte, ProducteAdmin )
 admin.site.register( Comanda, ComandaAdmin )
-admin.site.register( DetallComanda, DetallAdmin )
+#admin.site.register( DetallComanda, DetallAdmin )
 admin.site.register( Activacio, ActivacioAdmin )
