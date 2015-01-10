@@ -150,7 +150,8 @@ class ProducteInline(admin.StackedInline):
 	extra = 1
 
 class ProveidorAdmin(admin.ModelAdmin):
-	inlines = [ProducteInline]
+    list_display = ('nom','poblacio','email','telefon1',)
+    inlines = [ProducteInline]
 
 from django.contrib.admin.util import flatten_fieldsets
 class CustomUserAdmin(UserAdmin):

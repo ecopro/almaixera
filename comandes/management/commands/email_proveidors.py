@@ -34,7 +34,9 @@ Merci
 """
         assumpte = "Comanda online cooperatives almaixera.cat"
         data = propera_recollida()
-        print data
+        # admin email per check
+        admins = Soci.objects.filter( user__is_superuser=True )
+        adminemails = [ admin.user.email for admin in admins ]
         # Proveidors
         dest = []
         for prov in Proveidor.objects.all():
@@ -74,8 +76,9 @@ Merci
                 email = EmailMessage( assumpte, text %
                         (unicode(prov.nom),data2,informe,contacte) )
                 dest.append( prov.email )
-                email.cc = []
+                email.cc = adminemails
                 email.to = [prov.email]
+                email.to = ['emieza@xtec.cat']
                 # Envia email
                 #print email.message() # debug
                 email.send()
