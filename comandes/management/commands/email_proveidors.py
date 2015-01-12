@@ -80,7 +80,6 @@ Merci
                 email.cc = adminemails
                 email.to = [prov.email]
                 #debug
-                email.to = ["emieza@xtec.cat"]
-                print email.message()
+                #print email.message()
                 #Envia email
-                #email.send()
+                email.send()
