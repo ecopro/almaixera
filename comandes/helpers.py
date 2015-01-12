@@ -36,7 +36,6 @@ def properes_comandes():
         llista.append( (str(data), str(data.day)+" / "+str(data.month)) )
     return tuple(llista)
 
-
 # dates informe: totes les disponibles a la BBDD
 def dates_informe():
     dates = Comanda.objects.values('data_recollida').distinct().order_by('data_recollida')
@@ -47,6 +46,17 @@ def dates_informe():
     return tuple( llista )
     #return [ (str(d['data_recollida']),str(d['data_recollida'])) for d in dates ]
 
+def propera_recollida():
+    avui = date.today()
+    conf = GlobalConf.objects.get()
+    #dow_recollida = 1 #dimarts (p.ex)
+    dow_recollida = conf.dow_recollida
+    dow_tancament = conf.dow_tancament
+    hora_tancament = conf.hora_tancament
+    propera_recollida = dow_recollida - avui.weekday()
+    if propera_recollida<=0:
+        propera_recollida += 7
+    return avui+timedelta(days=propera_recollida)
 
 def propera_comanda():
     dates = properes_comandes()
@@ -68,7 +78,7 @@ def proper_tancament():
 
 
 def regenera_activacions():
-    '''
+    '''TODO:
     Regenera activacions de tots els productes per totes les coopes.
     Es cridara amb cada modificacio de coopes i proveidors (afegir)
     '''
