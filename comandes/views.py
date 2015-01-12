@@ -291,8 +291,8 @@ def informe_proveidors( request ):
             comanda__data_recollida=data,
             comanda__soci__cooperativa=coope )\
             .values('producte__nom','producte__proveidor__nom',
-                'producte__proveidor__email','producte__granel',
-                'producte__proveidor__telefon1',)\
+                'producte__proveidor__email','producte__proveidor__email2',
+                'producte__granel','producte__proveidor__telefon1',)\
             .annotate( Sum("quantitat") )\
             .order_by('producte__proveidor__nom')
     return render( request, 'informe_proveidors.html',

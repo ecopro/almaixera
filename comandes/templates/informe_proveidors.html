@@ -23,8 +23,9 @@ Informe per proveïdors - {{data|date:'SHORT_DATE_FORMAT'}} - {{cooperativa}}
 
 {% for prov in prov_list %}
 <h3>{{prov.grouper}}</h3>
-<p>{{prov.list.0.producte__proveidor__telefon1}} / 
-{{prov.list.0.producte__proveidor__email}}</p>
+<p>{{prov.list.0.producte__proveidor__telefon1}} , 
+{{prov.list.0.producte__proveidor__email}} , 
+{{prov.list.0.producte__proveidor__email2}}</p>
 <table class="taula_informe" style="border:1px solid black">
     <thead>
         <td>Producte</td>

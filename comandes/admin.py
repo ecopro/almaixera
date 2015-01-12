@@ -62,9 +62,11 @@ class SociForm(forms.ModelForm):
         # load data from user
         if 'instance' in kwargs.keys():
             soci = kwargs['instance']
-            self.fields['nom'].initial = soci.user.first_name
-            self.fields['cognom'].initial = soci.user.last_name
-            self.fields['email'].initial = soci.user.email
+            # proteccio pel 1r super fet des de comanda
+            if hasattr(soci,'user'):
+                self.fields['nom'].initial = soci.user.first_name
+                self.fields['cognom'].initial = soci.user.last_name
+                self.fields['email'].initial = soci.user.email
         
 class SociAdmin(admin.ModelAdmin):
     list_display = ('user','cooperativa','get_groups','get_actiu')
