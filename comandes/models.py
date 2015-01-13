@@ -143,6 +143,17 @@ class DetallComanda(models.Model):
     def username(self):
         return self.comanda.soci.user.username
 
+
+class ComandaStock(models.Model):
+    producte = models.ForeignKey(Producte)
+    soci = models.ForeignKey(Soci)
+    data_creacio = models.DateTimeField('data creacio')
+    quantitat = models.FloatField(default=0, validators=[valida_no_zero] )
+    quantitat_rebuda = models.FloatField(default=0)
+    preu_rebut = models.DecimalField(max_digits=5,decimal_places=2,default=0.0)
+    class Meta:
+        unique_together = ('producte','soci')
+
 # Activa proveidors per cada coope
 class Activacio(models.Model):
     proveidor = models.ForeignKey(Proveidor)
@@ -153,3 +164,5 @@ class Activacio(models.Model):
     notes = models.TextField(blank=True)
     def __unicode__(self):
         return unicode(self.proveidor)+u" "+unicode(self.cooperativa)
+
+

@@ -3,7 +3,7 @@ from models import *
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.admin import UserAdmin
 from django import forms
-
+from datetime import datetime
 
 class DetallInline(admin.TabularInline):
 	model = DetallComanda
@@ -47,7 +47,7 @@ def desactiva(modeladmin, request, queryset):
 desactiva.short_description = "Desctiva els productes"
 
 class ProducteAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__','actiu','preu','granel','proveidor')
+    list_display = ('__unicode__','actiu','preu','granel','stock','proveidor')
     search_fields = ('nom','proveidor__nom')
     list_editable = ('actiu',)
     ordering = ('nom',)
@@ -234,6 +234,39 @@ class ActivacioAdmin(admin.ModelAdmin):
         activacions = activacions.filter(cooperativa=coope)
         return activacions
 
+class ComandaStockForm(forms.ModelForm):
+    class Meta:
+        model = ComandaStock
+    def __init__(self, *args, **kwargs):
+        super(ComandaStockForm,self).__init__(*args, **kwargs)
+        # filtrem productes de stock
+        self.fields['producte'].queryset = Producte.objects.filter(stock=True)
+
+class ComandaStockAdmin(admin.ModelAdmin):
+    list_display = ('producte','soci','quantitat','data_creacio')
+    list_editable = ('quantitat',)
+    form = ComandaStockForm
+    def get_form(self, request, obj=None, **kwargs):
+        # els socis nomes poden fer comandes per ells mateixos
+        if not request.user.is_superuser:
+            self.readonly_fields = ('soci','data_creacio')
+        form = super(ComandaStockAdmin, self).get_form(request, obj, **kwargs)
+        return form
+    def save_model(self, request, obj, form, change):
+        if not request.user.is_superuser:
+            obj.soci = request.user.soci
+            obj.data_creacio = datetime.now()
+        obj.save()
+    def get_queryset(self, request):
+        comandes = super(ComandaStockAdmin,self).get_queryset(request)
+        # coopeadmin can see all comandes-stock of his coope
+        grp = Group.objects.get(name="coopeadmin")
+        if grp in request.user.groups.all():
+            comandes = comandes.filter(soci__cooperativa=request.user.soci.cooperativa)
+        elif not request.user.is_superuser:
+            comandes = comandes.filter(soci=request.user.soci)
+        return comandes
+
 admin.site.unregister( User )
 admin.site.register( User, CustomUserAdmin )
 
@@ -246,3 +279,5 @@ admin.site.register( Producte, ProducteAdmin )
 admin.site.register( Comanda, ComandaAdmin )
 #admin.site.register( DetallComanda, DetallAdmin )
 admin.site.register( Activacio, ActivacioAdmin )
+admin.site.register( ComandaStock, ComandaStockAdmin )
+
