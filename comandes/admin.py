@@ -259,12 +259,9 @@ class ComandaStockAdmin(admin.ModelAdmin):
         obj.save()
     def get_queryset(self, request):
         comandes = super(ComandaStockAdmin,self).get_queryset(request)
-        # coopeadmin can see all comandes-stock of his coope
-        grp = Group.objects.get(name="coopeadmin")
-        if grp in request.user.groups.all():
+        # users can see all comandes-stock of its coope
+        if not request.user.is_superuser:
             comandes = comandes.filter(soci__cooperativa=request.user.soci.cooperativa)
-        elif not request.user.is_superuser:
-            comandes = comandes.filter(soci=request.user.soci)
         return comandes
 
 admin.site.unregister( User )
