@@ -17,17 +17,6 @@ from django.db.models import Sum
     FORMS
 """
 class DetallForm(ModelForm):
-    '''def __init__(self,*args,**kwargs):
-        # si no el traiem amb 'pop' el init del form peta
-        request = kwargs.pop('request')
-        super(DetallForm,self).__init__(*args,**kwargs)
-        self.fields["producte"].queryset = get_productes( request )
-        #self.fields["producte"].queryset = Producte.objects.filter(actiu=True)\
-        #    .extra(select={'lower_name':'lower(nom)'}).order_by('lower_name')
-        # lo seguent era per evitar etiquetes, pero les hem tret al template
-        #self.fields["producte"].label = ""
-        #self.fields["quantitat"].label = ""
-        #self.fields["quantitat"].placeholder = "quantitat"'''
     class Meta:
         model = DetallComanda
         fields = ['producte','quantitat']
@@ -83,7 +72,7 @@ def get_productes( request, data_recollida ):
         for prod in prods:
             active_prods.append( prod.id )
     productes = Producte.objects\
-                    .filter( actiu=True, id__in=active_prods )\
+                    .filter( actiu=True, stock=False, id__in=active_prods )\
                     .extra(select={'lower_name':'lower(nom)'})\
                     .order_by('lower_name')
     return productes
