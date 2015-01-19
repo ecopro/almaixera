@@ -11,7 +11,8 @@ Ajustos:
 - copiar django1/email_settings.sample.py a django1/email_settings.py
 - Crear DB amb:
 	$ python manage.py migrate
-- crear superuser Django
+- crear superuser Django:
+	$ python manage.py createsuperuser
 - entrar a Django admin i canviar
 	- crear nou GlobalConf
 	- modificar Site i posar el nou domini
