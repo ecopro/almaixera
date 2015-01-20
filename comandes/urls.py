@@ -19,6 +19,8 @@ urlpatterns = patterns('',
     url(r'^password_reset_complete/$', password_reset_complete, name="password_reset_complete"),
     url(r'^afegeix_proveidors/', views.afegeix_proveidors, name="afegeix_proveidors" ),
     url(r'^distribueix_productes/(?P<data_recollida>[0-9-]+)/(?P<producte>\w{0,50})/$', views.distribueix_productes, name="distribueix_productes" ),
+    url(r'^accounts/login/$', 'django.contrib.auth.views.login',{'template_name': 'login.html'}),
+    url(r'^accounts/logout/$', 'django.contrib.auth.views.logout'),#{'next_page': '/'}),
 )
 
 #http://stackoverflow.com/questions/21284672/django-password-reset-password-reset-confirm

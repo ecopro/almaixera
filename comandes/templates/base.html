@@ -183,9 +183,9 @@
             <div class="usuari">
             {% if user and user.username %}
                 Usuari: {{user}}
-                | <a href="/accounts/logout/">sortir</a>
-                | <a href="/comandes">menu principal</a>
-                | <a href="/admin">ajustaments</a>
+                | <a href="{% url 'home' %}/accounts/logout/">sortir</a>
+                | <a href="{% url 'home' %}/comandes">menu principal</a>
+                | <a href="{% url 'home' %}/admin">administració</a>
                 <br>
             {% endif %}
             </div>

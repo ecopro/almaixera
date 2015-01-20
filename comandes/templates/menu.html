@@ -35,9 +35,9 @@ Menú usuari:
             {% endif %}
         </form>
     </li>
-    <li><a href="/admin/comandes/comandastock/">Fer comanda d'estoc</a></li>
-    <li><a href="comandes">Veure comandes</a></li>
-    <li><a href="/admin/password_change/">Canvia contrasenya</a></li>
+    <li><a href="{% url 'home' %}admin/comandes/comandastock/">Fer comanda d'estoc</a></li>
+    <li><a href="{% url 'home' %}comandes/comandes">Veure comandes</a></li>
+    <li><a href="{% url 'home' %}admin/password_change/">Canvia contrasenya</a></li>
 </ul>
 
 <!-- previously if super -->
@@ -60,7 +60,7 @@ Menú admin:
             {% endif %}
         </form>
     </li>
-    <li><a href="/admin">Panell d'administració</a></li>
+    <li><a href="{% url 'home' %}/admin">Panell d'administració</a></li>
 </ul>
 {% endif %}
 </div> <!-- columna1 -->
