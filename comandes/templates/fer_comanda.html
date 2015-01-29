@@ -51,21 +51,28 @@
             <div class="detall_form">
                 <div class="item">
                     {{ field.label_tag }}
-                    {{ detall.producte }}
-                    
-                    {% comment %} Acceleration/optimization for slow formset rendering
-                    NO IMPLEMENTAT, nomes per documentar-ho
-                    % if detall.quantitat.value %
-                        { detall.producte }
-                    % else %
+                    {% comment %}
+                    Acceleration/optimization for slow formset rendering (instead of {{detall.producte}} )
+                    {% endcomment %}
+                    {% if detall.quantitat.value %}
+                    <select id="id_form-{{forloop.counter0}}-producte" name="form-{{forloop.counter0}}-producte">
+                        <option value="">---------</option>
+                        {%  for prod in productes %}
+                            {% if prod.id == detall.producte.value %}
+                                <option value="{{prod.id}}" selected="selected">{{prod}}</option>
+                            {% else %}
+                                <option value="{{prod.id}}">{{prod}}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    {% else %}
                     <select id="id_form-{{forloop.counter0}}-producte" name="form-{{forloop.counter0}}-producte">
                         <option value="" selected="selected">---------</option>
-                        %  for prod in productes %
-                            <option value="{{prod.id}}">{prod}</option>
-                        % endfor %
+                        {%  for prod in productes %}
+                            <option value="{{prod.id}}">{{prod}}</option>
+                        {% endfor %}
                     </select>
-                    % endif %
-                    {% endcomment %}
+                    {% endif %}
                     
                     {{ detall.quantitat }}
                     {{ detall.errors }}
