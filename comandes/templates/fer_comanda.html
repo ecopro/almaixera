@@ -51,14 +51,16 @@
             <div class="detall_form">
                 <div class="item">
                     {{ field.label_tag }}
+
                     {% comment %}
                     Acceleration/optimization for slow formset rendering (instead of {{detall.producte}} )
                     {% endcomment %}
+
                     {% if detall.quantitat.value %}
                     <select id="id_form-{{forloop.counter0}}-producte" name="form-{{forloop.counter0}}-producte">
                         <option value="">---------</option>
                         {%  for prod in productes %}
-                            {% if prod.id == detall.producte.value %}
+                            {% if prod.id|slugify == detall.producte.value|slugify %}
                                 <option value="{{prod.id}}" selected="selected">{{prod}}</option>
                             {% else %}
                                 <option value="{{prod.id}}">{{prod}}</option>

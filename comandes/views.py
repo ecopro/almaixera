@@ -106,6 +106,8 @@ def fer_comanda(request):
     if recollida_tancada(data_recollida):
         return menu(request,"ERROR: comanda tancada")
 
+    # TODO: filtrar avisos per soci/coope
+    avisos = Avis.objects.filter( data=request.GET.get("data_recollida") )
     # filtrar llista de productes disponibles per cada coope
     productes = get_productes( request, data_recollida )
     
@@ -125,6 +127,7 @@ def fer_comanda(request):
             return render( request, 'fer_comanda.html',
                     {   'form':comanda_form,
                         'formset':detalls_formset,
+                        'avisos':avisos,
                         'productes':productes,
                         'missatge':"ERROR: dades incorrectes"} )
         else:
@@ -193,8 +196,6 @@ def fer_comanda(request):
         # (tots els forms de la request tenen el mateix set de productes
         for form in detalls_formset:
             form.fields['producte'].queryset = productes
-    # TODO: filtrar avisos per soci/coope
-    avisos = Avis.objects.filter( data=request.GET.get("data_recollida") )
     return render( request, 'fer_comanda.html',
             {   'form':comanda_form,
                 'formset':detalls_formset,
