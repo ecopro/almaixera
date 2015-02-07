@@ -244,7 +244,8 @@ class ComandaStockForm(forms.ModelForm):
 
 class ComandaStockAdmin(admin.ModelAdmin):
     list_display = ('producte','soci','quantitat','data_creacio')
-    list_editable = ('quantitat',)
+    search_fields = ('producte__nom',)
+    #list_editable = ('quantitat',)
     form = ComandaStockForm
     def get_form(self, request, obj=None, **kwargs):
         # els socis nomes poden fer comandes per ells mateixos
