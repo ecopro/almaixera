@@ -40,9 +40,9 @@ class InformeForm(forms.Form):
         choices = dates_informe()
         # proper dia en la llista es la opcio per defecte
         avui = date.today()
-        inicial = len(choices)-1
-        for i,data in reversed(list(enumerate(choices))):
-            if data[0]>str(avui):
+        inicial = choices[len(choices)-1]
+        for data in choices:
+            if data[0]>=str(avui):
                 inicial = data[0]
             else:
                 break

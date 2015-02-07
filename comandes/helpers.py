@@ -38,7 +38,7 @@ def properes_comandes():
 
 # dates informe: totes les disponibles a la BBDD
 def dates_informe():
-    dates = Comanda.objects.values('data_recollida').distinct().order_by('data_recollida')
+    dates = Comanda.objects.values('data_recollida').distinct().order_by('-data_recollida')
     llista = []
     for data in dates:
         d = data['data_recollida']

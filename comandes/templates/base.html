@@ -122,6 +122,18 @@
             color: #698E2D;
             //font-weight: bold;
         }
+        .navbutton {
+            background-color: #86A328;
+            border: none;
+            margin: 2px 2px 0 12px;
+            padding: 4px 8px;
+            color: white;
+            border-radius: 6px;
+        }
+        .navbutton:hover {
+            background-color: #86A328;
+            color: #374A17;
+        }
     /* ipad i tablets d'alta resolucio */
     @media (-webkit-min-device-pixel-ratio: 1.5) {
         body {
@@ -182,10 +194,10 @@
         {% block usuari %}
             <div class="usuari">
             {% if user and user.username %}
-                Usuari: {{user}}
-                | <a href="{% url 'home' %}accounts/logout/">sortir</a>
-                | <a href="{% url 'home' %}comandes">menu principal</a>
-                | <a href="{% url 'home' %}admin">administració</a>
+                Hola, <b>{{user}}</b>
+                <button class="navbutton" onclick="location.href='{% url 'home' %}accounts/logout/'">Sortir</button>
+                <button class="navbutton" onclick="location.href='{% url 'home' %}comandes'">Menu Principal</button>
+                <button class="navbutton" onclick="location.href='{% url 'home' %}admin'">Administració</button>
                 <br>
             {% endif %}
             </div>
