@@ -93,7 +93,7 @@ class SociAdmin(admin.ModelAdmin):
     def get_groups(self, obj):
         grps = ""
         for group in obj.user.groups.all():
-            grps = grps + str(group)
+            grps = grps + str(group) + " "
         return grps
     get_groups.short_description = "Grups"
     get_groups.admin_order_field = 'user__groups'
@@ -171,7 +171,7 @@ class CustomUserAdmin(UserAdmin):
     def get_groups(self, obj):
         grps = ""
         for group in obj.groups.all():
-            grps = grps + str(group)
+            grps = grps + str(group) + " "
         return grps
     get_groups.short_description = "Grups"
     get_groups.admin_order_field = 'user__groups'
@@ -204,7 +204,8 @@ class CustomUserAdmin(UserAdmin):
         # creem soci
         soci, creat = Soci.objects.get_or_create(user=user)
         # forzem coope del nou soci a la del usuari creador
-        soci.cooperativa = request.user.soci.cooperativa
+        if not request.user.is_superuser:
+            soci.cooperativa = request.user.soci.cooperativa
         soci.save()
 
 class ActivacioAdmin(admin.ModelAdmin):
