@@ -33,7 +33,7 @@ Si hi hagués cap problema, contacti sisplau amb:
 Merci
 """
         assumpte = "Comanda online cooperatives almaixera.cat"
-        data = propera_recollida()
+        #data = propera_recollida()
         # admin email per check
         admins = Soci.objects.filter( user__is_superuser=True )
         adminemails = [ admin.user.email for admin in admins ]
@@ -44,7 +44,9 @@ Merci
             informe = ""
             contacte = ""
             # Creem informe de productes per proveidor i coope
+            # TODO: crear emails independents per coope (?)
             for coope in Cooperativa.objects.all():
+                data = propera_recollida( coope )
                 hihaproductescoope = False
                 #print "\t"+str(coope)
                 detalls = DetallComanda.objects.filter(

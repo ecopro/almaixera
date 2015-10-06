@@ -23,7 +23,9 @@ class SingletonModel(models.Model):
         except cls.DoesNotExist:
             return cls()
 
-class GlobalConf(SingletonModel):
+class Cooperativa(models.Model):
+    nom = models.CharField( max_length=200 )
+    notes = models.TextField( blank=True )
     # dow = Day Of Week (weekday, dilluns=0, dimarts=1, etc)
     dow_recollida = models.IntegerField( default=1, choices=dies_setmana,
                         validators=[MinValueValidator(0),MaxValueValidator(6)] ) # dimarts per defecte
@@ -31,10 +33,6 @@ class GlobalConf(SingletonModel):
                         validators=[MinValueValidator(0),MaxValueValidator(6)] ) # divendres per defecte
     hora_tancament = models.TimeField( default=datetime.time(14,0) ) # 2 del migdia
     num_setmanes_previsio = models.IntegerField( default=4 )
-
-class Cooperativa(models.Model):
-    nom = models.CharField( max_length=200 )
-    notes = models.TextField( blank=True )
     # mes dades s'inclouen en l'usuari coopeadmin enlloc d'aqui
     def __unicode__(self):
         return self.nom
@@ -70,12 +68,13 @@ class Proveidor(models.Model):
     direccio = models.CharField(max_length=200,blank=True)
     cp = models.CharField(max_length=8,blank=True)
     poblacio = models.CharField(max_length=200,blank=True)
-    email = models.EmailField(max_length=200,blank=True,help_text="adreça on s'enviarà l'email de comanda (proveidor o responsable de la coope)")
-    email2 = models.EmailField(max_length=200,blank=True,help_text="email de contacte (no s'enviarà email de comanda)")
+    email = models.EmailField(max_length=200,blank=True,
+        help_text="adreça on s'enviarà l'email de comanda (proveidor o responsable de la coope)")
+    email2 = models.EmailField(max_length=200,blank=True,
+        help_text="email de contacte (no s'enviarà email de comanda)")
     telefon1 = models.CharField(max_length=30)
     telefon2 = models.CharField(max_length=30,blank=True)
     telefon3 = models.CharField(max_length=30,blank=True)
-    cooperatives = models.ManyToManyField(Cooperativa)
     notes = models.TextField(blank=True)
     def __unicode__(self):
         return self.nom
@@ -85,8 +84,10 @@ class Producte(models.Model):
     actiu = models.BooleanField(default=True)
     proveidor = models.ForeignKey(Proveidor)
     preu = models.DecimalField(max_digits=5,decimal_places=2,default=0.0)
-    stock = models.BooleanField(default=False)
-    granel = models.BooleanField(default=True)
+    stock = models.BooleanField(default=False,
+        help_text="Activa perquè el producte aparegui a la comanda de stock. Desactiva perquè aparegui a la comanda setmanal.")
+    granel = models.BooleanField(default=True,
+        help_text="Actiu = €/kg | Inactiu = €/unitat-manat")
     notes = models.TextField(blank=True)
     # ordre de les querys
     ordering = ('nom',)
@@ -148,14 +149,31 @@ class ComandaStock(models.Model):
         unique_together = ('producte','soci')
 
 # Activa proveidors per cada coope
-class Activacio(models.Model):
+class ActivaProveidor(models.Model):
     proveidor = models.ForeignKey(Proveidor)
+    cooperativa = models.ForeignKey(Cooperativa)
+    actiu = models.BooleanField(default=True)
+    data = models.DateField("data d'activacio",blank=True,null=True,
+                help_text="Optatiu, per si vols activar un proveidor només per una data.")
+    email = models.EmailField("email comanda",max_length=200,blank=True,null=True,
+                help_text="adreça on s'enviarà l'email de comanda (proveidor o responsable de la coope)")
+    auto_email_proveidor = models.BooleanField(default=False,
+                help_text="enviar email automàtic al proveidor")
+    notes = models.TextField(blank=True)
+    def __unicode__(self):
+        return unicode(self.proveidor)+u" | "+unicode(self.cooperativa)
+
+class ActivaProducte(models.Model):
+    producte = models.ForeignKey(Producte)
+    activa_proveidor = models.ForeignKey(ActivaProveidor)
     cooperativa = models.ForeignKey(Cooperativa)
     actiu = models.BooleanField(default=True)
     data = models.DateField("data d'activacio",blank=True,null=True,
                     help_text="Optatiu, per si vols activar un proveidor només per una data.")
     notes = models.TextField(blank=True)
     def __unicode__(self):
-        return unicode(self.proveidor)+u" "+unicode(self.cooperativa)
-
-
+        return unicode(self.producte)+u" "+unicode(self.cooperativa)
+	def get_producteactiu(self):
+		return self.producte.actiu
+	get_producteactiu.short_description = "Actiu pel proveidor"
+	

@@ -4,11 +4,13 @@ from django.contrib.auth.models import User, Group
 from django.contrib.auth.admin import UserAdmin
 from django import forms
 from datetime import datetime
+from helpers import regenera_activacions
 
 class DetallInline(admin.TabularInline):
-	model = DetallComanda
-	extra = 1
+    model = DetallComanda
+    extra = 1
 
+# NO l'utilitzem pq fem servir el Detall inline a Comanda
 class DetallAdmin(admin.ModelAdmin):
     # FK with getters
     list_display = ('data_recollida','nom','cognom','producte','quantitat','proveidor')
@@ -124,7 +126,21 @@ class SociAdmin(admin.ModelAdmin):
         user.first_name = form.cleaned_data['nom']
         user.last_name = form.cleaned_data['cognom']
         user.email = form.cleaned_data['email']
+        # el user esta en grup "socis" al crear-se
         user.save()
+
+class CoopeAdmin(admin.ModelAdmin):
+    #list_display = ('titol','data','cooperativa')
+    #ordering = ('data',)
+    def get_queryset(self, request):
+        qs = super(CoopeAdmin,self).get_queryset(request)
+        # si super retorna tot
+        if request.user.is_superuser:
+            return qs
+        # coopeadmins nomes poden veure la seva coope
+        coope = request.user.soci.cooperativa
+        qs = qs.filter(id=coope.id)
+        return qs
         
 class AvisAdmin(admin.ModelAdmin):
     list_display = ('titol','data','cooperativa')
@@ -152,17 +168,30 @@ class AvisAdmin(admin.ModelAdmin):
 
 # inline dels productes en els proveidors
 class ProducteInline(admin.StackedInline):
-	fieldsets = [
-		(None,			{'fields': ['nom','preu','actiu'] }),
-		('Mes info',	{'fields': ['stock','granel','notes'], 'classes':['collapse'] }),
-	]
-	model = Producte
-	extra = 1
+    fieldsets = [
+        (None,          {'fields': ['nom','preu','actiu'] }),
+        ('Mes info',    {'fields': ['stock','granel','notes'], 'classes':['collapse'] }),
+    ]
+    model = Producte
+    extra = 1
 
 class ProveidorAdmin(admin.ModelAdmin):
     list_display = ('nom','poblacio','email','telefon1',)
     inlines = [ProducteInline]
-
+    def get_form(self, request, obj=None, **kwargs):
+        if not request.user.is_superuser:
+            pass
+            # fixem la coope si no es super
+            #self.readonly_fields = ('cooperativa',)
+            #form.cleaned_data['cooperativa'] = request.user.soci.cooperativa
+        form = super(ProveidorAdmin, self).get_form(request, obj, **kwargs)
+        return form
+    def save_model(self, request, obj, form, change):
+        # fixem la coope si no es super
+        if not request.user.is_superuser:
+            obj.cooperativa = request.user.soci.cooperativa
+        obj.save()
+        
 from django.contrib.admin.util import flatten_fieldsets
 class CustomUserAdmin(UserAdmin):
     list_display = ('username','first_name','last_name','email',
@@ -187,7 +216,7 @@ class CustomUserAdmin(UserAdmin):
         for user in users:
             if hasattr(user,'soci') and user.soci.cooperativa!=coope:
                 exclude_ids.append(user.id)
-		users = users.exclude( id__in=exclude_ids )
+        users = users.exclude( id__in=exclude_ids )
         return users
     # form i detall
     def get_form(self, request, obj=None, **kwargs):
@@ -203,22 +232,52 @@ class CustomUserAdmin(UserAdmin):
         user.save()
         # creem soci
         soci, creat = Soci.objects.get_or_create(user=user)
-        # forzem coope del nou soci a la del usuari creador
+        # forzem coope del nou soci a la del usuari creador (coopeadmin)
         if not request.user.is_superuser:
             soci.cooperativa = request.user.soci.cooperativa
         soci.save()
+        # ficar nou soci dins grup "socis"
+        gsocis, creat = Group.objects.get_or_create(name="socis")
+        gsocis.user_set.add( user )
 
-class ActivacioAdmin(admin.ModelAdmin):
-    list_display = ('cooperativa','proveidor','actiu','data')
+class ActivaProdInline(admin.TabularInline):
+    model = ActivaProducte
+    readonly_fields = ('producte','cooperativa')
+    fields = ('actiu','data','cooperativa','producte')
+    #exclude = ('notes',)
+    extra = 0
+    def get_queryset(self,request):
+        qs = super(ActivaProdInline,self).get_queryset(request)
+        # nomes mostrem els productes que el proveidor ha activat
+        qs = qs.filter( producte__actiu=True )
+        return qs
+
+class ActivaProdInactiuInline(admin.TabularInline):
+    model = ActivaProducte
+    verbose_name = "Producte desactivat pel proveidor"
+    verbose_name_plural = "Productes DESACTIVATS pel proveidor"
+    readonly_fields = ('producte','cooperativa','actiu','data','cooperativa')
+    fields = ('actiu','data','cooperativa','producte')
+    extra = 0
+    def get_queryset(self,request):
+        qs = super(ActivaProdInactiuInline,self).get_queryset(request)
+        # nomes mostrem els productes que el proveidor ha activat
+        qs = qs.filter( producte__actiu=False )
+        return qs
+    
+class ActivaProveidorAdmin(admin.ModelAdmin):
+    inlines = [ ActivaProdInline, ActivaProdInactiuInline ]
+    list_display = ('proveidor','cooperativa','actiu','data','email','auto_email_proveidor','get_email_proveidor')
     ordering = ('proveidor__nom',)
     list_editable = ('actiu','data')
+    readonly_fields = ('proveidor',)
     actions = [ activa, desactiva ]
     def get_form(self, request, obj=None, **kwargs):
         if not request.user.is_superuser:
             # fixem la coope si no es super
-            self.readonly_fields = ('cooperativa',)
+            self.readonly_fields = ('proveidor','cooperativa')
             #form.cleaned_data['cooperativa'] = request.user.soci.cooperativa
-        form = super(ActivacioAdmin, self).get_form(request, obj, **kwargs)
+        form = super(ActivaProveidorAdmin, self).get_form(request, obj, **kwargs)
         return form
     def save_model(self, request, obj, form, change):
         # fixem la coope si no es super
@@ -226,7 +285,10 @@ class ActivacioAdmin(admin.ModelAdmin):
             obj.cooperativa = request.user.soci.cooperativa
         obj.save()
     def get_queryset(self, request):
-        activacions = super(ActivacioAdmin,self).get_queryset(request)
+        # regenera tot
+        regenera_activacions( request )
+        # procedim...
+        activacions = super(ActivaProveidorAdmin,self).get_queryset(request)
         # si super retorna tot
         if request.user.is_superuser:
             return activacions
@@ -234,6 +296,29 @@ class ActivacioAdmin(admin.ModelAdmin):
         coope = request.user.soci.cooperativa
         activacions = activacions.filter(cooperativa=coope)
         return activacions
+    def get_email_proveidor(self,obj):
+		return obj.proveidor.email
+    get_email_proveidor.short_description = "Email proveidor"
+
+class ActivaProducteAdmin(admin.ModelAdmin):
+    list_display = ('producte','actiu','activa_proveidor','cooperativa','get_producte_actiu')
+    list_editable = ('actiu',)
+    ordering = ('activa_proveidor','producte__nom')
+    search_fields = ('activa_proveidor__proveidor__nom','producte__nom')
+    actions = ( activa, desactiva )
+    def get_queryset(self, request):
+        activacions = super(ActivaProducteAdmin,self).get_queryset(request)
+        # si super retorna tot
+        if request.user.is_superuser:
+            return activacions
+        # coopeadmins nomes poden veure restriccions de la seva coope
+        coope = request.user.soci.cooperativa
+        activacions = activacions.filter(cooperativa=coope)
+        return activacions
+    def get_producte_actiu(self, obj):
+        return obj.producte.actiu
+    get_producte_actiu.short_description = "Activat pel proveidor"
+		
 
 class ComandaStockForm(forms.ModelForm):
     class Meta:
@@ -241,6 +326,7 @@ class ComandaStockForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ComandaStockForm,self).__init__(*args, **kwargs)
         # filtrem productes de stock
+        # TODO: filtrar productes activats en la coope
         self.fields['producte'].queryset = Producte.objects.filter(stock=True)
 
 class ComandaStockAdmin(admin.ModelAdmin):
@@ -269,14 +355,14 @@ class ComandaStockAdmin(admin.ModelAdmin):
 admin.site.unregister( User )
 admin.site.register( User, CustomUserAdmin )
 
-admin.site.register( GlobalConf )
 admin.site.register( Avis, AvisAdmin )
-admin.site.register( Cooperativa )
+admin.site.register( Cooperativa, CoopeAdmin )
 admin.site.register( Soci, SociAdmin )
 admin.site.register( Proveidor, ProveidorAdmin )
 admin.site.register( Producte, ProducteAdmin )
 admin.site.register( Comanda, ComandaAdmin )
 #admin.site.register( DetallComanda, DetallAdmin )
-admin.site.register( Activacio, ActivacioAdmin )
+admin.site.register( ActivaProveidor, ActivaProveidorAdmin )
+admin.site.register( ActivaProducte, ActivaProducteAdmin )
 admin.site.register( ComandaStock, ComandaStockAdmin )
 

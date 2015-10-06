@@ -1,19 +1,20 @@
 
+from models import *
 from datetime import date, timedelta, datetime
-from models import GlobalConf, Comanda
-
 
 # TODO: retornar llista de dates (generic) enlloc de tuples (pels combobox)
 
-def recollida_tancada( data_recollida ):
-    recollides = [str(r[0]) for r in properes_comandes()]
+def recollida_tancada( data_recollida, coope ):
+    recollides = [str(r[0]) for r in properes_comandes(coope)]
     if str(data_recollida)[:10] in recollides:
         return False
     return True
 
-def properes_comandes():
+def properes_comandes( coope ):
+    if not coope:
+        return ()
     ara = datetime.now()
-    conf = GlobalConf.objects.get()
+    conf = coope
     #dow_recollida = 1 #dimarts (p.ex)
     dow_recollida = conf.dow_recollida
     dow_tancament = conf.dow_tancament
@@ -36,9 +37,10 @@ def properes_comandes():
         llista.append( (str(data), str(data.day)+" / "+str(data.month)) )
     return tuple(llista)
 
-# dates informe: totes les disponibles a la BBDD
-def dates_informe():
-    dates = Comanda.objects.values('data_recollida').distinct().order_by('-data_recollida')
+# dates informe: totes les disponibles a la BBDD per una coope
+def dates_informe( coope ):
+    # TEST: filtrar les de una coope
+    dates = Comanda.objects.filter(soci__cooperativa=coope).values('data_recollida').distinct().order_by('-data_recollida')
     llista = []
     for data in dates:
         d = data['data_recollida']
@@ -46,9 +48,11 @@ def dates_informe():
     return tuple( llista )
     #return [ (str(d['data_recollida']),str(d['data_recollida'])) for d in dates ]
 
-def propera_recollida():
+def propera_recollida( coope ):
+    if not coope:
+        return None
     avui = date.today()
-    conf = GlobalConf.objects.get()
+    conf = coope
     #dow_recollida = 1 #dimarts (p.ex)
     dow_recollida = conf.dow_recollida
     dow_tancament = conf.dow_tancament
@@ -58,29 +62,52 @@ def propera_recollida():
         propera_recollida += 7
     return avui+timedelta(days=propera_recollida)
 
-def propera_comanda():
-    dates = properes_comandes()
+def propera_comanda( coope ):
+    if not coope:
+        return None
+    dates = properes_comandes(coope)
     return dates[0][0]
 
-def proper_tancament():
+def proper_tancament( coope ):
+    if not coope:
+        return None
     ara = datetime.now()
     avui = date.today()
-    
-    conf = GlobalConf.objects.get()
+    conf = coope
     dow_tancament = conf.dow_tancament
     hora_tancament = conf.hora_tancament
     proper_tanc = datetime.combine( avui + timedelta(dow_tancament-avui.weekday()) , hora_tancament )
-
     if proper_tanc < ara:
         proper_tanc += timedelta(7)
-
     return proper_tanc
 
 
-def regenera_activacions():
-    '''TODO:
-    Regenera activacions de tots els productes per totes les coopes.
-    Es cridara amb cada modificacio de coopes i proveidors (afegir)
-    '''
-    pass
+def regenera_activacions( request ):
+	# actualitzem activacions de proveidors i productes per la coope del coopeadmin que esta entrant
+    coope = request.user.soci.cooperativa
+    if coope:
+        activacions_fetes = ActivaProveidor.objects.filter(cooperativa=coope)
+        proveidors_fets = [ act.proveidor.id for act in activacions_fetes ]
+        proveidors = Proveidor.objects.exclude( id__in=proveidors_fets )
+        print "Generant activacions de proveidors: ",len(proveidors)
+        # afegim proveidors que no s'han fet
+        for prov in proveidors:
+            activacio = ActivaProveidor(cooperativa=coope,proveidor=prov)
+            activacio.actiu = False
+            activacio.save()
+        # afegim productes pendents d'afegir a tots els proveidors
+        activacions = ActivaProveidor.objects.filter(cooperativa=coope)
+        for activa_prov in activacions:
+            activacions_fetes = ActivaProducte.objects.filter(
+                        producte__proveidor=activa_prov.proveidor,cooperativa=coope )
+            #print "Activacions fetes=",len(activacions_fetes)
+            prods_fets = [ act.producte.id for act in activacions_fetes ]
+            productes = Producte.objects.filter( proveidor=activa_prov.proveidor )
+            productes = productes.exclude( id__in=prods_fets )
+            print "Generant activacions de productes: ",len(productes)
+            for prod in productes:
+                activa_prod = ActivaProducte(producte=prod,cooperativa=coope,activa_proveidor=activa_prov)
+                # TODO: exclude
+                activa_prod.actiu = False
+                activa_prod.save()
     

@@ -22,22 +22,23 @@ class DetallForm(ModelForm):
         fields = ['producte','quantitat']
 
 class ProperesComandesForm(forms.Form):
-    #data_recollida = forms.ChoiceField( choices = properes_dates_recollida() )
-    # TODO: acotar dates disponibles
     def __init__( self, *args, **kwargs):
-        super(ProperesComandesForm,self).__init__( args, kwargs )
-        choices = properes_comandes()
+        user = kwargs.pop('user', None)
+        super(ProperesComandesForm,self).__init__( *args, **kwargs )
+        coope = None
+        if user:
+			coope = user.soci.cooperativa
+        choices = properes_comandes( coope )
         self.fields['data_recollida'] = forms.ChoiceField( choices=choices )
 
 class ComandaForm(forms.Form):
     data_recollida = forms.DateField()
 
-#class InformeForm(forms.Form):
-#    data_informe = forms.ChoiceField( choices = dates_informe() )
 class InformeForm(forms.Form):
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
         super(InformeForm, self).__init__(*args, **kwargs)
-        choices = dates_informe()
+        choices = dates_informe( user.soci.cooperativa )
         # proper dia en la llista es la opcio per defecte
         avui = date.today()
         inicial = None
@@ -51,30 +52,37 @@ class InformeForm(forms.Form):
         self.fields['data_informe'] = forms.ChoiceField( choices=choices, initial=inicial )
 
 def menu( request, missatge=None ):
+    coope = request.user.soci.cooperativa
+    user = request.user
+    remainingsecs = 0
+    if coope:
+        remainingsecs = (proper_tancament(coope)-datetime.now()).total_seconds()
     return render( request, 'menu.html', {
             "missatge" : missatge,
-            "data_form" : ProperesComandesForm,
+            "data_form" : ProperesComandesForm(request.POST, user=user),
             "super" : request.user.is_superuser,
-            "prov_form" : InformeForm,
-            "caixes_form": InformeForm,
-            "proper_tancament": proper_tancament(),
-            "remaining_secs": (proper_tancament()-datetime.now()).total_seconds(),
+            "prov_form" : InformeForm(request.POST, user=user),
+            "caixes_form": InformeForm(request.POST, user=user),
+            "proper_tancament": proper_tancament(coope),
+            "remaining_secs": remainingsecs,
     } )
 
 # filtrem llista de productes disponibles segons la coope de l'usuari visitant
 from django.db.models import Q
 def get_productes( request, data_recollida ):
     coope = request.user.soci.cooperativa
-    activacions = Activacio.objects.filter(Q(data=None)|Q(data=data_recollida))\
+    # seleccionem proveidors actius per la coope
+    activa_provs = ActivaProveidor.objects.filter(Q(data=None)|Q(data=data_recollida))\
                     .filter(cooperativa=coope,actiu=True)
-    active_prods = []
-    for activacio in activacions:
-        prov = activacio.proveidor
-        prods = Producte.objects.filter(proveidor=prov)
-        for prod in prods:
-            active_prods.append( prod.id )
+    active_prod_ids = []
+    # iterem proveidors actius
+    for activa_prov in activa_provs:
+        activa_prods = ActivaProducte.objects.filter(activa_proveidor=activa_prov,actiu=True)
+        # iterem productes actius
+        for activa_prod in activa_prods:
+            active_prod_ids.append( activa_prod.producte.id )
     productes = Producte.objects\
-                    .filter( actiu=True, stock=False, id__in=active_prods )\
+                    .filter( actiu=True, stock=False, id__in=active_prod_ids )\
                     .extra(select={'lower_name':'lower(nom)'})\
                     .order_by('lower_name')
     return productes
@@ -85,13 +93,14 @@ def get_productes( request, data_recollida ):
 
 @login_required
 def index(request):
-    # TODO: menu
-    #  - fer torn caixes
+	# pagina principal
     return menu(request)
 
 @login_required
 def fer_comanda(request):
-    conf = GlobalConf.objects.get()
+    conf = request.user.soci.cooperativa
+    if not conf:
+		return menu(request,"Usuari sense coopearativa assignada: no es pot fer comanda.")
     dow_recollida = conf.dow_recollida
     data_recollida = request.GET.get("data_recollida")
     # comprovar dates comanda
@@ -104,12 +113,13 @@ def fer_comanda(request):
             data_recollida = None
     if not (type(data_recollida)==date or type(data_recollida)==datetime):
         return menu(request,"ERROR: data invalida o inexistent")
-    # comprovar tancament
-    if recollida_tancada(data_recollida):
+    # comprovar tancament TEST
+    coope = request.user.soci.cooperativa
+    if recollida_tancada(data_recollida, coope):
         return menu(request,"ERROR: comanda tancada")
 
-    # TODO: filtrar avisos per soci/coope
-    avisos = Avis.objects.filter( data=request.GET.get("data_recollida") )
+    # filtrar avisos per soci/coope
+    avisos = Avis.objects.filter( data=request.GET.get("data_recollida"), cooperativa=coope )
     # filtrar llista de productes disponibles per cada coope
     productes = get_productes( request, data_recollida )
     
@@ -219,7 +229,7 @@ def veure_comandes(request):
         total = 0
         detalls = DetallComanda.objects.filter(comanda=comanda)
         comanda.detalls = detalls
-        comanda.tancada = recollida_tancada( comanda.data_recollida )
+        comanda.tancada = recollida_tancada( comanda.data_recollida, soci.cooperativa )
         subtotal = 0
         for detall in detalls:
             subtotal = float(detall.producte.preu)*detall.quantitat
@@ -230,16 +240,16 @@ def veure_comandes(request):
 
 @login_required
 def esborra_comanda(request):
+    user = request.user
+    soci = user.soci
     # esborrar nomes comandes no tancades
     data_recollida = request.GET.get("data_recollida")
     # comprovar tancament
     if type(data_recollida)==str or type(data_recollida)==unicode:
         data_recollida = datetime.strptime( data_recollida, "%Y-%m-%d" )
-    if recollida_tancada(data_recollida):
+    if recollida_tancada(data_recollida, soci.cooperativa):
         return menu(request,"ERROR: comanda tancada")
     # avanti!
-    user = request.user
-    soci = user.soci
     data_recollida = request.GET.get("data_recollida")
     confirma = request.POST.get("confirma")
     if not data_recollida:
@@ -341,17 +351,8 @@ def test_email( request ):
 #http://stackoverflow.com/questions/17968781/how-to-add-button-next-to-add-user-button-in-django-admin-site
 @login_required
 def afegeix_proveidors( request ):
-    coope = request.user.soci.cooperativa
-    if coope:
-        activacions_fetes = Activacio.objects.filter(cooperativa=coope)
-        proveidors_fets = [ act.proveidor.id for act in activacions_fetes ]
-        proveidors = Proveidor.objects.exclude( id__in=proveidors_fets )
-        for prov in proveidors:
-            activacio = Activacio(cooperativa=coope,proveidor=prov)
-            activacio.actiu = False
-            activacio.save()
+    regenera_activacions( request )
     return HttpResponseRedirect(request.META['HTTP_REFERER'])
-
     
 class DetallFormComplet(ModelForm):
     class Meta:

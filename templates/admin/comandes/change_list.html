@@ -2,9 +2,15 @@
 {% block object-tools-items %}
 
     {{ block.super }}
-    {% if request.path == '/admin/comandes/activacio/' %}
+    {% if request.path == '/admin/comandes/activaproveidor/' %}
     <li>
         <a href="/comandes/afegeix_proveidors/" class="grp-state-focus" class="addlink">Afegeix tots els proveidors</a>
+    </li>
+    {% endif %}
+
+    {% if request.path == '/admin/comandes/activaproducte/' %}
+    <li>
+        <a href="/comandes/afegeix_producte/" class="grp-state-focus" class="addlink">Afegeix tots els productes</a>
     </li>
     {% endif %}
 
