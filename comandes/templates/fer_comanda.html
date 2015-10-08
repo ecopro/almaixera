@@ -58,21 +58,33 @@
 
                     {% if detall.quantitat.value %}
                     <select id="id_form-{{forloop.counter0}}-producte" name="form-{{forloop.counter0}}-producte">
-                        <option value="">---------</option>
+                            <optgroup>
+                                <option value="">---------</option>
                         {%  for prod in productes %}
+                            {% ifchanged prod.proveidor %}
+                            </optgroup>
+                            <optgroup label="{{prod.proveidor}}">
+                            {% endifchanged %}
                             {% if prod.id|slugify == detall.producte.value|slugify %}
                                 <option value="{{prod.id}}" selected="selected">{{prod}}</option>
                             {% else %}
                                 <option value="{{prod.id}}">{{prod}}</option>
                             {% endif %}
                         {% endfor %}
+                            </optgroup>
                     </select>
                     {% else %}
                     <select id="id_form-{{forloop.counter0}}-producte" name="form-{{forloop.counter0}}-producte">
-                        <option value="" selected="selected">---------</option>
-                        {%  for prod in productes %}
-                            <option value="{{prod.id}}">{{prod}}</option>
+                            <optgroup>
+                                <option value="" selected="selected">---------</option>
+                        {% for prod in productes %}
+                            {% ifchanged prod.proveidor %}
+                            </optgroup>
+                            <optgroup label="{{prod.proveidor}}">
+                            {% endifchanged %}
+                                <option value="{{prod.id}}">{{prod}}</option>
                         {% endfor %}
+                            </optgroup>
                     </select>
                     {% endif %}
                     
@@ -116,7 +128,7 @@ function calcula_tot() {
             // items
             var item = $(this)
             var item_quantitat = item.find('#id_form-'+index+'-quantitat')
-            var item_idprod = item.find('#id_form-'+index+'-producte > option:selected')
+            var item_idprod = item.find('#id_form-'+index+'-producte option:selected')
             var item_subtotal = item.find('#form-'+index+'-producte-subtotal')
             // calculs
             var idprod = item_idprod.val()

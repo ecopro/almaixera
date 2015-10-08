@@ -84,7 +84,7 @@ def get_productes( request, data_recollida ):
     productes = Producte.objects\
                     .filter( actiu=True, stock=False, id__in=active_prod_ids )\
                     .extra(select={'lower_name':'lower(nom)'})\
-                    .order_by('lower_name')
+                    .order_by('proveidor','lower_name')
     return productes
 
 """
