@@ -38,10 +38,12 @@ class Cooperativa(models.Model):
         return self.nom
 
 class Avis(models.Model):
-    titol = models.CharField( max_length=200 )
+    titol = models.CharField(max_length=200)
     text = models.TextField()
     data = models.DateField()
-    cooperativa = models.ForeignKey( Cooperativa )
+    user = models.ForeignKey(User,null=True,blank=True)
+    cooperativa = models.ForeignKey(Cooperativa,null=True,blank=True,
+                         help_text="Si es deixa en blanc es mostrarà l'avís a totes les cooperatives.")
 
 # Soci es crea aparellat amb User (OneToOne)
 # dit d'altra manera, es una extensió del model del Django User
@@ -63,6 +65,7 @@ class Soci(models.Model):
 
 
 class Proveidor(models.Model):
+    user = models.OneToOneField(User,blank=True,null=True,default=None)
     nom = models.CharField(max_length=200)
     cif = models.CharField(max_length=10,blank=True)
     direccio = models.CharField(max_length=200,blank=True)

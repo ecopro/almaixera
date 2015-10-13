@@ -9,7 +9,6 @@ from django.forms import ModelForm
 from django.forms.formsets import formset_factory, BaseFormSet
 from django.forms.models import modelformset_factory
 from helpers import *
-#from multiform import MultiForm
 from datetime import datetime, date, timedelta
 from django.db.models import Sum
 
@@ -52,6 +51,8 @@ class InformeForm(forms.Form):
         self.fields['data_informe'] = forms.ChoiceField( choices=choices, initial=inicial )
 
 def menu( request, missatge=None ):
+    if not hasattr(request.user,'soci'):
+        return render( request, 'nosoci.html' )
     coope = request.user.soci.cooperativa
     user = request.user
     remainingsecs = 0
@@ -98,6 +99,8 @@ def index(request):
 
 @login_required
 def fer_comanda(request):
+    if not hasattr(request.user,'soci'):
+        return render( request, 'nosoci.html' )
     conf = request.user.soci.cooperativa
     if not conf:
 		return menu(request,"Usuari sense coopearativa assignada: no es pot fer comanda.")
@@ -119,7 +122,7 @@ def fer_comanda(request):
         return menu(request,"ERROR: comanda tancada")
 
     # filtrar avisos per soci/coope
-    avisos = Avis.objects.filter( data=request.GET.get("data_recollida"), cooperativa=coope )
+    avisos = Avis.objects.filter(data=request.GET.get("data_recollida")).filter(Q(cooperativa=coope)|Q(cooperativa=None))
     # filtrar llista de productes disponibles per cada coope
     productes = get_productes( request, data_recollida )
     
@@ -217,6 +220,8 @@ def fer_comanda(request):
 
 @login_required
 def veure_comandes(request):
+    if not hasattr(request.user,'soci'):
+        return render( request, 'nosoci.html' )
     user = request.user
     soci = user.soci
     # TODO: check user
@@ -240,6 +245,8 @@ def veure_comandes(request):
 
 @login_required
 def esborra_comanda(request):
+    if not hasattr(request.user,'soci'):
+        return render( request, 'nosoci.html' )
     user = request.user
     soci = user.soci
     # esborrar nomes comandes no tancades
@@ -274,6 +281,8 @@ def esborra_comanda(request):
 
 @login_required
 def informe_proveidors( request ):
+    if not hasattr(request.user,'soci'):
+        return render( request, 'nosoci.html' )
     # data informe
     data = datetime.strptime( request.GET.get('data_informe'), "%Y-%m-%d" )
     # METODE 1: subqueries
@@ -303,6 +312,8 @@ def informe_proveidors( request ):
 
 # dades per informes
 def detalls_informe_caixes( data, coope, producte=None ):
+    if not hasattr(request.user,'soci'):
+        return render( request, 'nosoci.html' )
     # METODE 2: 1 sola query, agrupem en el template
     detalls = DetallComanda.objects.filter(
             comanda__data_recollida=data, )\
@@ -325,6 +336,8 @@ def detalls_informe_caixes( data, coope, producte=None ):
 
 @login_required    
 def informe_caixes( request ):
+    if not hasattr(request.user,'soci'):
+        return render( request, 'nosoci.html' )
     # data informe
     data = datetime.strptime( request.GET.get('data_informe'), "%Y-%m-%d" )
     coope = request.user.soci.cooperativa
@@ -351,6 +364,8 @@ def test_email( request ):
 #http://stackoverflow.com/questions/17968781/how-to-add-button-next-to-add-user-button-in-django-admin-site
 @login_required
 def afegeix_proveidors( request ):
+    if not hasattr(request.user,'soci'):
+        return render( request, 'nosoci.html' )
     regenera_activacions( request )
     return HttpResponseRedirect(request.META['HTTP_REFERER'])
     
@@ -362,6 +377,8 @@ class DetallFormComplet(ModelForm):
 
 @login_required
 def distribueix_productes( request, data_recollida, producte ):
+    if not hasattr(request.user,'soci'):
+        return render( request, 'nosoci.html' )
     data = data_recollida
     producte_obj = Producte.objects.get(id=producte)
     coope = request.user.soci.cooperativa
