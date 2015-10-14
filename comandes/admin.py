@@ -58,9 +58,15 @@ class ProducteAdmin(admin.ModelAdmin):
     actions = [ activa , desactiva ]
     def get_queryset(self,request):
         qs = super(ProducteAdmin,self).get_queryset(request)
+        if request.user.is_superuser:
+            return qs
         # si es proveidor nomes li mostrem els seus propis productes
         if hasattr(request.user,'proveidor'):
             qs = qs.filter(proveidor=request.user.proveidor)
+        else:
+            # veiem nomes els productes de proveidors que no tinguin usuari
+            provs = Proveidor.objects.filter(user=None)
+            qs = qs.filter(proveidor__in=provs)
         return qs
 
 """
@@ -163,9 +169,12 @@ class AvisAdmin(admin.ModelAdmin):
             qs = qs.filter(user=request.user)
             return qs
         # coopeadmins nomes poden veure avisos de la seva coope
-        coope = request.user.soci.cooperativa
-        qs = qs.filter(cooperativa=coope)
-        return qs
+        if hasattr(request.user,'soci'):
+            coope = request.user.soci.cooperativa
+            qs = qs.filter(cooperativa=coope)
+            return qs
+        # tafaners amb permisos casuals no veuen res! ;)
+        return qs.none()
     def get_form(self, request, obj=None, **kwargs):
         self.readonly_fields = ('cooperativa','user')
         if request.user.is_superuser or hasattr(request.user,'proveidor'):
@@ -208,11 +217,6 @@ class ProveidorAdmin(admin.ModelAdmin):
             self.readonly_fields = ()
         form = super(ProveidorAdmin, self).get_form(request, obj, **kwargs)
         return form
-    def save_model(self, request, obj, form, change):
-        if not request.user.is_superuser:
-            pass
-            #obj.cooperativa = request.user.soci.cooperativa
-        obj.save()
 
 class CustomUserAdmin(UserAdmin):
     #list_display = ('username','first_name','last_name','email','is_active')
@@ -227,17 +231,6 @@ class CustomUserAdmin(UserAdmin):
     def get_prov(self, obj):
         return obj.proveidor
     get_prov.short_description = "Proveidor"
-    """def __init__(self,*args,**kwargs):
-        print "XX"
-        super(CustomUserAdmin,self).__init__(*args,**kwargs)
-        if 'user' in kwargs:
-            if request.user.is_superuser:
-                print "X super"
-                self.list_display = ('username','first_name','last_name','email',
-                    'is_active','is_superuser','get_groups','get_prov')
-            else:
-                print "X no super"
-                self.list_display = ('username','first_name','last_name','email','is_active')"""
     def get_queryset(self, request):
         # TODO: no acaba de funcionar be el 1r cop que entres
         users = super(CustomUserAdmin,self).get_queryset(request)
@@ -263,7 +256,7 @@ class CustomUserAdmin(UserAdmin):
         form = super(CustomUserAdmin,self).get_form(request,obj,**kwargs)
         # afegim camp per NO crear soci auto
         #if request.user.is_superuser:
-        #    form.fields['no_soci'] = forms.BooleanField()
+        #    form.base_fields['no_soci'] = forms.BooleanField()
         return form
     def save_model( self, request, user, form, change):
         # always staff members (tots han d'accedir al admin) TODO: potser socis no?
@@ -273,6 +266,7 @@ class CustomUserAdmin(UserAdmin):
             user.is_superuser = False
         user.save()
         # creem soci (si no esta ja creat)
+        # TODO: Si es prodadmin NO el creem!
         soci, creat = Soci.objects.get_or_create(user=user)
         # forzem coope del nou soci a la del usuari creador (coopeadmin)
         if not request.user.is_superuser:
