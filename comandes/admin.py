@@ -182,12 +182,13 @@ class AvisAdmin(admin.ModelAdmin):
         avis.save()
 
 # inline dels productes en els proveidors
-class ProducteInline(admin.StackedInline):
-    fieldsets = [
+class ProducteInline(admin.TabularInline):
+    """fieldsets = [
         (None,          {'fields': ['nom','preu','actiu'] }),
         ('Mes info',    {'fields': ['stock','granel','notes'], 'classes':['collapse'] }),
-    ]
+    ]"""
     model = Producte
+    exclude = ('notes',)
     extra = 1
 
 class ProveidorAdmin(admin.ModelAdmin):
