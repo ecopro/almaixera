@@ -53,7 +53,7 @@ Merci
                 continue
             # no fer comanda si ja esta feta
             if act.darrera_comanda_notificada==data:
-                print "Comanda ja realitzada"
+                #print "Comanda ja realitzada"
                 # TODO: TEST: activar-ho
                 continue
             # guardem data darrera notificacio dp d'enviar email al final

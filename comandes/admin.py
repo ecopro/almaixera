@@ -344,6 +344,9 @@ class ActivaProducteAdmin(admin.ModelAdmin):
     search_fields = ('activa_proveidor__proveidor__nom','producte__nom')
     actions = ( activa, desactiva )
     def get_queryset(self, request):
+        # regenerem totes les possibles activacions
+        regenera_activacions( request )
+        # queryset
         activacions = super(ActivaProducteAdmin,self).get_queryset(request)
         # si super retorna tot
         if request.user.is_superuser:

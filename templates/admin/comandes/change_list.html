@@ -1,17 +1,31 @@
 {% extends "admin/change_list.html" %}
-{% block object-tools-items %}
+{% load i18n admin_static %}
 
+{% comment %}
+<!-- ho hem tret pq ja no cal, es fa automaticament cada cop que s'entra en l'admin d'activacions -->
+{% block object-tools-items %}
     {{ block.super }}
     {% if request.path == '/admin/comandes/activaproveidor/' %}
     <li>
         <a href="/comandes/afegeix_proveidors/" class="grp-state-focus" class="addlink">Afegeix tots els proveidors</a>
     </li>
     {% endif %}
-
     {% if request.path == '/admin/comandes/activaproducte/' %}
     <li>
         <a href="/comandes/afegeix_producte/" class="grp-state-focus" class="addlink">Afegeix tots els productes</a>
     </li>
     {% endif %}
+{% endblock %}
+{% endcomment %}
 
+{% block result_list %}
+    {% if cl.formset and cl.result_count %}
+        <div style="border-bottom: 1px solid #ccc; background: white url({% static "admin/img/nav-bg.gif" %}) 0 180% repeat-x; overflow: hidden;">
+            <p>
+                <input type="submit" name="_save" class="default" value="{% trans 'Save' %}"/>
+            </p>
+        </div>
+    {% endif %}
+
+    {{ block.super }}
 {% endblock %}
