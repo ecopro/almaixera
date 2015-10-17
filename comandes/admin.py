@@ -218,6 +218,8 @@ class ProveidorAdmin(admin.ModelAdmin):
         form = super(ProveidorAdmin, self).get_form(request, obj, **kwargs)
         return form
 
+# TODO: crea user sense pass, s'envia automaticament email per activar compte
+# http://django-authtools.readthedocs.org/en/latest/how-to/invitation-email.html
 class CustomUserAdmin(UserAdmin):
     #list_display = ('username','first_name','last_name','email','is_active')
     # visualitzacio
@@ -307,11 +309,13 @@ class ActivaProveidorAdmin(admin.ModelAdmin):
     ordering = ('proveidor__nom',)
     list_editable = ('actiu','data')
     actions = [ activa, desactiva ]
-    # la PK no es editable (ni pel super)
-    readonly_fields = ('proveidor','cooperativa')
-    #def get_form(self, request, obj=None, **kwargs):
-    #    form = super(ActivaProveidorAdmin, self).get_form(request, obj, **kwargs)
-    #    return form
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(ActivaProveidorAdmin, self).get_form(request, obj, **kwargs)
+        self.readonly_fields = ('proveidor','cooperativa','darrera_comanda_notificada')
+        if request.user.is_superuser:
+            # la PK no es editable (ni pel super)
+            self.readonly_fields = ('proveidor','cooperativa')
+        return form
     def save_model(self, request, obj, form, change):
         # fixem la coope si no es super
         if not request.user.is_superuser:

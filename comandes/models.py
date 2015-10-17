@@ -162,6 +162,8 @@ class ActivaProveidor(models.Model):
                 help_text="adreça on s'enviarà l'email de comanda (proveidor o responsable de la coope)")
     auto_email_proveidor = models.BooleanField(default=False,
                 help_text="enviar email automàtic al proveidor")
+    darrera_comanda_notificada = models.DateField(blank=True,null=True,
+                help_text="Control del darrer email enviat al proveidor")
     notes = models.TextField(blank=True)
     def __unicode__(self):
         return unicode(self.proveidor)+u" | "+unicode(self.cooperativa)

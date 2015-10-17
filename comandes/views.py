@@ -312,8 +312,6 @@ def informe_proveidors( request ):
 
 # dades per informes
 def detalls_informe_caixes( data, coope, producte=None ):
-    if not hasattr(request.user,'soci'):
-        return render( request, 'nosoci.html' )
     # METODE 2: 1 sola query, agrupem en el template
     detalls = DetallComanda.objects.filter(
             comanda__data_recollida=data, )\
