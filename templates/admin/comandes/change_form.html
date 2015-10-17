@@ -1,0 +1,10 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_static %}
+
+{% block form_top %}
+        <div style="border-bottom: 1px solid #ccc; background: white url({% static "admin/img/nav-bg.gif" %}) 0 180% repeat-x; overflow: hidden;">
+            <p>
+                <input type="submit" name="_save" class="default" value="{% trans 'Save' %}"/>
+            </p>
+        </div>
+{% endblock %}
