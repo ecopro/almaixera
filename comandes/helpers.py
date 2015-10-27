@@ -110,6 +110,6 @@ def regenera_activacions( request ):
             for prod in productes:
                 activa_prod = ActivaProducte(producte=prod,cooperativa=coope,activa_proveidor=activa_prov)
                 # TODO: exclude
-                activa_prod.actiu = False
+                #activa_prod.actiu = False
                 activa_prod.save()
     

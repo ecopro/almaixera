@@ -307,7 +307,7 @@ class ActivaProveidorAdmin(admin.ModelAdmin):
     inlines = [ ActivaProdInline, ActivaProdInactiuInline ]
     list_display = ('proveidor','cooperativa','actiu','data','email','auto_email_proveidor','get_email_proveidor')
     ordering = ('proveidor__nom',)
-    list_editable = ('actiu','data')
+    list_editable = ('actiu','data','auto_email_proveidor')
     actions = [ activa, desactiva ]
     def get_form(self, request, obj=None, **kwargs):
         form = super(ActivaProveidorAdmin, self).get_form(request, obj, **kwargs)
