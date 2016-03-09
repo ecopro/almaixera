@@ -4,7 +4,7 @@ from django.core.mail import EmailMessage
 from django.db.models import Sum
 from comandes.models import *
 from comandes.helpers import *
-import locale, time
+import locale, time, copy
 
 locale.setlocale(locale.LC_TIME,"ca_ES.utf8")
 dows = ['dilluns','dimarts','dimecres','dijous','divendres','dissabte','diumenge']
@@ -32,12 +32,15 @@ Si hi hagués cap problema, contacti sisplau amb:
 
 Merci
 """
+        print "inici..."
         # admin email per check
         admins = Soci.objects.filter( user__is_superuser=True )
-        adminemails = [ admin.user.email for admin in admins ]
+        superadmin_emails = [ admin.user.email for admin in admins ]
         # activacions
         activacions = ActivaProveidor.objects.filter(actiu=True)
         for act in activacions:
+            print "Activacio: ",act
+            adminemails = copy.copy(superadmin_emails)
             # per cada activacio sabem proveidor i coope
             prov = act.proveidor
             coope = act.cooperativa
@@ -49,11 +52,11 @@ Merci
 
             # determinar si la propera recollida s'ha de fer (tancada)
             if not recollida_tancada(data,coope):
-                #print "ENCARA NO TOCA! (cal tancar-la)"
+                print "ENCARA NO TOCA! (cal tancar-la)"
                 continue
             # no fer comanda si ja esta feta
             if act.darrera_comanda_notificada==data:
-                #print "Comanda ja realitzada"
+                print "Comanda ja realitzada"
                 # TODO: TEST: activar-ho
                 continue
             # guardem data darrera notificacio dp d'enviar email al final
@@ -81,7 +84,9 @@ Merci
                 else:
                     informe += " unitats-manats\n"
             # afegim dades coopeadmins pel proveidor
-            if hihaproductes:
+            if not hihaproductes:
+                print "No hi ha productes per ", act
+            else:
                 coopeadmins = Soci.objects.filter(cooperativa=coope,user__groups__name='coopeadmin')
                 for coopeadmin in coopeadmins:
                     contacte += coopeadmin.user.first_name\
@@ -109,6 +114,8 @@ Merci
                         # actualitzem data darrera notificacio si email OK
                         act.darrera_comanda_notificada = data
                         act.save()
+                    else:
+                        print "ERROR 1 enviant email"
                 except:
-                    print "ERROR enviant email"
+                    print "ERROR 2 enviant email"
                     
