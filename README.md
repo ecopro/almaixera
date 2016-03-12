@@ -1,5 +1,9 @@
 Software de gestió per cooperatives de consum responsable
 
+Actualment funcionant a http://almaixera.cat
+
+Si t'interessa utilitzar aquest software sense haver-ho d'instal·lar contacta amb mi a emieza@xtec.cat
+
 Install
 -------
 
@@ -41,5 +45,7 @@ Deploy
 Database Migrations
 -------------------
 Ja no s'utilitza South des de Django 1.7. Per tant:
+
 $ python manage.py makemigrations
+
 $ python manage.py migrate comandes
