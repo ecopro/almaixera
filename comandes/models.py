@@ -33,6 +33,8 @@ class Cooperativa(models.Model):
                         validators=[MinValueValidator(0),MaxValueValidator(6)] ) # divendres per defecte
     hora_tancament = models.TimeField( default=datetime.time(14,0) ) # 2 del migdia
     num_setmanes_previsio = models.IntegerField( default=4 )
+    increment_preu = models.FloatField( default=0.0, help_text="Percentatge a aplicar al total factura",
+                validators=[MinValueValidator(0.0),MaxValueValidator(100.0)] )
     # mes dades s'inclouen en l'usuari coopeadmin enlloc d'aqui
     def __unicode__(self):
         return self.nom

@@ -2,6 +2,7 @@
 
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
+from django.contrib.auth.models import User, Group
 from comandes.models import *
 from django.contrib.auth.decorators import login_required
 from django import forms
@@ -224,24 +225,46 @@ def veure_comandes(request):
         return render( request, 'nosoci.html' )
     user = request.user
     soci = user.soci
-    # TODO: check user
+    # si soci: veu les seves comandes
     avui = date.today()
     desde = avui-timedelta(31)
     fins = avui+timedelta(31)
+    increment = 0.0
+    if request.user.soci:
+        increment = float(request.user.soci.cooperativa.increment_preu)
     comandes = Comanda.objects.filter(soci=soci,
             data_recollida__range=[desde,fins]).order_by('-data_recollida')
+    # si coopeadmin veu totes les comandes de la setmana (dels seus socis)
+    grp = Group.objects.get(name="coopeadmin")
+    if grp in request.user.groups.all():
+        desde = avui-timedelta(8)
+        fins = avui+timedelta(1)
+        # llista de socis de la coope
+        socis = Soci.objects.filter(cooperativa=request.user.soci.cooperativa)
+        comandes = Comanda.objects.filter(soci__in=socis,
+                data_recollida__range=[desde,fins]).order_by('-data_recollida')
+    # main loop
     for comanda in comandes:
-        total = 0
+        total_demanat = 0
+        total_rebut = 0
         detalls = DetallComanda.objects.filter(comanda=comanda)
         comanda.detalls = detalls
+        # TODO: filtrar aqui enlloc de al template (ara "tancada" li indica al templ)
         comanda.tancada = recollida_tancada( comanda.data_recollida, soci.cooperativa )
-        subtotal = 0
+        subtotal_demanat = 0
+        subtotal_rebut = 0
         for detall in detalls:
-            subtotal = float(detall.producte.preu)*detall.quantitat
-            detall.subtotal = subtotal
-            total += subtotal
-        comanda.total = total
-    return render( request, 'comandes.html', {"comandes":comandes} )
+            subtotal_demanat = float(detall.producte.preu)*detall.quantitat
+            subtotal_rebut = float(detall.producte.preu)*detall.quantitat_rebuda
+            detall.subtotal_demanat = subtotal_demanat
+            detall.subtotal_rebut = subtotal_rebut
+            total_demanat += subtotal_demanat
+            total_rebut += subtotal_rebut
+        comanda.total_demanat = total_demanat
+        comanda.total_rebut = total_rebut
+        comanda.total_demanat_incr = total_demanat * (1+increment/100)
+        comanda.total_rebut_incr = total_rebut * (1+increment/100)
+    return render( request, 'comandes.html', {"comandes":comandes,"increment":increment} )
 
 @login_required
 def esborra_comanda(request):
