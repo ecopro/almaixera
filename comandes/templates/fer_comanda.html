@@ -4,6 +4,13 @@
 .item input {
     width: 70px;
 }
+.total , .totalinc {
+    width: 7em;
+    text-align: center;
+}
+.totalbox {
+    display: inline-block;
+}
 @media (max-device-width: 650px) , (max-width: 650px) {
     .item {
         width: 100%;
@@ -34,8 +41,8 @@
     </div>
 
     <h2>Comanda</h2>
-    <!--button onclick="calcula_tot()">Recalcula</button-->
-    Total aproximat: <input type="text" class="total" disabled />
+    <div class="totalbox">Total aproximat: <input type="text" class="total" disabled /></div>
+    <div class="totalbox">Total amb increment: <input type="text" class="totalinc" disabled /></div>
 
     <form method="post" id="comanda">{% csrf_token %}
     {% if form %}
@@ -99,7 +106,8 @@
 
     {% endif %}
 
-        Total aproximat: <input type="text" class="total" disabled /><br>
+        <div class="totalbox">Total aproximat: <input type="text" class="total" disabled /></div>
+        <div class="totalbox">Total amb increment: <input type="text" class="totalinc" disabled /></div>
 
         <input style="align:center" type="submit" value="Envia" />
     </form>
@@ -120,6 +128,8 @@ var granel = {
 {% for producte in productes %} {{producte.id}}:{{producte.granel|yesno:"true,false"}},
 {% endfor %}
 }
+
+{% load l10n %}
 
 var total
 function calcula_tot() {
@@ -146,6 +156,7 @@ function calcula_tot() {
         }
     )
     $('.total').val( total.toFixed(2) +" €")
+    $('.totalinc').val( Math.round(100*total.toFixed(2)*(1+({{increment|unlocalize}})/100))/100 +" €")
 }
 
 calcula_tot()

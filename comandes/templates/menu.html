@@ -5,6 +5,7 @@
 @media (min-width:650px) {
     .columna1 {
         flex: 4;
+        padding-right: 1em;
     }
     .columna2 {
         flex: 4;
@@ -20,49 +21,62 @@
 .pissarra {
     border-radius: 4px;
 }
+input , .boto , select {
+    padding: 0.4em;
+}
+
+.menu {
+    border-radius: 0.5em;
+    padding: 0.5em;
+    background-color: #B5C780;
+    margin: 1em 0;
+    text-align: center;
+}
+
+.menubutton {
+    width: 26%;
+    min-width:8em;
+    margin: 0.5em;
+}
+
 {% endblock %}
 
 
 {% block contingut %}
 <div class="columna1">
-Menú usuari:
-<ul>
-    <li><form action="fer_comanda" method="get">
-            {% if data_form %}
-                Crea o edita la comanda:<br>
-                {{data_form.as_p}}
-                <input type="submit" value="Crea o edita"/>
-            {% endif %}
+    <div class="menu">
+        <h3>Menú usuari</h3>
+        <form action="fer_comanda" method="get">
+                {% if data_form %}
+                    {{data_form.as_p}}
+                    <button class="boto" onclick="submit()">Crea o edita comanda</button>
+                {% endif %}
         </form>
-    </li>
-    <li><a href="{% url 'home' %}admin/comandes/comandastock/">Fer comanda d'estoc</a></li>
-    <li><a href="{% url 'home' %}comandes/comandes">Veure comandes</a></li>
-    <li><a href="{% url 'home' %}admin/password_change/">Canvia contrasenya</a></li>
-</ul>
+        <button class="navbutton menubutton" onclick="location.href='{% url 'home' %}admin/comandes/comandastock/'">Comanda<br>d'estoc</button>
+        <button class="navbutton menubutton" onclick="location.href='{% url 'home' %}comandes/comandes'">Veure<br>comandes</button>
+        <button class="navbutton menubutton" onclick="location.href='{% url 'home' %}admin/password_change/'">Canvia<br>contrasenya</button>
+        <br><br>
+    </div> <!-- menu -->
 
-<!-- previously if super -->
-{% if True %}
-Menú admin:
-<ul>
-    <li><form action="informe_proveidors" method="get">
+    <div class="menu">
+        <h3>Menú admin</h3>
+        <form action="informe_proveidors" method="get">
             {% if prov_form %}
                 Informe per proveïdors<br>
                 {{prov_form.as_p}}
                 <input type="submit" value="Crea informe" />
             {% endif %}
         </form>
-    </li>
-    <li><form action="informe_caixes" method="get">
+
+        <form action="informe_caixes" method="get">
             {% if caixes_form %}
                 Informe per caixes<br>
                 {{caixes_form.as_p}}
                 <input type="submit" value="Crea informe" />
             {% endif %}
         </form>
-    </li>
-    <li><a href="{% url 'home' %}admin">Panell d'administració</a></li>
-</ul>
-{% endif %}
+        <button class="navbutton menubutton" onclick="location.href='{% url 'home' %}admin'">Panell<br>d'administració</button>
+    </div>
 </div> <!-- columna1 -->
 
 <div class="columna2">

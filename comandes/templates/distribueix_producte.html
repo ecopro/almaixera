@@ -27,7 +27,8 @@ DATA: {{data}} - Proveidor: {{producte.proveidor.nom}}<br><br>
     <td>Soci</td>
     <td>Quantitat<br>demanada</td>
     <td>Quantitat<br>rebuda</td>
-    <td>Preu rebut</td>
+    <td>Preu<br>unitari</td>
+    <td>Subtotal</td>
 </thead>
 {% for detall in detalls_formset %}
 <tr>
@@ -40,7 +41,8 @@ DATA: {{data}} - Proveidor: {{producte.proveidor.nom}}<br><br>
     <td>{{detall.soci}}</td>
     <td>{{detall.quant}}</td>
     <td>{{detall.quantitat_rebuda}}</td>
-    <td>{{detall.preu_rebut}}</td>
+    <td>{{detall.preu}}</td>
+    <td>{{detall.subtotal}}</td>
 </tr>
 {% endfor %}
 </table>

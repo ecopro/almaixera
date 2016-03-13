@@ -39,10 +39,28 @@ table.comanda_realitzada {
 p {
     margin: 0;
 }
+.demanat {
+    //display: none;
+}
+{% endblock %}
+
+{% block custom_scripts %}
+        var mostra = true;
+        function amaga_mostra_demanat() {
+            console.log("aki");
+            if( !mostra ) {
+                $(".demanat").css({display:'table-cell'});
+                mostra = true;
+            } else {
+                $(".demanat").css({display:"none"});
+                mostra = false;
+            }
+        }
 {% endblock %}
 
 {% block contingut %}
     <h2>Comandes realitzades</h2>
+    <button onclick="amaga_mostra_demanat()">Mostrar/amagar demanat</button>
     <p>Només es mostren les comandes entre un mes abans i un mes després d'avui.</p>
     <p>Només es poden esborrar les comandes que encara estan obertes.</p>
 
@@ -58,8 +76,8 @@ p {
                 <tr class="titol">
                     <td>Producte</td>
                     <td>Preu unitari</td>
-                    <td>Quantitat demanada</td>
-                    <td>Subtotal demanat</td>
+                    <td class="demanat">Quantitat demanada</td>
+                    <td class="demanat">Subtotal demanat</td>
                     <td>Quantitat rebuda</td>
                     <td>Subtotal rebut</td>
                 </tr>
@@ -67,23 +85,23 @@ p {
                     <tr>
                         <td class="prod">{{detall.producte.nom}}</td>
                         <td class="preu">{{detall.producte.preu|floatformat:2}} €</td>
-                        <td>{{detall.quantitat|floatformat:2}}</td>
-                        <td class="preu">{{detall.subtotal_demanat|floatformat:2}} €</td>
+                        <td class="demanat">{{detall.quantitat|floatformat:2}}</td>
+                        <td class="preu demanat">{{detall.subtotal_demanat|floatformat:2}} €</td>
                         <td>{{detall.quantitat_rebuda|floatformat:2}}</td>
                         <td class="preu">{{detall.subtotal_rebut|floatformat:2}} €</td>
                     </tr>
                 {% endfor %}
                     <tr class="subtotal">
                         <td colspan="2" class="prod">TOTAL:</td>
-                        <td>Demanat:</td>
-                        <td class="total">{{comanda.total_demanat|floatformat:2}} €</td>
+                        <td class="demanat">Demanat:</td>
+                        <td class="total demanat">{{comanda.total_demanat|floatformat:2}} €</td>
                         <td>Rebut:</td>
                         <td class="total">{{comanda.total_rebut|floatformat:2}} €</td>
                     </tr>
                     <tr class="titol">
                         <td colspan="2" class="prod">TOTAL + increment cooperativa ({{increment}}%):</td>
-                        <td>Demanat:</td>
-                        <td class="total">{{comanda.total_demanat_incr|floatformat:2}} €</td>
+                        <td class="demanat">Demanat:</td>
+                        <td class="total demanat">{{comanda.total_demanat_incr|floatformat:2}} €</td>
                         <td>Rebut:</td>
                         <td class="total">{{comanda.total_rebut_incr|floatformat:2}} €</td>
                     </tr>

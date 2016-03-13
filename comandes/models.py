@@ -125,7 +125,6 @@ class DetallComanda(models.Model):
     quantitat = models.FloatField(default=0, validators=[valida_no_zero] )
     comanda = models.ForeignKey(Comanda)
     quantitat_rebuda = models.FloatField(default=0)
-    preu_rebut = models.DecimalField(max_digits=5,decimal_places=2,default=0.0)
     def __unicode__(self):
         return unicode(self.comanda)+u" - "+unicode(self.producte.nom)+u" ("+unicode(self.quantitat)+")"
     # getters per admin

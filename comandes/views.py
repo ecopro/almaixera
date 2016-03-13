@@ -145,6 +145,7 @@ def fer_comanda(request):
                         'formset':detalls_formset,
                         'avisos':avisos,
                         'productes':productes,
+                        'increment':coope.increment_preu,
                         'missatge':"ERROR: dades incorrectes"} )
         else:
             # processem comanda
@@ -216,6 +217,7 @@ def fer_comanda(request):
             {   'form':comanda_form,
                 'formset':detalls_formset,
                 'avisos':avisos,
+                'increment':coope.increment_preu,
                 'productes':productes,
             } )
 
@@ -238,7 +240,7 @@ def veure_comandes(request):
     grp = Group.objects.get(name="coopeadmin")
     if grp in request.user.groups.all():
         desde = avui-timedelta(8)
-        fins = avui+timedelta(1)
+        fins = avui+timedelta(8)
         # llista de socis de la coope
         socis = Soci.objects.filter(cooperativa=request.user.soci.cooperativa)
         comandes = Comanda.objects.filter(soci__in=socis,
@@ -440,6 +442,8 @@ def distribueix_productes( request, data_recollida, producte ):
                         + detall_obj.comanda.soci.user.first_name +" " \
                         + detall_obj.comanda.soci.user.last_name
         detall_form.quant = detall_obj.quantitat
+        detall_form.preu = detall_obj.producte.preu
+        detall_form.subtotal = float(detall_obj.quantitat_rebuda) * float(detall_obj.producte.preu)
         # camps de nomes-lectura
         #detall_form.fields['quantitat'].widget.attrs['readonly'] = True
     return render( request, 'distribueix_producte.html',

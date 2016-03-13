@@ -2,7 +2,10 @@ Software de gestió per cooperatives de consum responsable
 
 Actualment funcionant a http://almaixera.cat
 
+Pots entrar a una site de demo a http://almaixera-emieza.rhcloud.com (usuari/pass = admin/admin123 o bé coope/coope123)
+
 Si t'interessa utilitzar aquest software sense haver-ho d'instal·lar contacta amb mi a emieza@xtec.cat
+
 
 Install
 -------
