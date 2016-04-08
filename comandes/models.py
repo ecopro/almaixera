@@ -57,7 +57,10 @@ class Soci(models.Model):
     direccio = models.CharField( max_length=200 )
     cp = models.CharField( max_length=8 )
     poblacio = models.CharField( max_length=200 )
-    # User ja te email
+    email2 = models.EmailField(max_length=200,blank=True,
+        help_text="email per a llista de distribució")
+    email3 = models.EmailField(max_length=200,blank=True,
+        help_text="email per a llista de distribució")
     telefon1 = models.CharField(max_length=9)
     telefon2 = models.CharField(max_length=9,blank=True)
     telefon3 = models.CharField(max_length=9,blank=True)

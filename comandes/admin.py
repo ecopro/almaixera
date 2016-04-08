@@ -78,7 +78,8 @@ class SociForm(forms.ModelForm):
     nom = forms.CharField()
     cognom = forms.CharField()
     email = forms.EmailField()
-    initial_fields = ['nom','cognom','email']
+    actiu = forms.BooleanField(help_text="per modificar l'estat d'actiu anar al menu Ususari enlloc de Soci (nomes per a administradors)")
+    initial_fields = ['nom','cognom','email','actiu']
     class Meta:
         model = Soci
         exclude = ()
@@ -92,6 +93,8 @@ class SociForm(forms.ModelForm):
                 self.fields['nom'].initial = soci.user.first_name
                 self.fields['cognom'].initial = soci.user.last_name
                 self.fields['email'].initial = soci.user.email
+                self.fields['actiu'].initial = soci.user.is_active
+                self.fields['actiu'].widget.attrs['readonly'] = True
         
 class SociAdmin(admin.ModelAdmin):
     list_display = ('user','cooperativa','get_groups','get_actiu')
@@ -125,7 +128,7 @@ class SociAdmin(admin.ModelAdmin):
         qs = super(SociAdmin,self).get_queryset(request)
         # super-users can see all info (+superuser status)
         if request.user.is_superuser:
-            self.list_display = ('user','cooperativa','get_superuser','get_groups')
+            self.list_display = ('user','cooperativa','get_superuser','get_groups','get_actiu')
             return qs
         # coopeadmin can see all users of his coope
         grp = Group.objects.get(name="coopeadmin")
