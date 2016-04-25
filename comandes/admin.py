@@ -308,9 +308,9 @@ class ActivaProdInactiuInline(admin.TabularInline):
     
 class ActivaProveidorAdmin(admin.ModelAdmin):
     inlines = [ ActivaProdInline, ActivaProdInactiuInline ]
-    list_display = ('proveidor','cooperativa','actiu','data','email','auto_email_proveidor','get_email_proveidor')
-    ordering = ('proveidor__nom',)
-    list_editable = ('actiu','data','auto_email_proveidor')
+    list_display = ('proveidor','cooperativa','actiu','ordre','data','email','auto_email_proveidor','get_email_proveidor')
+    ordering = ('-ordre','proveidor__nom',)
+    list_editable = ('actiu','data','ordre','auto_email_proveidor')
     actions = [ activa, desactiva ]
     def get_form(self, request, obj=None, **kwargs):
         form = super(ActivaProveidorAdmin, self).get_form(request, obj, **kwargs)

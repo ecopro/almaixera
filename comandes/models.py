@@ -160,6 +160,7 @@ class ActivaProveidor(models.Model):
     proveidor = models.ForeignKey(Proveidor)
     cooperativa = models.ForeignKey(Cooperativa)
     actiu = models.BooleanField(default=True)
+    ordre = models.IntegerField(default=0)
     data = models.DateField("data d'activacio",blank=True,null=True,
                 help_text="Optatiu, per si vols activar un proveidor només per una data.")
     email = models.EmailField("email comanda",max_length=200,blank=True,null=True,

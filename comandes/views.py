@@ -87,7 +87,14 @@ def get_productes( request, data_recollida ):
                     .filter( actiu=True, stock=False, id__in=active_prod_ids )\
                     .extra(select={'lower_name':'lower(nom)'})\
                     .order_by('proveidor','lower_name')
-    return productes
+    # creem 2 QS: "Productes" no es pot ordenar, ja que el camp "order" esta a ActivaProducte i no a Producte
+    # productes s'utilitza per crear el form, i aprods per renderitzar ordernadament el HTML
+    aprods = ActivaProducte.objects.filter(activa_proveidor__in=activa_provs,actiu=True,producte__actiu=True)\
+                .extra(select={'lower_name':'lower(nom)'})\
+                .order_by('-activa_proveidor__ordre','activa_proveidor','lower_name')
+    if len(productes)!=len(aprods):
+        print "ERROR in get_productes (views)"
+    return productes,aprods
 
 """
     VIEWS
@@ -125,7 +132,7 @@ def fer_comanda(request):
     # filtrar avisos per soci/coope
     avisos = Avis.objects.filter(data=request.GET.get("data_recollida")).filter(Q(cooperativa=coope)|Q(cooperativa=None))
     # filtrar llista de productes disponibles per cada coope
-    productes = get_productes( request, data_recollida )
+    productes,aproductes = get_productes( request, data_recollida )
     
     #
     # PROCES COMANDA
@@ -145,6 +152,7 @@ def fer_comanda(request):
                         'formset':detalls_formset,
                         'avisos':avisos,
                         'productes':productes,
+                        'aproductes':aproductes,
                         'increment':coope.increment_preu,
                         'missatge':"ERROR: dades incorrectes"} )
         else:
@@ -219,6 +227,7 @@ def fer_comanda(request):
                 'avisos':avisos,
                 'increment':coope.increment_preu,
                 'productes':productes,
+                'aproductes':aproductes,
             } )
 
 @login_required

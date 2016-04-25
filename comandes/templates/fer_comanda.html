@@ -67,15 +67,15 @@
                     <select id="id_form-{{forloop.counter0}}-producte" name="form-{{forloop.counter0}}-producte">
                             <optgroup>
                                 <option value="">---------</option>
-                        {%  for prod in productes %}
-                            {% ifchanged prod.proveidor %}
+                        {%  for aprod in aproductes %}
+                            {% ifchanged aprod.activa_proveidor %}
                             </optgroup>
-                            <optgroup label="{{prod.proveidor}}">
+                            <optgroup label="{{aprod.activa_proveidor}}">
                             {% endifchanged %}
-                            {% if prod.id|slugify == detall.producte.value|slugify %}
-                                <option value="{{prod.id}}" selected="selected">{{prod}}</option>
+                            {% if aprod.producte.id|slugify == detall.producte.value|slugify %}
+                                <option value="{{aprod.producte.id}}" selected="selected">{{aprod}}</option>
                             {% else %}
-                                <option value="{{prod.id}}">{{prod}}</option>
+                                <option value="{{aprod.producte.id}}">{{aprod}}</option>
                             {% endif %}
                         {% endfor %}
                             </optgroup>
@@ -84,12 +84,12 @@
                     <select id="id_form-{{forloop.counter0}}-producte" name="form-{{forloop.counter0}}-producte">
                             <optgroup>
                                 <option value="" selected="selected">---------</option>
-                        {% for prod in productes %}
-                            {% ifchanged prod.proveidor %}
+                        {% for aprod in aproductes %}
+                            {% ifchanged aprod.activa_proveidor %}
                             </optgroup>
-                            <optgroup label="{{prod.proveidor}}">
+                            <optgroup label="{{aprod.producte.proveidor}}">
                             {% endifchanged %}
-                                <option value="{{prod.id}}">{{prod}}</option>
+                                <option value="{{aprod.producte.id}}">{{aprod}}</option>
                         {% endfor %}
                             </optgroup>
                     </select>
