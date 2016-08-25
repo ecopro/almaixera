@@ -42,7 +42,7 @@ class Cooperativa(models.Model):
 class Avis(models.Model):
     titol = models.CharField(max_length=200)
     text = models.TextField()
-    data = models.DateField()
+    data = models.DateField(help_text="Cal indicar la data de recollida perquè aparegui correctament a la pissarra")
     user = models.ForeignKey(User,null=True,blank=True)
     cooperativa = models.ForeignKey(Cooperativa,null=True,blank=True,
                          help_text="Si es deixa en blanc es mostrarà l'avís a totes les cooperatives.")
