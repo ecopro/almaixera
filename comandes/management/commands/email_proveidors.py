@@ -20,7 +20,7 @@ class Command(BaseCommand):
         text = u"""
 Benvolgut/da %s,
 
-Aquest és un email automàtic amb la comanda requerida per les cooperatives associades a ALMAIXERA.CAT
+Aquest és un email automàtic amb la comanda requerida per l'aplicació de comandes online.
 
 Data de comanda: %s
 
@@ -47,7 +47,7 @@ Merci
             if not prov or not coope:
                 print "ERROR en ActivaProveidor: "+str(act)
                 continue
-            assumpte = "Comanda online cooperativa " + coope.nom
+            assumpte = "Comanda online cooperativa " + coope.nom.upper()
             data = propera_recollida(coope)
 
             # determinar si la propera recollida s'ha de fer (tancada)
