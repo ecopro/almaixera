@@ -159,7 +159,7 @@ class ComandaStock(models.Model):
 class ActivaProveidor(models.Model):
     proveidor = models.ForeignKey(Proveidor)
     cooperativa = models.ForeignKey(Cooperativa)
-    actiu = models.BooleanField(default=True)
+    actiu = models.BooleanField(default=False)
     ordre = models.IntegerField(default=0)
     data = models.DateField("data d'activacio",blank=True,null=True,
                 help_text="Optatiu, per si vols activar un proveidor només per una data.")
@@ -177,7 +177,7 @@ class ActivaProducte(models.Model):
     producte = models.ForeignKey(Producte)
     activa_proveidor = models.ForeignKey(ActivaProveidor)
     cooperativa = models.ForeignKey(Cooperativa)
-    actiu = models.BooleanField(default=True)
+    actiu = models.BooleanField(default=False)
     data = models.DateField("data d'activacio",blank=True,null=True,
                     help_text="Optatiu, per si vols activar un proveidor només per una data.")
     notes = models.TextField(blank=True)
