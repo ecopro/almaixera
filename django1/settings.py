@@ -192,7 +192,7 @@ LOGGING = {
 }
 
 # EMAIL SETTINGS
-DEFAULT_FROM_EMAIL = "Almaixera online<info@almaixera.cat>"
+DEFAULT_FROM_EMAIL = "Coopes online<info@almaixera.cat>"
 """import email_settings
 
 EMAIL_HOST = email_settings.EMAIL_HOST
