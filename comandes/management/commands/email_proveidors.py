@@ -32,31 +32,31 @@ Si hi hagués cap problema, contacti sisplau amb:
 
 Merci
 """
-        print "inici..."
+        print("inici...")
         # admin email per check
         admins = Soci.objects.filter( user__is_superuser=True )
         superadmin_emails = [ admin.user.email for admin in admins ]
         # activacions
         activacions = ActivaProveidor.objects.filter(actiu=True)
         for act in activacions:
-            print "Activacio: ",act
+            print("Activacio: ",act)
             adminemails = copy.copy(superadmin_emails)
             # per cada activacio sabem proveidor i coope
             prov = act.proveidor
             coope = act.cooperativa
             if not prov or not coope:
-                print "ERROR en ActivaProveidor: "+str(act)
+                print("ERROR en ActivaProveidor: "+str(act))
                 continue
             assumpte = "Comanda online cooperativa " + coope.nom.upper()
             data = propera_recollida(coope)
 
             # determinar si la propera recollida s'ha de fer (tancada)
             if not recollida_tancada(data,coope):
-                print "ENCARA NO TOCA! (cal tancar-la)"
+                print("ENCARA NO TOCA! (cal tancar-la)")
                 continue
             # no fer comanda si ja esta feta
             if act.darrera_comanda_notificada==data:
-                print "Comanda ja realitzada"
+                print("Comanda ja realitzada")
                 # TODO: TEST: activar-ho
                 continue
             # guardem data darrera notificacio dp d'enviar email al final
@@ -72,20 +72,20 @@ Merci
                     .annotate(Sum('quantitat'))\
                     .order_by('producte__nom')
             # debug
-            #print act, data
+            #print(act, data)
             # afegim productes al informe
             if len(detalls):
                 informe += "\n" + "Cooperativa "+coope.nom.upper()+"\n"
             for detall in detalls:
                 hihaproductes = True
-                informe += detall['producte__nom']+" : "+unicode(detall['quantitat__sum'])
+                informe += detall['producte__nom'] + " : " + str(detall['quantitat__sum'])
                 if detall['producte__granel']:
                     informe += " kgs.\n"
                 else:
                     informe += " unitats-manats\n"
             # afegim dades coopeadmins pel proveidor
             if not hihaproductes:
-                print "No hi ha productes per ", act
+                print("No hi ha productes per ", act)
             else:
                 coopeadmins = Soci.objects.filter(cooperativa=coope,user__groups__name='coopeadmin')
                 for coopeadmin in coopeadmins:
@@ -102,20 +102,20 @@ Merci
                 # Crea email
                 data2 = data.strftime("%a, %d de %b")
                 email = EmailMessage( assumpte, text %
-                        (unicode(prov.nom),data2,informe,contacte) )
+                        (str(prov.nom),data2,informe,contacte) )
                 email.cc = adminemails
                 email.to = to_emails
                 #debug
-                #print email.message()
+                #print(email.message())
                 # Envia email
                 try:
                     if email.send():
-                        print "EMAIL ENVIAT!"
+                        print("EMAIL ENVIAT!")
                         # actualitzem data darrera notificacio si email OK
                         act.darrera_comanda_notificada = data
                         act.save()
                     else:
-                        print "ERROR 1 enviant email"
+                        print("ERROR 1 enviant email")
                 except:
-                    print "ERROR 2 enviant email"
+                    print("ERROR 2 enviant email")
                     

@@ -7,7 +7,7 @@
 <p><small><a href="/comandes/recuperar_contrasenya">Has oblidat la contrasenya?</a></small></p>
 {% endif %}
 
-<form class="login" method="post" action="{% url 'django.contrib.auth.views.login' %}">
+<form class="login" method="post" action="{% url 'login' %}">
 {% csrf_token %}
 <table>
 <tr>

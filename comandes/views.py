@@ -9,7 +9,7 @@ from django import forms
 from django.forms import ModelForm
 from django.forms.formsets import formset_factory, BaseFormSet
 from django.forms.models import modelformset_factory
-from helpers import *
+from .helpers import *
 from datetime import datetime, date, timedelta
 from django.db.models import Sum
 
@@ -93,7 +93,7 @@ def get_productes( request, data_recollida ):
                 .extra(select={'lower_name':'lower(nom)'})\
                 .order_by('-activa_proveidor__ordre','activa_proveidor','lower_name')
     if len(productes)!=len(aprods):
-        print "ERROR in get_productes (views)"
+        print("ERROR in get_productes (views)")
     return productes,aprods
 
 """
@@ -115,7 +115,7 @@ def fer_comanda(request):
     dow_recollida = conf.dow_recollida
     data_recollida = request.GET.get("data_recollida")
     # comprovar dates comanda
-    if type(data_recollida)==str or type(data_recollida)==unicode:
+    if type(data_recollida)==str:
         try:
             data_recollida = datetime.strptime( data_recollida, "%Y-%m-%d" )
             if data_recollida.weekday()!=dow_recollida:
@@ -203,7 +203,7 @@ def fer_comanda(request):
         # detalls: els traiem de la BBDD
         # data_recollida testejada al ppi de la view
         comanda = Comanda.objects.filter( soci=request.user.soci,
-                        data_recollida=request.GET.get("data_recollida"))
+                        data_recollida=request.GET.get("data_recollida")).first()
         detalls = DetallComanda.objects.filter( comanda=comanda )
         # transformar objectes en diccionaris per reconstruir menu
         detalls_dicts = []
@@ -286,7 +286,7 @@ def esborra_comanda(request):
     # esborrar nomes comandes no tancades
     data_recollida = request.GET.get("data_recollida")
     # comprovar tancament
-    if type(data_recollida)==str or type(data_recollida)==unicode:
+    if type(data_recollida)==str:
         data_recollida = datetime.strptime( data_recollida, "%Y-%m-%d" )
     if recollida_tancada(data_recollida, soci.cooperativa):
         return menu(request,"ERROR: comanda tancada")

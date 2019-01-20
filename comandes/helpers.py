@@ -1,5 +1,5 @@
 
-from models import *
+from .models import *
 from datetime import date, timedelta, datetime
 
 # TODO: retornar llista de dates (generic) enlloc de tuples (pels combobox)
@@ -90,7 +90,7 @@ def regenera_activacions( request ):
         proveidors_fets = [ act.proveidor.id for act in activacions_fetes ]
         proveidors = Proveidor.objects.exclude( id__in=proveidors_fets )
         #debug
-        #print "Generant activacions de proveidors: ",len(proveidors)
+        #print("Generant activacions de proveidors: ",len(proveidors))
         # afegim proveidors que no s'han fet
         for prov in proveidors:
             activacio = ActivaProveidor(cooperativa=coope,proveidor=prov)
@@ -101,12 +101,12 @@ def regenera_activacions( request ):
         for activa_prov in activacions:
             activacions_fetes = ActivaProducte.objects.filter(
                         producte__proveidor=activa_prov.proveidor,cooperativa=coope )
-            #print "Activacions fetes=",len(activacions_fetes)
+            #print("Activacions fetes=",len(activacions_fetes))
             prods_fets = [ act.producte.id for act in activacions_fetes ]
             productes = Producte.objects.filter( proveidor=activa_prov.proveidor )
             productes = productes.exclude( id__in=prods_fets )
             #debug
-            #print "Generant activacions de productes: ",len(productes)
+            #print("Generant activacions de productes: ",len(productes))
             for prod in productes:
                 activa_prod = ActivaProducte(producte=prod,cooperativa=coope,activa_proveidor=activa_prov)
                 # TODO: exclude

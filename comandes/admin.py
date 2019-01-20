@@ -1,10 +1,10 @@
 from django.contrib import admin
-from models import *
+from .models import *
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.admin import UserAdmin
 from django import forms
 from datetime import datetime
-from helpers import regenera_activacions
+from .helpers import regenera_activacions
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 
 class DetallInline(admin.TabularInline):
@@ -51,7 +51,7 @@ def desactiva(modeladmin, request, queryset):
 desactiva.short_description = "Desctiva els productes"
 
 class ProducteAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__','actiu','preu','granel','stock','proveidor')
+    list_display = ('__str__','actiu','preu','granel','stock','proveidor')
     search_fields = ('nom','proveidor__nom')
     list_editable = ('actiu',)
     ordering = ('nom',)
@@ -240,11 +240,11 @@ class CustomUserAdmin(UserAdmin):
         # TODO: no acaba de funcionar be el 1r cop que entres
         users = super(CustomUserAdmin,self).get_queryset(request)
         if request.user.is_superuser:
-            #print "super"
+            #print("super")
             self.list_display = ('username','first_name','last_name','email',
                     'is_active','is_superuser','get_groups','get_prov')
         else:
-            #print "no super"
+            #print("no super")
             self.list_display = ('username','first_name','last_name','email','is_active')
         # superuser can see all users
         if request.user.is_superuser:
