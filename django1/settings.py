@@ -1,5 +1,4 @@
 # Django settings for django1 project.
-from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS as TCP
 import os, sys
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -128,7 +127,6 @@ TEMPLATE_LOADERS = (
 )
 """
 # nou per Django 1.10.
-# TODO: TEMPLATE_DIRS i TEMPLATE_CONTEXT_PROCESSORS obsolets?
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',

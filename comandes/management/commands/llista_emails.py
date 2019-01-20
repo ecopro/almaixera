@@ -12,7 +12,7 @@ class Command(BaseCommand):
         parser.add_argument('coope', nargs='+', type=str)
 
     def handle(self, *args, **options):
-	#print options["coope"]
+    #print options["coope"]
         coope = options["coope"][0]
         # Socis
         dest = []

@@ -27,7 +27,7 @@ class ProperesComandesForm(forms.Form):
         super(ProperesComandesForm,self).__init__( *args, **kwargs )
         coope = None
         if user:
-			coope = user.soci.cooperativa
+            coope = user.soci.cooperativa
         choices = properes_comandes( coope )
         self.fields['data_recollida'] = forms.ChoiceField( choices=choices )
 
@@ -102,7 +102,7 @@ def get_productes( request, data_recollida ):
 
 @login_required
 def index(request):
-	# pagina principal
+    # pagina principal
     return menu(request)
 
 @login_required
@@ -111,7 +111,7 @@ def fer_comanda(request):
         return render( request, 'nosoci.html' )
     conf = request.user.soci.cooperativa
     if not conf:
-		return menu(request,"Usuari sense coopearativa assignada: no es pot fer comanda.")
+        return menu(request,"Usuari sense coopearativa assignada: no es pot fer comanda.")
     dow_recollida = conf.dow_recollida
     data_recollida = request.GET.get("data_recollida")
     # comprovar dates comanda

@@ -16,7 +16,7 @@ class DetallAdmin(admin.ModelAdmin):
     # FK with getters
     list_display = ('data_recollida','nom','cognom','producte','quantitat','proveidor')
     search_fields = ('quantitat','producte__nom','comanda__data_recollida',
-    	'producte__proveidor__nom','comanda__soci__user__username','comanda__soci__user__first_name')
+        'producte__proveidor__nom','comanda__soci__user__username','comanda__soci__user__first_name')
     # filter by user
     def get_queryset( self, request):
         qs = super(DetallAdmin, self).get_queryset(request)
@@ -337,7 +337,7 @@ class ActivaProveidorAdmin(admin.ModelAdmin):
         activacions = activacions.filter(cooperativa=coope)
         return activacions
     def get_email_proveidor(self,obj):
-		return obj.proveidor.email
+        return obj.proveidor.email
     get_email_proveidor.short_description = "Email proveidor"
 
 class ActivaProducteAdmin(admin.ModelAdmin):
@@ -361,7 +361,6 @@ class ActivaProducteAdmin(admin.ModelAdmin):
     def get_producte_actiu(self, obj):
         return obj.producte.actiu
     get_producte_actiu.short_description = "Activat pel proveidor"
-		
 
 class ComandaStockForm(forms.ModelForm):
     class Meta:

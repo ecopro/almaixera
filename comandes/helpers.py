@@ -83,7 +83,7 @@ def proper_tancament( coope ):
 
 
 def regenera_activacions( request ):
-	# actualitzem activacions de proveidors i productes per la coope del coopeadmin que esta entrant
+    # actualitzem activacions de proveidors i productes per la coope del coopeadmin que esta entrant
     coope = request.user.soci.cooperativa
     if coope:
         activacions_fetes = ActivaProveidor.objects.filter(cooperativa=coope)

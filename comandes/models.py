@@ -183,7 +183,6 @@ class ActivaProducte(models.Model):
     notes = models.TextField(blank=True)
     def __unicode__(self):
         return unicode(self.producte)+u" "+unicode(self.cooperativa)
-	def get_producteactiu(self):
-		return self.producte.actiu
-	get_producteactiu.short_description = "Actiu pel proveidor"
-	
+    def get_producteactiu(self):
+        return self.producte.actiu
+    get_producteactiu.short_description = "Actiu pel proveidor"
