@@ -3,3 +3,4 @@ idea
 db.sqlite3
 email_settings.py
 migrations
+env/

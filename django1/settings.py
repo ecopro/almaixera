@@ -30,7 +30,7 @@ DATABASES = {
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['almaixera.cat',]
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -191,11 +191,11 @@ LOGGING = {
 
 # EMAIL SETTINGS
 DEFAULT_FROM_EMAIL = "Coopes online<info@almaixera.cat>"
-"""import email_settings
+import email_settings
 
 EMAIL_HOST = email_settings.EMAIL_HOST
 EMAIL_HOST_USER = email_settings.EMAIL_HOST_USER
 EMAIL_HOST_PASSWORD = email_settings.EMAIL_HOST_PASSWORD
 EMAIL_PORT = email_settings.EMAIL_PORT
 EMAIL_USE_TLS = email_settings.EMAIL_USE_TLS
-"""
+
