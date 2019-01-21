@@ -36,22 +36,22 @@ class Cooperativa(models.Model):
     increment_preu = models.FloatField( default=0.0, help_text="Percentatge a aplicar al total factura",
                 validators=[MinValueValidator(0.0),MaxValueValidator(100.0)] )
     # mes dades s'inclouen en l'usuari coopeadmin enlloc d'aqui
-    def __unicode__(self):
+    def __str__(self):
         return self.nom
 
 class Avis(models.Model):
     titol = models.CharField(max_length=200)
     text = models.TextField()
     data = models.DateField(help_text="Cal indicar la data de recollida perquè aparegui correctament a la pissarra")
-    user = models.ForeignKey(User,null=True,blank=True)
-    cooperativa = models.ForeignKey(Cooperativa,null=True,blank=True,
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True,blank=True)
+    cooperativa = models.ForeignKey(Cooperativa, on_delete=models.CASCADE, null=True, blank=True,
                          help_text="Si es deixa en blanc es mostrarà l'avís a totes les cooperatives.")
 
 # Soci es crea aparellat amb User (OneToOne)
 # dit d'altra manera, es una extensió del model del Django User
 class Soci(models.Model):
-    user = models.OneToOneField( User )
-    cooperativa = models.ForeignKey( Cooperativa, blank=True, null=True, default=None)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    cooperativa = models.ForeignKey(Cooperativa, on_delete=models.CASCADE, blank=True, null=True, default=None)
     num_caixa = models.IntegerField( default=0, help_text="Ull, ha de concordar amb el login username." )
     dni = models.CharField( max_length=10, blank=True )
     direccio = models.CharField( max_length=200 )
@@ -65,12 +65,12 @@ class Soci(models.Model):
     telefon2 = models.CharField(max_length=9,blank=True)
     telefon3 = models.CharField(max_length=9,blank=True)
     notes = models.TextField(blank=True)
-    def __unicode__(self):
+    def __str__(self):
         return self.user.username
 
 
 class Proveidor(models.Model):
-    user = models.OneToOneField(User,blank=True,null=True,default=None)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True, default=None)
     nom = models.CharField(max_length=200)
     cif = models.CharField(max_length=10,blank=True)
     direccio = models.CharField(max_length=200,blank=True)
@@ -84,13 +84,13 @@ class Proveidor(models.Model):
     telefon2 = models.CharField(max_length=30,blank=True)
     telefon3 = models.CharField(max_length=30,blank=True)
     notes = models.TextField(blank=True)
-    def __unicode__(self):
+    def __str__(self):
         return self.nom
 
 class Producte(models.Model):
     nom = models.CharField(max_length=200)
     actiu = models.BooleanField(default=True)
-    proveidor = models.ForeignKey(Proveidor)
+    proveidor = models.ForeignKey(Proveidor, on_delete=models.CASCADE)
     preu = models.DecimalField(max_digits=5,decimal_places=2,default=0.0)
     stock = models.BooleanField(default=False,
         help_text="Activa perquè el producte aparegui a la comanda de stock. Desactiva perquè aparegui a la comanda setmanal.")
@@ -99,7 +99,7 @@ class Producte(models.Model):
     notes = models.TextField(blank=True)
     # ordre de les querys
     ordering = ('nom',)
-    def __unicode__(self):
+    def __str__(self):
         mostra = self.nom + " [" + str(self.preu)
         if self.granel:
             mostra += u" \u20AC/kg]"
@@ -109,12 +109,12 @@ class Producte(models.Model):
         return mostra
 
 class Comanda(models.Model):
-    soci = models.ForeignKey(Soci)
+    soci = models.ForeignKey(Soci, on_delete=models.CASCADE)
     data_creacio = models.DateTimeField('data creacio')
     data_recollida = models.DateField('data recollida')
     preu_rebut = models.DecimalField(max_digits=5,decimal_places=2,default=0.0)
-    def __unicode__(self):
-        return unicode(self.data_recollida)+u" - "+unicode(self.soci)
+    def __str__(self):
+        return str(self.data_recollida) + " - " + str(self.soci)
 
 
 from django.core.exceptions import ValidationError
@@ -124,12 +124,12 @@ def valida_no_zero(value):
         raise ValidationError('aquest camp no pot ser zero')
 
 class DetallComanda(models.Model):
-    producte = models.ForeignKey(Producte)
+    producte = models.ForeignKey(Producte, on_delete=models.CASCADE)
     quantitat = models.FloatField(default=0, validators=[valida_no_zero] )
-    comanda = models.ForeignKey(Comanda)
+    comanda = models.ForeignKey(Comanda, on_delete=models.CASCADE)
     quantitat_rebuda = models.FloatField(default=0)
-    def __unicode__(self):
-        return unicode(self.comanda)+u" - "+unicode(self.producte.nom)+u" ("+unicode(self.quantitat)+")"
+    def __str__(self):
+        return str(self.comanda)+ " - " + str(self.producte.nom) + " (" + str(self.quantitat) + ")"
     # getters per admin
     def data_recollida(self):
         return self.comanda.data_recollida
@@ -146,8 +146,8 @@ class DetallComanda(models.Model):
 
 
 class ComandaStock(models.Model):
-    producte = models.ForeignKey(Producte)
-    soci = models.ForeignKey(Soci)
+    producte = models.ForeignKey(Producte, on_delete=models.CASCADE)
+    soci = models.ForeignKey(Soci, on_delete=models.CASCADE)
     data_creacio = models.DateTimeField('data creacio')
     quantitat = models.FloatField(default=0, validators=[valida_no_zero] )
     quantitat_rebuda = models.FloatField(default=0)
@@ -157,8 +157,8 @@ class ComandaStock(models.Model):
 
 # Activa proveidors per cada coope
 class ActivaProveidor(models.Model):
-    proveidor = models.ForeignKey(Proveidor)
-    cooperativa = models.ForeignKey(Cooperativa)
+    proveidor = models.ForeignKey(Proveidor, on_delete=models.CASCADE)
+    cooperativa = models.ForeignKey(Cooperativa, on_delete=models.CASCADE)
     actiu = models.BooleanField(default=False)
     ordre = models.IntegerField(default=0)
     data = models.DateField("data d'activacio",blank=True,null=True,
@@ -170,20 +170,19 @@ class ActivaProveidor(models.Model):
     darrera_comanda_notificada = models.DateField(blank=True,null=True,
                 help_text="Control del darrer email enviat al proveidor")
     notes = models.TextField(blank=True)
-    def __unicode__(self):
-        return unicode(self.proveidor)+u" | "+unicode(self.cooperativa)
+    def __str__(self):
+        return str(self.proveidor) + " | " + str(self.cooperativa)
 
 class ActivaProducte(models.Model):
-    producte = models.ForeignKey(Producte)
-    activa_proveidor = models.ForeignKey(ActivaProveidor)
-    cooperativa = models.ForeignKey(Cooperativa)
+    producte = models.ForeignKey(Producte, on_delete=models.CASCADE)
+    activa_proveidor = models.ForeignKey(ActivaProveidor, on_delete=models.CASCADE)
+    cooperativa = models.ForeignKey(Cooperativa, on_delete=models.CASCADE)
     actiu = models.BooleanField(default=False)
     data = models.DateField("data d'activacio",blank=True,null=True,
                     help_text="Optatiu, per si vols activar un proveidor només per una data.")
     notes = models.TextField(blank=True)
-    def __unicode__(self):
-        return unicode(self.producte)+u" "+unicode(self.cooperativa)
-	def get_producteactiu(self):
-		return self.producte.actiu
-	get_producteactiu.short_description = "Actiu pel proveidor"
-	
+    def __str__(self):
+        return str(self.producte) + " " + str(self.cooperativa)
+    def get_producteactiu(self):
+        return self.producte.actiu
+    get_producteactiu.short_description = "Actiu pel proveidor"

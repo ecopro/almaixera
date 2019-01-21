@@ -1,5 +1,4 @@
 # Django settings for django1 project.
-from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS as TCP
 import os, sys
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -93,7 +92,7 @@ STATICFILES_FINDERS = (
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'y*tghp!d%@86+74-$qe+&5y(-a1zzj8e$5^r)d&s$gtz(8!j&r'
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -128,7 +127,6 @@ TEMPLATE_LOADERS = (
 )
 """
 # nou per Django 1.10.
-# TODO: TEMPLATE_DIRS i TEMPLATE_CONTEXT_PROCESSORS obsolets?
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
