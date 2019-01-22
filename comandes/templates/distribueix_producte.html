@@ -42,7 +42,7 @@ DATA: {{data}} - Proveidor: {{producte.proveidor.nom}}<br><br>
     <td>{{detall.quant}}</td>
     <td>{{detall.quantitat_rebuda}}</td>
     <td>{{detall.preu}}</td>
-    <td>{{detall.subtotal}}</td>
+    <td>{{detall.subtotal | floatformat:2}}</td>
 </tr>
 {% endfor %}
 </table>
