@@ -47,6 +47,21 @@
             border-spacing: 0px;
             border-collapse: collapse;
         }
+        .data-error {
+            background-color: #FAA;
+        }
+        .data-modified {
+            background-color: #CDC;
+            transition-property: background-color;
+            transition-duration: 0.2s;
+            transition-delay: 0s;
+        }
+        .data-saved {
+            background-color: #CFA;
+            transition-property: background-color;
+            transition-duration: 1s;
+            transition-delay: 0s;
+        }
         .pissarra {
             background-color: #011405;
             border: #5A2A04 6px solid;
@@ -223,7 +238,9 @@
         <p>Podeu copiar-ho tant com vulgueu i, per suposat, contribuir-hi :)</p>
     </div>
 
+    {% load static %}
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script type="text/javascript" src="{% static "js/main.js" %}"></script>
     <script>
         {% block custom_scripts %}
         {% endblock %}

@@ -1,5 +1,7 @@
 # Django settings for django1 project.
-import os, sys
+import os
+import sys
+from . import email_settings
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
@@ -12,7 +14,7 @@ ADMINS = (
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = 3600
-LOGIN_URL = 'accounts/login/'
+LOGIN_URL = '/accounts/login/'
 
 MANAGERS = ADMINS
 
@@ -30,7 +32,7 @@ DATABASES = {
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = ['almaixera.cat',]
+ALLOWED_HOSTS = ['almaixera.cat', 'localhost']
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -191,7 +193,6 @@ LOGGING = {
 
 # EMAIL SETTINGS
 DEFAULT_FROM_EMAIL = "Coopes online<info@almaixera.cat>"
-import email_settings
 
 EMAIL_HOST = email_settings.EMAIL_HOST
 EMAIL_HOST_USER = email_settings.EMAIL_HOST_USER

@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Informe per caixes - {{date|date:'SHORT_DATE_FORMAT'}} - {{cooperative}}
+{% endblock %}
+
+{% block custom_scripts %}
+    boxesReportUpdates();
+{% endblock %}
+
+{% block contingut %}
+    <div class="requadre">
+        <h2>Informe per caixes</h2>
+
+        Data: {{date|date:'SHORT_DATE_FORMAT'}}<br>
+        {% if cooperative %}
+            Cooperativa: {{cooperative}}<br>
+        {% else %}
+            Cooperativa: TOTES<br>
+        {% endif %}
+
+        <a href="{{old_form_url}}">Formulari antic</a><br />
+
+        {{ errors }}
+    </div>
+
+    <form method="post" id="comanda">
+        {% csrf_token %}
+
+        {{ formset.management_form }}
+
+        <br /><input type="submit" value="Envia" />
+
+        {% for prod, product_total, data in forms_by_product %}
+            <table class="taula_informe" style="border:1px solid black; margin-top: 10px;">
+                <thead>
+                    <td colspan="3" style="text-align:left;">
+                        <b><big>{{prod.nom}}</big></b>
+                        ({{prod.proveidor.nom}}) - {{prod.preu}}
+                        €/{% if prod.granel %}kg.{% else %}unitat-manat{% endif %}
+                    </td>
+                    <td colspan="3">total: {{product_total}}
+                        {% if prod.granel %}
+                        kgs.
+                        {% else %}
+                        unitats-manats
+                        {% endif %}
+                    </td>
+                </thead>
+
+                <tr>
+                    <td>Caixa</td>
+                    <td>Soci</td>
+                    <td>Quantitat<br>demanada</td>
+                    <td>Quantitat<br>rebuda</td>
+                    <td>Preu<br>unitari</td>
+                    <td>Subtotal</td>
+                </tr>
+
+                {% for entry in data %}
+                    <tr>
+                        <td>
+                            {{entry.form.id}}
+                            {{entry.info.num_caixa}}
+                        </td>
+                        <td>{{entry.info.soci}}</td>
+                        <td>{{entry.info.quant}}</td>
+                        <td class="{{entry.form.quantitat_rebuda.css_classes}}" data-quantity="{{entry.info.id}}">
+                            {{entry.form.quantitat_rebuda}}
+                        </td>
+                        <td data-price="{{entry.info.id}}">
+                            {{entry.info.preu}}
+                        </td>
+                        <td data-subtotal="{{entry.info.id}}">
+                            {{entry.info.subtotal|floatformat:2}}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% endfor %}
+
+        <br /><input type="submit" value="Envia" />
+    </form>
+{% endblock %}
