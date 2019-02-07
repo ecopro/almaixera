@@ -12,14 +12,14 @@
     <div class="requadre">
         <h2>Informe per caixes</h2>
 
-        <a href="{{old_form_url}}">Formulari antic</a><br />
-
         Data: {{date|date:'SHORT_DATE_FORMAT'}}<br>
         {% if cooperative %}
             Cooperativa: {{cooperative}}<br>
         {% else %}
             Cooperativa: TOTES<br>
         {% endif %}
+
+        <a href="{{old_form_url}}">Formulari antic</a><br />
 
         {{ errors }}
     </div>
