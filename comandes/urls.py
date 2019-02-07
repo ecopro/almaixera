@@ -1,9 +1,11 @@
 from django.conf.urls import url
+from django.urls import path
 from django.contrib.auth.views import \
     PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, \
     PasswordResetCompleteView, LoginView, LogoutView
 
 from comandes import views
+from comandes.class_views.boxes_report import BoxesReportView
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
@@ -11,7 +13,8 @@ urlpatterns = [
     url(r'^esborra_comanda', views.esborra_comanda, name='esborra_comanda'),
     url(r'^comandes', views.veure_comandes, name='comandes'),
     url(r'^informe_proveidors', views.informe_proveidors, name='informe_proveidors'),
-    url(r'^informe_caixes', views.informe_caixes, name='informe_caixes'),
+    url(r'^informe_caixes_old', views.informe_caixes, name='informe_caixes'),
+    path(r'informe_caixes', BoxesReportView.as_view(), name='boxes_report'),
     url(r'^test_email', views.test_email, name="test_email"),
     url(r'^recuperar_contrasenya/$', PasswordResetView.as_view(), name="recuperar_contrasenya"),
     url(r'^password_reset/$', PasswordResetView.as_view(), name="password_reset"),
