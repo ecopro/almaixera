@@ -22,6 +22,19 @@
         //width: 49%;
     }
 }
+
+.parell {
+    background-color: #ccc;
+    height:2.5em
+}
+.senar {
+    height:2.5em
+}
+
+.parell input , .senar input {
+    float: right;
+    width: 70px;
+}
 {% endblock %}
 
 
@@ -78,7 +91,11 @@
                     <div>
                 {% endif %}
             {% endifchanged %}
-                        {{aprod.producte.nom}}</p><br>
+                    <div id="producte-{{aprod.producte.id}}" class="{% cycle 'senar' 'parell' %}">
+                        {{aprod.producte.nom}}
+                        <input name="quantitat-{{aprod.producte.id}}" type="number" value="0.0" />
+                        <input name="preu-{{aprod.producte.id}}" value="{{aprod.producte.preu}}" disabled>
+                    </div>
         {% endfor %}
             </div>
     </div>
