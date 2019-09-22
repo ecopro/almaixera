@@ -7,7 +7,8 @@ from comandes import views
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
-    url(r'^fer_comanda', views.fer_comanda, name='fer_comanda'),
+    url(r'^fer_comanda$', views.fer_comanda, name='fer_comanda'),
+    url(r'^fer_comanda2$', views.fer_comanda2, name='fer_comanda2'),
     url(r'^esborra_comanda', views.esborra_comanda, name='esborra_comanda'),
     url(r'^comandes', views.veure_comandes, name='comandes'),
     url(r'^informe_proveidors', views.informe_proveidors, name='informe_proveidors'),

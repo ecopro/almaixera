@@ -185,6 +185,9 @@
     Almàixera online!
     {% endblock %}
     </title>
+
+    {% block headextra %}
+    {% endblock %}
 </head>
 
 <body>
@@ -223,7 +226,7 @@
         <p>Podeu copiar-ho tant com vulgueu i, per suposat, contribuir-hi :)</p>
     </div>
 
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <!--script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script-->
     <script>
         {% block custom_scripts %}
         {% endblock %}

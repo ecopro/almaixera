@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block estilscss %}
+.item input {
+    width: 70px;
+}
+.total , .totalinc {
+    width: 7em;
+    text-align: center;
+}
+.totalbox {
+    display: inline-block;
+}
+@media (max-device-width: 650px) , (max-width: 650px) {
+    .item {
+        width: 100%;
+    }
+    .item select {
+        width: 100%;
+    }
+    .item input , .item subtotal {
+        //width: 49%;
+    }
+}
+{% endblock %}
+
+
+{% block headextra %}
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <link rel="stylesheet" href="/resources/demos/style.css">
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script type="text/javascript">
+      $( function() {
+        $("#accordion").accordion({
+            heightStyle: "content"
+        });
+      });
+  </script>
+{% endblock %}
+
+
+{% block contingut %}
+    
+    <div class="pissarra">
+        <div class="pissarratitol">La Pissarra</div>
+        <br>
+    {% if avisos %}
+        {% for avis in avisos %}
+            <div class="avis">
+                <h3>{{ avis.titol }}</h3>
+                <p>{{ avis.text | linebreaks }}</p>
+            </div>
+        {% endfor %}
+    {% endif %}
+    </div>
+
+    <h2>Comanda</h2>
+    <div class="totalbox">Total aproximat: <input type="text" class="total" disabled /></div>
+    <div class="totalbox">Total amb increment: <input type="text" class="totalinc" disabled /></div>
+
+    <form method="post" id="comanda">{% csrf_token %}
+    {% if form %}
+        {{ form.as_p }}
+    {% endif %}
+    <b style="background-color:yellow;">{{form.cleaned_data.data_recollida}}</b>
+    <input type="submit" value="Envia" /> <br>
+
+    <div id="accordion">
+        {% for aprod in aproductes %}
+            {% ifchanged aprod.activa_proveidor %}
+                {% if forloop.first %}
+                    <h3>{{aprod.producte.proveidor.nom}}</h3>
+                    <div>
+                {% else %}
+                    </div>
+                    <h3>{{aprod.producte.proveidor.nom}}</h3>
+                    <div>
+                {% endif %}
+            {% endifchanged %}
+                        {{aprod.producte.nom}}</p><br>
+        {% endfor %}
+            </div>
+    </div>
+    <input style="align:center" type="submit" value="Envia" />
+    </form>
+
+    <!-- precalcul total -->
+    <div class="totalbox">Total aproximat: <input type="text" class="total" disabled /></div>
+    <div class="totalbox">Total amb increment: <input type="text" class="totalinc" disabled /></div>
+
+{% endblock %}
+
+
+{% block custom_scripts %}
+/*
+ * Scripts per calcular total aproximat i subtotals
+ *
+ */
+var preus = {
+{% for producte in productes %} {{producte.id}}:{{producte.preu|stringformat:".2f"}},
+{% endfor %}
+}
+
+var granel = {
+{% for producte in productes %} {{producte.id}}:{{producte.granel|yesno:"true,false"}},
+{% endfor %}
+}
+
+{% load l10n %}
+
+var total
+function calcula_tot() {
+    total = 0.0
+    $('.item').each( function(index) {
+            // items
+            var item = $(this)
+            var item_quantitat = item.find('#id_form-'+index+'-quantitat')
+            var item_idprod = item.find('#id_form-'+index+'-producte option:selected')
+            var item_subtotal = item.find('#form-'+index+'-producte-subtotal')
+            // calculs
+            var idprod = item_idprod.val()
+            var quantitat = item_quantitat.val()
+            if( !granel[idprod] ) {
+                quantitat = parseInt( item_quantitat.val() )
+                item_quantitat.val( quantitat )
+            }
+            subtotal = (quantitat*preus[idprod]).toFixed(2)
+            if( isNaN(subtotal) )
+                subtotal = ""
+            else
+                total += parseFloat(subtotal)
+            item_subtotal.val( subtotal )
+        }
+    )
+    $('.total').val( total.toFixed(2) +" €")
+    $('.totalinc').val( Math.round(100*total.toFixed(2)*(1+({{increment|unlocalize}})/100))/100 +" €")
+}
+
+calcula_tot()
+
+$('select').change( calcula_tot )
+$('input').change( calcula_tot )
+
+{% endblock %}

@@ -106,6 +106,44 @@ def index(request):
     return menu(request)
 
 @login_required
+def fer_comanda2(request):
+    if not hasattr(request.user,'soci'):
+        return render( request, 'nosoci.html' )
+    conf = request.user.soci.cooperativa
+    if not conf:
+        return menu(request,"Usuari sense coopearativa assignada: no es pot fer comanda.")
+    dow_recollida = conf.dow_recollida
+    data_recollida = request.GET.get("data_recollida")
+    # comprovar dates comanda
+    if type(data_recollida)==str:
+        try:
+            data_recollida = datetime.strptime( data_recollida, "%Y-%m-%d" )
+            if data_recollida.weekday()!=dow_recollida:
+                return menu(request,"ERROR: data invalida (dow)")
+        except:
+            data_recollida = None
+    if not (type(data_recollida)==date or type(data_recollida)==datetime):
+        return menu(request,"ERROR: data invalida o inexistent")
+    # comprovar tancament TEST
+    coope = request.user.soci.cooperativa
+    if recollida_tancada(data_recollida, coope):
+        return menu(request,"ERROR: comanda tancada")
+
+    # filtrar avisos per soci/coope
+    avisos = Avis.objects.filter(data=request.GET.get("data_recollida")).filter(Q(cooperativa=coope)|Q(cooperativa=None))
+    # filtrar llista de productes disponibles per cada coope
+    productes,aproductes = get_productes( request, data_recollida )
+
+    # 
+    return render(request, 'fer_comanda2.html', {
+                        'avisos':avisos,
+                        'productes':productes,
+                        'aproductes':aproductes,
+                        'increment':coope.increment_preu,
+                        #'missatge':"ERROR: dades incorrectes"
+                    })
+
+@login_required
 def fer_comanda(request):
     if not hasattr(request.user,'soci'):
         return render( request, 'nosoci.html' )
