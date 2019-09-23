@@ -12,6 +12,8 @@ from django.forms.models import modelformset_factory
 from .helpers import *
 from datetime import datetime, date, timedelta
 from django.db.models import Sum
+from django.utils import timezone
+
 
 """
     FORMS
@@ -134,7 +136,52 @@ def fer_comanda2(request):
     # filtrar llista de productes disponibles per cada coope
     productes,aproductes = get_productes( request, data_recollida )
 
-    # 
+    # carreguem dades
+    if request.method == "POST":
+        # objecte comanda
+        comanda = Comanda.objects.filter(soci=request.user.soci,data_recollida=data_recollida)
+        if len(comanda):
+            # existeix comanda
+            print("Existeix comanda prèvia")
+            comanda = comanda[0]
+        else:
+            # si no existeix comanda, la creem
+            comanda = Comanda(
+                        soci=request.user.soci,
+                        data_creacio=timezone.now(),
+                        data_recollida=data_recollida,
+                    )
+            comanda.save()
+            print("Nova comanda creada")
+        # traiem el que no siguin dades de productes
+        dades = dict(request.POST)
+        dades.pop("csrfmiddlewaretoken")
+        for prod in dades:
+            prod_id = prod.split("-")[1]
+            detall = DetallComanda.objects.filter(comanda=comanda,producte__id=prod_id)
+            if float(request.POST[prod]) == 0:
+                # eliminar producte de la comanda
+                if len(detall):
+                    # detall comanda existeix: l'eliminem
+                    detall.delete()
+            else:
+                print("prodid="+prod_id)
+                # modifiquem/afegim detall comanda
+                quantitat = request.POST[prod]
+                producte = Producte.objects.get(id=prod_id)
+                print(prod+" "+quantitat)
+                if not detall:
+                    # creem nou detall de producte
+                    detall = DetallComanda(
+                                comanda=comanda,
+                                producte=producte)
+                else:
+                    # agafem l'objecte de la llista de cerca
+                    detall = detall[0]
+                detall.quantitat = quantitat
+                detall.save()
+
+    # arribats aquí, es que hem de renderitzar el formulari
     return render(request, 'fer_comanda2.html', {
                         'avisos':avisos,
                         'productes':productes,

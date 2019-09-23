@@ -51,6 +51,11 @@
         });
       });
   </script>
+  <style>
+    .ui-accordion .ui-accordion-content {
+        padding: 0;
+    }
+  </style>
 {% endblock %}
 
 
@@ -95,7 +100,7 @@
                     <div id="producte-{{aprod.producte.id}}" class="{% cycle 'senar' 'parell' %}">
                         <div class="prod">{{aprod.producte.nom}}</div>
                         <input name="preu-{{aprod.producte.id}}" value="{{aprod.producte.preu}}" disabled>
-                        <input name="quantitat-{{aprod.producte.id}}" type="number" value="0.0" />
+                        <input name="quantitat-{{aprod.producte.id}}" type="number" value="0.0" step="0.1" />
                     </div>
         {% endfor %}
             </div>
