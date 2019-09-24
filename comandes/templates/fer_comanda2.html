@@ -36,6 +36,11 @@
     /*float: right;*/
     width: 70px;
 }
+
+.ui-accordion .ui-accordion-header {
+    background-color: #86A328;
+    border-color: #86A328;
+}
 {% endblock %}
 
 
@@ -100,7 +105,12 @@
                     <div id="producte-{{aprod.producte.id}}" class="{% cycle 'senar' 'parell' %}">
                         <div class="prod">{{aprod.producte.nom}}</div>
                         <input name="preu-{{aprod.producte.id}}" value="{{aprod.producte.preu}}" disabled>
-                        <input name="quantitat-{{aprod.producte.id}}" type="number" value="0.0" step="0.1" />
+                    {% if aprod.producte.granel %}
+                        <input name="quantitat-{{aprod.producte.id}}" type="number" value="{{aprod.quantitat}}" step="0.1" />
+                    {% else %}
+                        <input name="quantitat-{{aprod.producte.id}}" type="number" value="{{aprod.quantitat}}" />
+                    {% endif %}
+                    
                     </div>
         {% endfor %}
             </div>

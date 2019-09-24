@@ -16,6 +16,20 @@ from django.utils import timezone
 
 
 """
+    utils
+"""
+from django import template
+register = template.Library()
+@register.filter('get_value_from_dict')
+def get_value_from_dict(dict_data, key):
+    """
+    usage example {{ your_dict|get_value_from_dict:your_key }}
+    """
+    if key:
+        return dict_data.get(key)
+
+
+"""
     FORMS
 """
 class DetallForm(ModelForm):
@@ -134,9 +148,10 @@ def fer_comanda2(request):
     # filtrar avisos per soci/coope
     avisos = Avis.objects.filter(data=request.GET.get("data_recollida")).filter(Q(cooperativa=coope)|Q(cooperativa=None))
     # filtrar llista de productes disponibles per cada coope
+    # "aproductes" = ActivaProductes
     productes,aproductes = get_productes( request, data_recollida )
 
-    # carreguem dades
+    # processem form : creem comanda
     if request.method == "POST":
         # objecte comanda
         comanda = Comanda.objects.filter(soci=request.user.soci,data_recollida=data_recollida)
@@ -180,13 +195,38 @@ def fer_comanda2(request):
                     detall = detall[0]
                 detall.quantitat = quantitat
                 detall.save()
+        # render menu
+        return menu(request,"Comanda realitzada correctament")
 
-    # arribats aquí, es que hem de renderitzar el formulari
+    # anotem quantitats ja encomanades, si les hi ha
+    comanda = Comanda.objects.filter(soci=request.user.soci,data_recollida=data_recollida)
+    # canviem qs de ActivaProductes per llista per facilitar anotacions
+    aproductes2 = [ ap for ap in aproductes ]
+    if len(comanda):
+        for ap in aproductes2:
+            ap.quantitat = 0
+        # existeix comanda: carreguem dades
+        print("Existeix comanda prèvia")
+        comanda = comanda[0]
+        quantitats = {}
+        detalls = DetallComanda.objects.filter(comanda=comanda)
+        for detall in detalls:
+            # afegim quantitat al ActivaProducte
+            # fer doble iteració és poc elegant. TODO: trobar millor?
+            for ap in aproductes2:
+                if ap.producte.id == detall.producte.id:
+                    print("q="+str(detall.quantitat))
+                    ap.quantitat = "{:1.1f}".format(detall.quantitat)
+                    continue
+            #aproductes[detall.producte.id].quantitat = detall.quantitat
+            #quantitats[detall.producte.id] = detall.quantitat"""
+    # arribats aquí, renderitzem el formulari
     return render(request, 'fer_comanda2.html', {
                         'avisos':avisos,
                         'productes':productes,
-                        'aproductes':aproductes,
+                        'aproductes':aproductes2,
                         'increment':coope.increment_preu,
+                        #'quantitats':quantitats,
                         #'missatge':"ERROR: dades incorrectes"
                     })
 
