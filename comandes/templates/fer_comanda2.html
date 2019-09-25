@@ -128,44 +128,27 @@
 {% block custom_scripts %}
 /*
  * Scripts per calcular total aproximat i subtotals
- *
  */
-var preus = {
-{% for producte in productes %} {{producte.id}}:{{producte.preu|stringformat:".2f"}},
-{% endfor %}
-}
-
-var granel = {
-{% for producte in productes %} {{producte.id}}:{{producte.granel|yesno:"true,false"}},
-{% endfor %}
-}
-
 {% load l10n %}
 
 var total
 function calcula_tot() {
     total = 0.0
-    $('.item').each( function(index) {
-            // items
-            var item = $(this)
-            var item_quantitat = item.find('#id_form-'+index+'-quantitat')
-            var item_idprod = item.find('#id_form-'+index+'-producte option:selected')
-            var item_subtotal = item.find('#form-'+index+'-producte-subtotal')
-            // calculs
-            var idprod = item_idprod.val()
-            var quantitat = item_quantitat.val()
-            if( !granel[idprod] ) {
-                quantitat = parseInt( item_quantitat.val() )
-                item_quantitat.val( quantitat )
-            }
-            subtotal = (quantitat*preus[idprod]).toFixed(2)
-            if( isNaN(subtotal) )
-                subtotal = ""
-            else
-                total += parseFloat(subtotal)
-            item_subtotal.val( subtotal )
+
+    var qelems = $("[name^=quantitat]");
+
+    qelems.each(function(index) {
+        var quant = parseFloat( $(this).val() );
+        var prod_id = $(this).attr("name").split("-")[1];
+        var preustr = document.getElementsByName("preu-"+prod_id)[0].value;
+        var preu = parseFloat(preustr.replace(",","."));
+
+        if( quant ) {
+            total += preu * quant;
+            //console.log( prod_id+" "+preu );
         }
-    )
+    })
+
     $('.total').val( total.toFixed(2) +" €")
     $('.totalinc').val( Math.round(100*total.toFixed(2)*(1+({{increment|unlocalize}})/100))/100 +" €")
 }

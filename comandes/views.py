@@ -208,18 +208,15 @@ def fer_comanda2(request):
         # existeix comanda: carreguem dades
         print("Existeix comanda prèvia")
         comanda = comanda[0]
-        quantitats = {}
         detalls = DetallComanda.objects.filter(comanda=comanda)
         for detall in detalls:
             # afegim quantitat al ActivaProducte
             # fer doble iteració és poc elegant. TODO: trobar millor?
             for ap in aproductes2:
                 if ap.producte.id == detall.producte.id:
-                    print("q="+str(detall.quantitat))
+                    #print("q="+str(detall.quantitat))
                     ap.quantitat = "{:1.1f}".format(detall.quantitat)
                     continue
-            #aproductes[detall.producte.id].quantitat = detall.quantitat
-            #quantitats[detall.producte.id] = detall.quantitat"""
     # arribats aquí, renderitzem el formulari
     return render(request, 'fer_comanda2.html', {
                         'avisos':avisos,
