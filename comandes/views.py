@@ -174,7 +174,7 @@ def fer_comanda2(request):
         for prod in dades:
             prod_id = prod.split("-")[1]
             detall = DetallComanda.objects.filter(comanda=comanda,producte__id=prod_id)
-            if float(request.POST[prod]) == 0:
+            if not request.POST.get(prod) or float(request.POST[prod]) == 0:
                 # eliminar producte de la comanda
                 if len(detall):
                     # detall comanda existeix: l'eliminem
@@ -202,6 +202,10 @@ def fer_comanda2(request):
     comanda = Comanda.objects.filter(soci=request.user.soci,data_recollida=data_recollida)
     # canviem qs de ActivaProductes per llista per facilitar anotacions
     aproductes2 = [ ap for ap in aproductes ]
+    # afegim i inicialitzem quantitat a ActivaProd
+    for ap in aproductes2:
+        ap.quantitat = 0
+    # introduim dades de la comanda si ja està feta
     if len(comanda):
         for ap in aproductes2:
             ap.quantitat = 0
